@@ -77,6 +77,22 @@ export class MainPage implements OnInit {
       },
     },
   ];
+  public deleteAllAlertButtons =[
+    {
+      text: 'Cancelar',
+      role: 'cancel',
+      handler: () => {
+        
+      },
+    },
+    {
+      text: 'Eliminar',
+      role: 'confirm',
+      handler: () => {
+        this.confirmDeleteBillAll()
+      },
+    },
+  ];
   public goBackAlertButtons =[
     {
       text: 'Cancelar',
@@ -113,6 +129,7 @@ export class MainPage implements OnInit {
   idToDelete:number=0;
   openModalAddBill:boolean=false;
   isAlertDeleteBill:boolean=false;
+  isAlertDeleteAll:boolean=false;
   idToDeleteBill:number=0;
   idToDeleteBillContainer:number=0;
   documentIdToDelete:string;
@@ -598,6 +615,9 @@ export class MainPage implements OnInit {
     //console.log('delete document id', this.documentIdToDelete);
 
   }
+  deleteAllReceiptsAlert(){
+    this.isAlertDeleteAll = true;
+  }
   dismissDeleteExtract(){
     this.isAlertDeleteExtract=false;
   }
@@ -613,6 +633,10 @@ export class MainPage implements OnInit {
     this.isAlertDeleteBill=false;
     this.idToDeleteBill=0;
     this.idToDeleteBillContainer=0;
+
+  }
+  dismissDeleteAll(){
+    this.isAlertDeleteAll=false;
 
   }
   finishSettingBill(){
@@ -653,6 +677,26 @@ export class MainPage implements OnInit {
     })
     
     this.isAlertDeleteBill=false;
+
+  }
+  confirmDeleteBillAll(){
+
+    let extractsToDelete = this.extracts;
+
+    extractsToDelete['bills'].forEach( (group,groupIndex) => {
+      
+      group['bill'].forEach( (bill, billIndex) => {
+
+    
+        this.api.update('documents/'+ bill.document_id,{deleted:true}).subscribe(res=>{
+          console.log(res);
+        })
+        
+      });
+
+    });
+    this.extracts['bills'] = [];
+
 
   }
   startBillWorker(){

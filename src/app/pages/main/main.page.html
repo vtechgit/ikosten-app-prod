@@ -98,7 +98,7 @@
             Paso #1 Seleccione el país donde se originan los gastos
           </ion-list-header>
 
-          <h3 class="text-center" *ngIf="!isUploadingOther">Sube uno o varios recibos por país donde se originaron tus gastos
+          <h3 class="text-center" *ngIf="!isUploadingOther">Sube uno o varios recibos / facturas por país donde se originaron tus gastos
           </h3>
 
         </ion-list>
@@ -119,7 +119,7 @@
       <div class="ion-padding" *ngIf="isUploadingOther && currencyBlockSelected && currencyBlockSelected != ''" @fadeIn>
 
         <ion-list-header  class="ion-padding-top">
-          Paso #2 Toma fotos o sube tus gastos en PDF
+          Paso #2 Toma fotos o sube tus gastos / facturas en PDF
         </ion-list-header>
 
         <ion-grid>
@@ -244,10 +244,23 @@
   
         </div>
         <div class="ion-padding" >
-          <ion-button color="secondary" expand="block" (click)="openUploading()">
-            Subir Recibo
-            <ion-icon name="add-outline" slot="end"></ion-icon>
-          </ion-button>
+          <ion-grid>
+            <ion-row>
+              <ion-col *ngIf="extracts['bills'] && extracts['bills'].length > 0">
+                <ion-button color="danger" expand="block" (click)="deleteAllReceiptsAlert()">
+                  Eliminar Todo
+                  <ion-icon name="trash-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button color="secondary" expand="block" (click)="openUploading()">
+                  Subir Recibo / Factura
+                  <ion-icon name="add-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
         </div>
 
 
@@ -1256,6 +1269,15 @@
     [buttons]="deleteBillAlertButtons"
     (didDismiss)="dismissDeleteBill()"
     ></ion-alert>
+
+  <!-- delete all -->
+  <ion-alert
+  [isOpen]="isAlertDeleteAll"
+  header="¿Estas Seguro?"
+  [subHeader]="'De eliminar todos los recibos?'"
+  [buttons]="deleteAllAlertButtons"
+  (didDismiss)="dismissDeleteAll()"
+  ></ion-alert>
 
     <!-- Restart Analysis -->
     <ion-alert 
