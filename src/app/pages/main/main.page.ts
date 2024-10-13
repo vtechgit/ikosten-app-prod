@@ -371,15 +371,26 @@ export class MainPage implements OnInit {
 
 
   }
+  countNotMatched(){
+    let founds =0;
+
+    this.results['notMatched'].forEach(element => {
+
+      founds = founds + element['bill'].length;
+    });
+
+    return founds;
+
+  }
   getAnalisysResult(){
 
 
     if(!localStorage.getItem('result') || localStorage.getItem('result') == ''){
 
 
-      //console.log('extracts before analisys',this.extracts);
+      console.log('extracts before analisys',this.extracts);
       this.api.create('processes/getResult', this.extracts).subscribe(res=>{
-        //console.log(res);
+        console.log('result',res);
         if(!res['error']){
           let obj= {
             matchedBills:res['body']['matchedExtracts'],
@@ -696,6 +707,8 @@ export class MainPage implements OnInit {
 
     });
     this.extracts['bills'] = [];
+    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+
 
 
   }
@@ -847,10 +860,13 @@ export class MainPage implements OnInit {
 
   }
 
+  changeDateExtractLine(i){
+    console.log(this.extracts.extract.lines[i].date);
+  }
   editLine(line){
     let startDate = new Date(line.date+"T"+line.hour);
 
-    this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T00:00:00";
+    this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T00:00";
     this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
 
     this.editLineDescription=line.vendor;
@@ -1162,7 +1178,7 @@ export class MainPage implements OnInit {
             form.append('model_id', 'prebuilt-invoice'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
-              //console.log('extract',res);
+              console.log('extract',res);
 
               let status =500;
               if(!res['error']){

@@ -245,14 +245,14 @@
         </div>
         <div class="ion-padding" >
           <ion-grid>
-            <ion-row>
-              <ion-col *ngIf="extracts['bills'] && extracts['bills'].length > 0">
+            <ion-row class="ion-justify-content-center">
+              <ion-col size="12" size-sm="6" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
                 <ion-button color="danger" expand="block" (click)="deleteAllReceiptsAlert()">
                   Eliminar Todo
                   <ion-icon name="trash-outline" slot="end"></ion-icon>
                 </ion-button>
               </ion-col>
-              <ion-col>
+              <ion-col size="12" size-sm="6">
                 <ion-button color="secondary" expand="block" (click)="openUploading()">
                   Subir Recibo / Factura
                   <ion-icon name="add-outline" slot="end"></ion-icon>
@@ -447,7 +447,7 @@
         <ion-accordion-group class="ion-margin-bottom" value="notMatched" *ngIf="results && results.notMatched && results.notMatched.length > 0 ">
           <ion-accordion value="notMatched" >
             <ion-item slot="header" color="danger">
-              <ion-label>Revisar {{results.notMatched.length}} {{results.notMatched.length == 1 ? 'gasto no coincide' : 'gastos no coinciden'}} con el estado financiero:</ion-label>
+              <ion-label>Revisar {{countNotMatched()}} {{countNotMatched() == 1 ? 'gasto no coincide' : 'gastos no coinciden'}} con el estado financiero:</ion-label>
             </ion-item>
             <div slot="content" class="ion-padding-top">
               <ion-list *ngFor="let group of results.notMatched; index as igroup">
@@ -1004,7 +1004,7 @@
           </ion-item>
           <ion-modal [keepContentsMounted]="true">
             <ng-template>
-              <ion-datetime (ionChange)="changeDateBill()" [showDefaultButtons]="true" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].date" presentation="date" id="datetime"></ion-datetime>
+              <ion-datetime  [showDefaultButtons]="true" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].date" presentation="date" id="datetime"></ion-datetime>
             </ng-template>
           </ion-modal>
           <ion-item>
@@ -1100,7 +1100,7 @@
 
           </ion-item>
           <ion-item *ngIf="toggleDate">
-            <ion-datetime style="width: 100%; margin: auto;" id="dateLine" (ionChange)="toggleDate=false;" [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
+            <ion-datetime style="width: 100%; margin: auto;" id="dateLine"  [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
 
           </ion-item>
           <ion-item (click)="toggleTime = !toggleTime; toggleDate=false;">
@@ -1113,7 +1113,7 @@
 
           </ion-item>
           <ion-item *ngIf="toggleTime">
-            <ion-datetime style="width: 100%; margin: auto;" (ionChange)="toggleTime=false;" [(ngModel)]="editLineTime" id="hourLine" presentation="time"></ion-datetime>
+            <ion-datetime style="width: 100%; margin: auto;"  [(ngModel)]="editLineTime" id="hourLine" presentation="time"></ion-datetime>
 
           </ion-item>
 
@@ -1181,7 +1181,7 @@
         
                   </ion-item>
                   <ion-item *ngIf="toggleDatesExtracts[i]">
-                    <ion-datetime style="width: 100%; margin: auto;" (ionChange)="toggleDatesExtracts[i]=false;"  [(ngModel)]="extracts.extract.lines[i].date" presentation="date"></ion-datetime>
+                    <ion-datetime style="width: 100%; margin: auto;" (ionChange)="changeDateExtractLine(i)"  [(ngModel)]="extracts.extract.lines[i].date" presentation="date"></ion-datetime>
         
                   </ion-item>
                   <ion-item>
