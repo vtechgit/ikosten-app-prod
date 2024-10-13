@@ -10,6 +10,7 @@ const formHeaders = new HttpHeaders().set("rcy-key", "Jxa4lyCUktiBkhC0IiL4");
 })
 export class ApiService {
   endpoint = "https://api.ikosten.com/api/";
+
   //endpoint = "http://localhost:4000/api/";
   //
   constructor(private http: HttpClient) {}
@@ -18,6 +19,7 @@ export class ApiService {
     let url = this.endpoint + endpoint;
 
     return this.http.post(url, params);
+    
   }
   read(endpoint: string, params: any = {}) {
     let url = this.endpoint + endpoint;
