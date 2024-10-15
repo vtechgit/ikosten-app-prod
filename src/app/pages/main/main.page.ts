@@ -382,6 +382,19 @@ export class MainPage implements OnInit {
     return founds;
 
   }
+  countMatched(){
+    let founds =0;
+    
+    if(this.results && this.results['matchedExtracts']){
+      this.results['matchedExtracts'].forEach(element => {
+
+        founds = founds + element['bill'].length;
+      });
+    }
+
+
+    return founds;
+  }
   getAnalisysResult(){
 
 
@@ -862,6 +875,7 @@ export class MainPage implements OnInit {
 
   changeDateExtractLine(i){
     console.log(this.extracts.extract.lines[i].date);
+
   }
   editLine(line){
     let startDate = new Date(line.date+"T"+line.hour);
@@ -1042,6 +1056,21 @@ export class MainPage implements OnInit {
       });
       
     });
+
+
+    
+    this.extracts.extract.lines.forEach( (line, index) => {
+      if(line.date && line.date != '' && line.date.indexOf('T') >= 0){
+
+        let date = line.date.split('T');
+        
+        this.extracts.extract.lines[index].date = date[0];
+
+      }
+
+    });
+  
+
 
     this.isEdditingLine=false;
     this.results=undefined;
