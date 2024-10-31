@@ -204,6 +204,7 @@ export class MainPage implements OnInit {
     
     this.getCurrencies();
     this.hidrate();
+    console.log(this.extracts);
     //let startDate = new Date();
     //this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T00:00:00";
     //this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
@@ -1204,13 +1205,13 @@ export class MainPage implements OnInit {
             let form = new FormData();
             form.append('file', fileElement, fileElement.name); 
             form.append('process_id', localStorage.getItem('processId')); 
-            form.append('model_id', 'prebuilt-invoice'); 
+            form.append('model_id', 'custom-ikosten-extracts-v2'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
               console.log('extract',res);
 
               let status =500;
-              if(!res['error']){
+              if(!res['error'] && !res['body']['error']){
                status =1;
 
               }else{
