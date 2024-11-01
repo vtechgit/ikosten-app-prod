@@ -516,8 +516,8 @@
             <ion-item slot="header" color="primary">
               <ion-label>Revisar {{countMatched()}} {{countMatched() == 1 ? 'gasto coincide' : 'gastos coinciden'}} con el estado financiero:</ion-label>
             </ion-item>
-            <div slot="content" class="ion-padding-top" *ngIf="results && results.matchedExtracts && results.matchedExtracts.length > 0 ">
-              <ion-list *ngFor="let group of results.matchedExtracts; index as igroup">
+            <div slot="content" class="ion-padding-top" *ngIf="results && results.matchedBills && results.matchedBills.length > 0 ">
+              <ion-list *ngFor="let group of results.matchedBills; index as igroup">
        
                 <ion-item-divider class="bordered-divider">
                   <ion-label> {{group.country}} </ion-label>
@@ -558,10 +558,13 @@
                     Eliminar
 
                   </ion-button>
+                  <!--
                   <ion-button  color="primary" (click)="editLine(line)">
                     Editar
 
                   </ion-button>
+                  -->
+
                   </ion-label>
                   <!--
                   <ion-button color="danger">

@@ -205,6 +205,7 @@ export class MainPage implements OnInit {
     this.getCurrencies();
     this.hidrate();
     console.log(this.extracts);
+    console.log(this.results);
     //let startDate = new Date();
     //this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T00:00:00";
     //this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
@@ -386,8 +387,8 @@ export class MainPage implements OnInit {
   countMatched(){
     let founds =0;
     
-    if(this.results && this.results['matchedExtracts']){
-      this.results['matchedExtracts'].forEach(element => {
+    if(this.results && this.results['matchedBills']){
+      this.results['matchedBills'].forEach(element => {
 
         founds = founds + element['bill'].length;
       });
