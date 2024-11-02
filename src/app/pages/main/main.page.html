@@ -447,7 +447,7 @@
         <ion-accordion-group class="ion-margin-bottom" value="notMatched" *ngIf="results && results.notMatched && results.notMatched.length > 0 ">
           <ion-accordion value="notMatched" >
             <ion-item slot="header" color="danger">
-              <ion-label>Revisar {{countNotMatched()}} {{countNotMatched() == 1 ? 'gasto no coincide' : 'gastos no coinciden'}} con el estado financiero:</ion-label>
+              <ion-label>Revisar {{countNotMatched()}} {{ countNotMatched() == 1 ? 'gasto no coincide' : 'gastos no coinciden'}} con el estado financiero:</ion-label>
             </ion-item>
             <div slot="content" class="ion-padding-top">
               <ion-list *ngFor="let group of results.notMatched; index as igroup">
@@ -1323,8 +1323,8 @@
   <!-- founds alert -->
   <ion-alert 
     [isOpen]="showAlertFounds"
-    [header]="'Se encontraron '+this.foundsQty+' lineas que no coinciden' "
-    [subHeader]="'Revisa que cada linea coincida antes de exportar el resultado'"
+    [header]="'Aún hay '+countNotMatched()+' '+ (countNotMatched() == 1 ? 'recibo que no coincide' : 'recibos que no coinciden') "
+    [subHeader]="'Revisa que cada recibo coincida o eliminalos antes de continuar'"
     [buttons]="alertButtons"
     (didDismiss)="dismissAlertFounds()"
     ></ion-alert>
@@ -1416,7 +1416,7 @@
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!this.results || getNotScheduledStatus()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf=" currentStep == 3">
+      <ion-button [disabled]="!this.results" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf=" currentStep == 3">
         Siguiente
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>

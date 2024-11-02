@@ -327,24 +327,24 @@ export class MainPage implements OnInit {
   }
   nextStep(){
 
+    if(this.currentStep == 3){
+      if(this.countNotMatched() > 0){
+        this.showAlertFounds = true;
+      }else{
+        this.currentStep++;
 
-    this.currentStep++;
-    
+      }
+    }else{
+      this.currentStep++;
+
+    }
+    console.log('currentStep',this.currentStep)
     if(this.currentStep == 3){
       this.getAnalisysResult();
 
     }
-    
-    if(this.currentStep == 3){
-      /*
-      let found = this.checkMatchStatus();
-      if(!found.status){
-        this.currentStep--;
-        this.showAlertFounds=true;
-        this.foundsQty= found.found;
-      }
-        */
-    }
+
+
 
     localStorage.setItem('currentStep', this.currentStep.toString());
 
@@ -376,10 +376,13 @@ export class MainPage implements OnInit {
   countNotMatched(){
     let founds =0;
 
-    this.results['notMatched'].forEach(element => {
+    if(this.results){
+      this.results['notMatched'].forEach(element => {
 
-      founds = founds + element['bill'].length;
-    });
+        founds = founds + element['bill'].length;
+      });
+    }
+
 
     return founds;
 
