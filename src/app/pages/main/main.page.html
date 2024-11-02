@@ -597,7 +597,7 @@
                   <ion-label class="no-margin-right">
                     
                     <h4>{{line.date | date:'dd/MM/yyyy'}} {{line.description}}</h4>
-                    <p>{{results.notmatchedExtractLines.type == 'credit' ? 'Tj Credito' : 'Tj Debito'}} ${{line.amount}} {{results.notmatchedExtractLines.currency}}</p>
+                    <p>{{results.notmatchedExtractLines.type == 'credit' ? 'Tj Credito' : 'Tj Debito'}} ${{line.amount | number}} {{results.notmatchedExtractLines.currency}}</p>
 
                   </ion-label>
 
@@ -1147,6 +1147,7 @@
   
           ></ion-img>
         
+          <!--
           <pdf-viewer *ngIf="editLineReceipt && isPdf(editLineReceipt.type)" 
           [src]="'data:application/pdf;base64,'+editLineReceipt.blob"
           [rotation]="0"
@@ -1161,6 +1162,8 @@
           [show-borders]="false"
           style="display: block; height: 300px;"
           ></pdf-viewer>
+          -->
+
 
           <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;">
             <ion-label>Fecha:</ion-label>
@@ -1216,6 +1219,7 @@
           [src]="sanitizeImage(editLineExtract.blob)"
   
           ></ion-img>
+          <!--
           <pdf-viewer *ngIf="editLineExtract && isPdf(editLineExtract.type)" 
           [src]="'data:application/pdf;base64,'+editLineExtract.blob"
           [rotation]="0"
@@ -1230,6 +1234,8 @@
           [show-borders]="false"
           style="display: block; height: 300px;"
           ></pdf-viewer>
+          -->
+
 
 
           <ion-accordion-group class="ion-margin-bottom ion-margin-top" >
