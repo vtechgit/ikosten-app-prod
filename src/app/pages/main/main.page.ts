@@ -706,6 +706,7 @@ export class MainPage implements OnInit {
     })
     
     this.isAlertDeleteBill=false;
+    
 
   }
   confirmDeleteBillAll(){

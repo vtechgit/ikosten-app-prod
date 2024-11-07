@@ -40,6 +40,12 @@
 .d-flex{
     display: flex;
 }
+.d-block{
+    display: block;
+}
+.m-auto{
+    margin: auto;
+}
 .flex-column{
     flex-direction: column;
 }
@@ -68,8 +74,11 @@ ion-button{
     display: block;
     margin: auto;
 }
+.list-col p{
+    margin-top: 5px;
+}
 .bold{
-    font-weight: bold;
+    font-weight: bold !important;
 }
 .color-danger{
   color:  #c5000f !important;

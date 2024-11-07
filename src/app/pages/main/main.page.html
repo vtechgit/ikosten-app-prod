@@ -206,7 +206,7 @@
         <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
 
           <ion-list-header>
-            Gastos cargados
+            Recibos cargados
           </ion-list-header>
   
           <ion-accordion-group class="ion-margin-top" [value]=" extracts['bills'].length-1">
@@ -457,17 +457,19 @@
                 </ion-item-divider>
                 <ion-item *ngFor="let line of group.bill; index as iextract" >
                   <ion-label class="no-margin-right">
-                    <h4>{{line.date | date:'dd/MM/yyyy'}} {{line.vendor}}</h4>
+                    <h2 class="bold"> {{line.vendor}}</h2>
                   <ion-grid class="no-padding">
                     <ion-row>
-                      <ion-col>
-                        <ion-note>Recibo</ion-note>
-                        <p >${{line.bill | number}} {{line.currencyBill}}</p>
+                      <ion-col size="8" class="list-col">
+                        <p>Fecha: {{line.date | date:'dd/MM/yyyy'}} <span [ngClass]="!line.date || line.date == '' ? 'color-danger' : ''"> {{!line.date || line.date == '' ? 'Error de lectura' : ''}}</span></p>
+                        <p>Recibo</p>
+                        <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
+                        <p *ngIf="line.exchange">Cambio de moneda</p>
                         <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
                       </ion-col>
-                      <ion-col>
-                        <ion-note>{{line.type == 'credit' ? 'Tj Credito' : 'Tj Debito'}}</ion-note>
-                        <p >${{line.extract | number}} {{line.currency}}</p>
+                      <ion-col size="4">
+                        <ion-icon class="d-block m-auto" size="large" name="close-circle" color="danger"></ion-icon>
+                        <p class="d-block m-auto text-center bold">Extracto no coincide</p>
       
                       </ion-col>
                       <!--
@@ -1211,6 +1213,7 @@
 
         </ion-list>
 
+        <!--
         <ion-list [inset]="true">
           <ion-list-header>
             Editar Lineas de Extracto
@@ -1219,7 +1222,7 @@
           [src]="sanitizeImage(editLineExtract.blob)"
   
           ></ion-img>
-          <!--
+      
           <pdf-viewer *ngIf="editLineExtract && isPdf(editLineExtract.type)" 
           [src]="'data:application/pdf;base64,'+editLineExtract.blob"
           [rotation]="0"
@@ -1234,8 +1237,7 @@
           [show-borders]="false"
           style="display: block; height: 300px;"
           ></pdf-viewer>
-          -->
-
+          
 
 
           <ion-accordion-group class="ion-margin-bottom ion-margin-top" >
@@ -1282,6 +1284,8 @@
           
 
         </ion-list>
+        -->
+
         <div class="list-spacer"></div>
 
 
