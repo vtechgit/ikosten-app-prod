@@ -1,25 +1,17 @@
 <ion-header [translucent]="true">
 
   <ion-toolbar color="primary">
-    <ion-title slot="start">
-      <ion-img class="full-logo-img logo-header-mobile" src="../../../assets/images/icon_resized.png"></ion-img>
 
-    </ion-title>
     <ion-buttons slot="start">
-      <ion-img class="full-logo-img logo-header-desktop" src="../../../assets/images/icon_resized.png"></ion-img>
+      <ion-img class="full-logo-img" src="../../../assets/images/icon_resized.png"></ion-img>
 
-      <!--
-      <ion-button color="primary">Log in</ion-button>
 
-      -->
 
     </ion-buttons>
 
-    <ion-buttons slot="end">
-      <!--
-      <ion-button color="primary">Sign in</ion-button>
-
-      -->
+    <ion-buttons slot="end" *ngIf="currentStep > 0">
+      <ion-button color="light" fill="solid" (click)="showAlertRestart=true">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>Reiniciar</ion-button>
 
     </ion-buttons>
   </ion-toolbar>
@@ -457,11 +449,16 @@
                 </ion-item-divider>
                 <ion-item *ngFor="let line of group.bill; index as iextract" >
                   <ion-label class="no-margin-right">
+                    <h2 class="color-danger" *ngIf="line.reason && line.reason == 'vendor'">Vendedor no coincide</h2>
                     <h2 class="bold"> {{line.vendor}}</h2>
                   <ion-grid class="no-padding">
                     <ion-row>
                       <ion-col size="8" class="list-col">
-                        <p>Fecha: {{line.date | date:'dd/MM/yyyy'}} <span [ngClass]="!line.date || line.date == '' ? 'color-danger' : ''"> {{!line.date || line.date == '' ? 'Error de lectura' : ''}}</span></p>
+                        <p >Fecha: {{line.date | date:'dd/MM/yyyy'}} 
+                          <span [ngClass]="!line.date || line.date == '' ? 'color-danger' : ''"> {{!line.date || line.date == '' ? 'Error de lectura' : ''}}</span>
+                          <span *ngIf="line.reason && line.reason == 'date'" class="color-danger"> no coincide </span> 
+
+                        </p>
                         <p>Recibo</p>
                         <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
                         <p *ngIf="line.exchange">Cambio de moneda</p>
@@ -526,18 +523,20 @@
                 </ion-item-divider>
                 <ion-item *ngFor="let line of group.bill; index as iextract" >
                   <ion-label class="no-margin-right">
-                    <h4>{{line.date | date:'dd/MM/yyyy'}} {{line.vendor}}</h4>
+                    <h2 class="bold">{{line.date | date:'dd/MM/yyyy'}} {{line.vendor}}</h2>
                   <ion-grid class="no-padding">
                     <ion-row>
-                      <ion-col>
-                        <ion-note>Recibo</ion-note>
-                        <p >${{line.bill | number}} {{line.currencyBill}}</p>
+                      <ion-col size="8" class="list-col">
+                        <p >Fecha: {{line.date | date:'dd/MM/yyyy'}} 
+                        </p>
+                        <p>Recibo</p>
+                        <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
+                        <p *ngIf="line.exchange">Cambio de moneda</p>
                         <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
-
                       </ion-col>
-                      <ion-col>
-                        <ion-note>{{line.type == 'credit' ? 'Tj Credito' : 'Tj Debito'}}</ion-note>
-                        <p >${{line.extract | number}} {{line.currency}}</p>
+                      <ion-col size="4">
+                        <ion-icon class="d-block m-auto" size="large" name="checkmark-circle-outline" color="primary"></ion-icon>
+                        <p class="d-block m-auto text-center bold">Coincide</p>
       
                       </ion-col>
                       <!--
@@ -1338,6 +1337,15 @@
     [buttons]="alertButtons"
     (didDismiss)="dismissAlertFounds()"
     ></ion-alert>
+
+  <!-- restart alert -->
+  <ion-alert 
+  [isOpen]="showAlertRestart"
+  [header]="'Estas seguro de reiniciar el proceso?'"
+  [subHeader]="'Perderás todo tu progreso hasta ahora'"
+  [buttons]="alertRestartButtons"
+  (didDismiss)="dismissAlertRestart()"
+  ></ion-alert>
 
   <!-- time alert -->
   <ion-alert 

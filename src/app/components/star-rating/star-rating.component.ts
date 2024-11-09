@@ -42,8 +42,8 @@ export class StarRatingComponent  implements OnInit {
     this.rating=value;
   }
   finishRating(){
-    let objSettings = JSON.parse(localStorage.getItem('exportSettings'));
-    let process_id =  localStorage.getItem('processId');
+    let objSettings = JSON.parse(sessionStorage.getItem('exportSettings'));
+    let process_id =  sessionStorage.getItem('processId');
 
     if(objSettings['userEmail']){
       this.userEmail = objSettings['userEmail'];

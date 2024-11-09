@@ -45,6 +45,22 @@ export class MainPage implements OnInit {
       },
     },
   ];
+  public alertRestartButtons= [
+    {
+      text: 'Cancelar',
+      role: 'cancel',
+      handler: () => {
+        
+      },
+    },
+    {
+      text: 'Confirmar',
+      role: 'confirm',
+      handler: () => {
+        this.confirmRestartProcess()
+      },
+    },
+  ];
   public deleteLineAlertButtons =[
     {
       text: 'Cancelar',
@@ -152,6 +168,7 @@ export class MainPage implements OnInit {
   linesExtract:number;
   linesCurrency:string;
 
+  showAlertRestart:boolean=false;
   showAlertFounds:boolean=false;
   foundsQty:number=0;
   imagesToUpload:any=[];
@@ -215,18 +232,18 @@ export class MainPage implements OnInit {
     
   }
   hidrate(){
-    if(localStorage.getItem('extracts') && localStorage.getItem('extracts') != ''){
-      this.extracts = JSON.parse(localStorage.getItem('extracts'));
+    if(sessionStorage.getItem('extracts') && sessionStorage.getItem('extracts') != ''){
+      this.extracts = JSON.parse(sessionStorage.getItem('extracts'));
 
     }
-    if(localStorage.getItem('result') && localStorage.getItem('result') != ''){
-      this.results = JSON.parse(localStorage.getItem('result'));
+    if(sessionStorage.getItem('result') && sessionStorage.getItem('result') != ''){
+      this.results = JSON.parse(sessionStorage.getItem('result'));
 
     }
 
 
-    if(localStorage.getItem('currentStep') && localStorage.getItem('currentStep') != ''){
-      this.currentStep = Number(localStorage.getItem('currentStep'));
+    if(sessionStorage.getItem('currentStep') && sessionStorage.getItem('currentStep') != ''){
+      this.currentStep = Number(sessionStorage.getItem('currentStep'));
       //console.log('current step',this.currentStep)
       if(this.currentStep == 3){
         this.getAnalisysResult();
@@ -235,8 +252,8 @@ export class MainPage implements OnInit {
 
     }
 
-    if(localStorage.getItem('exportSettings') && localStorage.getItem('exportSettings') != ''){
-      let obj = JSON.parse(localStorage.getItem('exportSettings'));
+    if(sessionStorage.getItem('exportSettings') && sessionStorage.getItem('exportSettings') != ''){
+      let obj = JSON.parse(sessionStorage.getItem('exportSettings'));
 
       if(obj['userName']){
         this.userName = obj['userName'];
@@ -273,7 +290,7 @@ export class MainPage implements OnInit {
       currencyExchange: this.currencyExchange
 
     }
-    localStorage.setItem('exportSettings', JSON.stringify(obj));
+    sessionStorage.setItem('exportSettings', JSON.stringify(obj));
 
     //console.log('extracts',this.extracts)
   }
@@ -301,7 +318,7 @@ export class MainPage implements OnInit {
   }
   createProcess(){
     this.loadingButtons=true;
-    if(localStorage.getItem('processId') && localStorage.getItem('processId') != null && localStorage.getItem('processId') != ''){
+    if(sessionStorage.getItem('processId') && sessionStorage.getItem('processId') != null && sessionStorage.getItem('processId') != ''){
       this.currentStep++;
       this.loadingButtons=false;
 
@@ -310,7 +327,7 @@ export class MainPage implements OnInit {
       this.api.create('processes',{}).subscribe(res=>{
         //console.log(res);
         if(res['status'] == 201){
-          localStorage.setItem('processId', res['body']['_id']);
+          sessionStorage.setItem('processId', res['body']['_id']);
           this.currentStep++;
 
   
@@ -321,7 +338,7 @@ export class MainPage implements OnInit {
 
 
     }
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
   }
@@ -346,22 +363,22 @@ export class MainPage implements OnInit {
 
 
 
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
   }
   finishProcess(){
     this.extracts=[];
-    localStorage.removeItem('extracts');
+    sessionStorage.removeItem('extracts');
 
     this.results=undefined;
-    localStorage.removeItem('result');
+    sessionStorage.removeItem('result');
 
     this.exportSettings=undefined;
-    localStorage.removeItem('exportSettings');
+    sessionStorage.removeItem('exportSettings');
 
     this.currentStep=0;
-    localStorage.removeItem('currentStep');
-    localStorage.removeItem('processId');
+    sessionStorage.removeItem('currentStep');
+    sessionStorage.removeItem('processId');
 
     
 
@@ -403,7 +420,7 @@ export class MainPage implements OnInit {
   getAnalisysResult(){
 
 
-    if(!localStorage.getItem('result') || localStorage.getItem('result') == ''){
+    if(!sessionStorage.getItem('result') || sessionStorage.getItem('result') == ''){
 
 
       console.log('extracts before analisys',this.extracts);
@@ -420,7 +437,7 @@ export class MainPage implements OnInit {
           this.results=obj;
           //console.log('results',this.results);
   
-          localStorage.setItem('result', JSON.stringify(this.results));
+          sessionStorage.setItem('result', JSON.stringify(this.results));
   
   
         }
@@ -437,7 +454,7 @@ export class MainPage implements OnInit {
 
         console.log('get result',res);
         this.results=res;
-        localStorage.setItem('result', JSON.stringify(this.results));
+        sessionStorage.setItem('result', JSON.stringify(this.results));
         let found = this.checkMatchStatus();
 
         if(!found.status){
@@ -470,11 +487,11 @@ export class MainPage implements OnInit {
       //console.log('reset result');
 
       this.results=undefined;
-      localStorage.removeItem('result');
+      sessionStorage.removeItem('result');
 
     }
     this.currentStep--;
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
   }
@@ -490,12 +507,15 @@ export class MainPage implements OnInit {
   }
   exportResult(){
     this.currentStep++;
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
   }
   dismissAlertFounds(){
     this.showAlertFounds=false;
+  }
+  dismissAlertRestart(){
+    this.showAlertRestart=false;
   }
   takePhoto(){
 
@@ -526,7 +546,7 @@ export class MainPage implements OnInit {
     let obj = {
       lead_name:this.userName,
       lead_email: this.userEmail.toLowerCase(),
-      process_id: localStorage.getItem('processId')
+      process_id: sessionStorage.getItem('processId')
     }
     let exportSettings ={
       userName:this.userName,
@@ -564,7 +584,7 @@ export class MainPage implements OnInit {
     this.api.sendForm('leads',form).subscribe(res=>{
 
       form.append('results', JSON.stringify(this.results)); 
-      form.append('exportSettings', localStorage.getItem('exportSettings')); 
+      form.append('exportSettings', sessionStorage.getItem('exportSettings')); 
 
 
       this.api.sendForm('emails',form).subscribe(res=>{
@@ -572,7 +592,7 @@ export class MainPage implements OnInit {
  
         this.currentStep++;
         this.sendingForm=true;
-        localStorage.setItem('currentStep', this.currentStep.toString());
+        sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
       })
@@ -587,7 +607,7 @@ export class MainPage implements OnInit {
   showCheckout(){}
   jumpToStep(step:number){
     this.currentStep=step;
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
   }
   flushData(){
@@ -609,7 +629,7 @@ export class MainPage implements OnInit {
       currencyExchange: this.currencyExchange
     }
     //console.log('currencyExchange', obj)
-    localStorage.setItem('exportSettings', JSON.stringify(obj));
+    sessionStorage.setItem('exportSettings', JSON.stringify(obj));
 
   }
   showModalAddBill(){
@@ -679,7 +699,7 @@ export class MainPage implements OnInit {
   
     this.extracts['extract']=undefined;
 
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
     
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
@@ -699,7 +719,7 @@ export class MainPage implements OnInit {
       this.extracts['bills'].splice(this.idToDeleteBillContainer,1);
 
     }
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
      // console.log(res);
@@ -726,7 +746,7 @@ export class MainPage implements OnInit {
 
     });
     this.extracts['bills'] = [];
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
 
 
@@ -765,7 +785,7 @@ export class MainPage implements OnInit {
                   this.extracts.bills[index]['bill'][indexBill]['total'] = result['total'];
                   this.extracts.bills[index]['bill'][indexBill]['vendor'] = result['vendor'];
                   //console.log(this.extracts);
-                  localStorage.setItem('extracts', JSON.stringify(this.extracts));
+                  sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
                   //console.log(JSON.stringify(this.extracts));
                   
                   
@@ -790,7 +810,7 @@ export class MainPage implements OnInit {
     }
   }
   changeExtractType(){
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
   }
   nextConfirmData(){
@@ -813,7 +833,7 @@ export class MainPage implements OnInit {
     }
       */
 
-    localStorage.setItem('currentStep', this.currentStep.toString());
+    sessionStorage.setItem('currentStep', this.currentStep.toString());
 
   }
   confirmData(){
@@ -822,7 +842,7 @@ export class MainPage implements OnInit {
     this.extracts[this.currentExtract]['bills'][this.currentBill]['confirmed']=1;
 
     this.currentBill = this.extracts[this.currentExtract]['bills'].length;
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
     this.nextStep();
 
@@ -851,7 +871,7 @@ export class MainPage implements OnInit {
                 this.extracts['extract']['name'] = res['result']['name']; 
 
                 }
-                localStorage.setItem('extracts', JSON.stringify(this.extracts));
+                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
                 
               }else{
@@ -902,7 +922,7 @@ export class MainPage implements OnInit {
     this.api.create('uploads/readBlob', {
       file_name:line.blobName,
       mimeType:line.mimeType,
-      process_id:localStorage.getItem('processId'),
+      process_id:sessionStorage.getItem('processId'),
       folder:"receipts"
     }).subscribe(res=>{
 
@@ -916,7 +936,7 @@ export class MainPage implements OnInit {
     this.api.create('uploads/readBlob', {
       file_name:this.extracts['extract'].blobName,
       mimeType:this.extracts['extract'].mimeType,
-      process_id:localStorage.getItem('processId'),
+      process_id:sessionStorage.getItem('processId'),
       folder:"extracts"
     }).subscribe(res=>{
 
@@ -1019,7 +1039,7 @@ export class MainPage implements OnInit {
     this.confirmDeleteBill();
 
 
-    localStorage.setItem('result', JSON.stringify(this.results));
+    sessionStorage.setItem('result', JSON.stringify(this.results));
 
 
   }
@@ -1080,8 +1100,8 @@ export class MainPage implements OnInit {
 
     this.isEdditingLine=false;
     this.results=undefined;
-    localStorage.setItem('extracts', JSON.stringify(this.extracts));
-    localStorage.removeItem('result')
+    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    sessionStorage.removeItem('result')
     this.getAnalisysResult();
     
 
@@ -1105,7 +1125,7 @@ export class MainPage implements OnInit {
 
         }
         this.imageToUpload=undefined;
-        localStorage.setItem('extracts', JSON.stringify(this.extracts));
+        sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
         this.startBillWorker();
       }else{
         alert('Error subiendo el archivo')
@@ -1166,7 +1186,7 @@ export class MainPage implements OnInit {
           if(type == 'extracts'){
 
             this.extracts['extract'] = {file:fileElement.name, status: 0, lines:[], type: '', currency: ''};
-            localStorage.setItem('extracts', JSON.stringify(this.extracts));
+            sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
           }
           if(type == 'bills'){
@@ -1195,7 +1215,7 @@ export class MainPage implements OnInit {
 
             }
            // console.log(this.extracts)
-            localStorage.setItem('extracts', JSON.stringify(this.extracts));
+            sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
           }
 
         }
@@ -1209,7 +1229,7 @@ export class MainPage implements OnInit {
 
             let form = new FormData();
             form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', localStorage.getItem('processId')); 
+            form.append('process_id', sessionStorage.getItem('processId')); 
             form.append('model_id', 'custom-ikosten-extracts-v2'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
@@ -1234,7 +1254,7 @@ export class MainPage implements OnInit {
               this.extracts['extract']['blobName'] = res['body']['document_result']['blobName']; 
               this.extracts['extract']['mimeType'] = res['body']['document_result']['mimeType']; 
 
-              localStorage.setItem('extracts', JSON.stringify(this.extracts));
+              sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
             })
             
@@ -1242,7 +1262,7 @@ export class MainPage implements OnInit {
           }else if(type == 'bills'){
             let form = new FormData();
             form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', localStorage.getItem('processId')); 
+            form.append('process_id', sessionStorage.getItem('processId')); 
             form.append('model_id', 'prebuilt-receipt'); 
 
             this.api.sendForm('uploads/uploadReceipt',form).subscribe(res=>{
@@ -1286,7 +1306,7 @@ export class MainPage implements OnInit {
                       this.extracts.bills[index]['bill'][indexBill]['blobName']="";
                     }
 
-                    localStorage.setItem('extracts', JSON.stringify(this.extracts));
+                    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
                     
 
                   }
@@ -1385,7 +1405,7 @@ export class MainPage implements OnInit {
               //console.log(res);
               if(res['status']){
                 this.extracts['extract'] = {file:fileElement, name:fileElement.name, jobId:res['result']['JobId'], status: 0, type:'', currency:''};
-                localStorage.setItem('extracts', JSON.stringify(this.extracts));
+                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
                 this.showAlertTime =true;
                 this.startExtractWorker();
               }else{
@@ -1399,7 +1419,7 @@ export class MainPage implements OnInit {
           }else if(type=='bill'){
             let form = new FormData();
             form.append('file', file[0], file[0].name); 
-            form.append('lot_id', localStorage.getItem('processId')); 
+            form.append('lot_id', sessionStorage.getItem('processId')); 
 
   
             this.api.sendForm('azure/startExpenseAnalysis',form).subscribe(res=>{
@@ -1430,7 +1450,7 @@ export class MainPage implements OnInit {
   
                 }
                 //console.log(this.extracts)
-                localStorage.setItem('extracts', JSON.stringify(this.extracts));
+                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
                 this.startBillWorker();
               }else{
                 alert('Error subiendo el archivo')
@@ -1462,6 +1482,10 @@ export class MainPage implements OnInit {
     }
         
 
+  }
+  confirmRestartProcess(){
+    this.currentStep= 0;
+    sessionStorage.clear();
   }
   fileBrowseHandler(files, type){
     //console.log('file handler')
