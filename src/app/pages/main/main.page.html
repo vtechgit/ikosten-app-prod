@@ -83,215 +83,256 @@
     </div>
     <div *ngIf="currentStep == 1">
 
+      <ion-card *ngIf="isUploadingOther" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>Seleccione el país donde se originan los gastos</ion-card-title>
+          <ion-card-subtitle>Paso #1</ion-card-subtitle>
+        </ion-card-header>
+      
+        <ion-card-content>
+          <ion-item>
+            <ion-select label="Pais" placeholder="Seleccione uno" (ionChange)="scrollToTarget('card-step-2')" [(ngModel)]="currencyBlockSelected">
+              <ion-select-option *ngFor="let currency of currencies"  [value]="{country:currency.country,code:currency.code}">{{currency.country}} ({{currency.code}}) </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card id="card-step-2" *ngIf="isUploadingOther && currencyBlockSelected && currencyBlockSelected != ''" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>Toma fotos o sube tus gastos / facturas en PDF</ion-card-title>
+          <ion-card-subtitle>Paso #2</ion-card-subtitle>
+        </ion-card-header>
+      
+        <ion-card-content>
+          <ion-card color="primary">
+            <ion-card-header>
+              <ion-card-subtitle>Para mejorar el resultado, sube sólo un recibo por imagen o archivo pdf</ion-card-subtitle>
+            </ion-card-header>
+          
+          </ion-card>
+          <ion-grid>
+            
+
+            <ion-row *ngIf="!imagesToUpload || imagesToUpload.length == 0">
+  
+              <ion-col size="12"  >
+   
+                <h3 class="text-center">Tomar Foto</h3>
+  
+                <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
+                  <div class="image-place-holder">
+                    <ion-icon name="camera-outline" style="width: 50px;
+                    height: 50px;" ></ion-icon>
+        
+                </div>
+                </div>
+                <ion-note>Las fotos deben ser claras y no pueden quedar cortadas
+                </ion-note>
+  
+  
+              </ion-col>
+     
+  
+              <ion-col size="12" >
+                <h3  class="text-center">Subir Archivos</h3>
+                <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
+                  <input type="file" accept="image/jpeg,image/png,application/pdf" multiple="true" multiple="true" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
+            
+                  <div class="image-place-holder">
+                      <ion-icon name="cloud-upload-outline" style="width: 50px;
+                      height: 50px;" ></ion-icon>
+          
+                  </div>
+            
+                </div>
+                <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+  
+                <ion-note>Solo puedes subir archivos en PDF
+                </ion-note>
+              </ion-col>
+  
+            </ion-row>
+  
+            <ion-row class="ion-margin-top" *ngIf="imagesToUpload && imagesToUpload.length > 0">
+  
+              <ion-col size="4" *ngFor="let image of imagesToUpload; index as i">
+  
+                <ion-button shape="round" color="danger" class="delete-image-button" (click)="deleteImageToUpload(i)">
+                  <ion-icon slot="icon-only" size="default" name="trash-outline"></ion-icon>
+                </ion-button>
+  
+                <ion-img class="image-to-upload" [src]="image.dataUrl"> </ion-img>
+    
+              </ion-col>
+              <ion-col size="4" style="display: flex; justify-content: center; align-items: center;">
+                <ion-button shape="round" class="add-image-button" (click)="takePhoto()">
+                  <ion-icon slot="icon-only" size="large" name="add-outline"></ion-icon>
+                </ion-button>
+              </ion-col>
+  
+            </ion-row>
+            
+  
+            <!--
+            <ion-col class="d-flex flex-justify-space-between" size="12" *ngIf="imageToUpload">
+              <ion-button  color="danger" class="button-controll" style="float:right" (click)="this.imageToUpload = undefined" >
+                Eliminar
+                <ion-icon name="trash-outline" slot="end"></ion-icon>
+              </ion-button>
+              <ion-button [disabled]="isUploading" color="primary" class="button-controll" style="float:right" (click)="uploadBillPhoto()" >
+                Confirmar
+                <ion-icon name="checkmark-outline" slot="end"></ion-icon>
+              </ion-button>
+            </ion-col>
+            -->
+  
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+      <!--
       <div class="ion-padding" >
 
         <ion-list>
           <ion-list-header *ngIf="isUploadingOther">
-            Paso #1 Seleccione el país donde se originan los gastos
+            Paso #1 
           </ion-list-header>
 
           <h3 class="text-center" *ngIf="!isUploadingOther">Sube uno o varios recibos / facturas por país donde se originaron tus gastos
           </h3>
+          <h3 class="text-center">Para mejorar el resultado, sube sólo un recibo por imagen o archivo pdf</h3>
 
         </ion-list>
 
       </div>
-      <ion-grid *ngIf="isUploadingOther">
-        <ion-row>
-          <ion-col>
-            <ion-item>
-              <ion-select label="Pais" placeholder="Seleccione uno" [(ngModel)]="currencyBlockSelected">
-                <ion-select-option *ngFor="let currency of currencies"  [value]="{country:currency.country,code:currency.code}">{{currency.country}} ({{currency.code}}) </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    
-      <div class="ion-padding" *ngIf="isUploadingOther && currencyBlockSelected && currencyBlockSelected != ''" @fadeIn>
+      -->
 
-        <ion-list-header  class="ion-padding-top">
-          Paso #2 Toma fotos o sube tus gastos / facturas en PDF
-        </ion-list-header>
 
-        <ion-grid>
-
-          <ion-row *ngIf="!imagesToUpload || imagesToUpload.length == 0">
-
-            <ion-col size="12"  >
- 
-              <h3 class="text-center">Tomar Foto</h3>
-
-              <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
-                <div class="image-place-holder">
-                  <ion-icon name="camera-outline" style="width: 50px;
-                  height: 50px;" ></ion-icon>
+      <ion-card *ngIf="!isUploadingOther" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>Recibos Cargados</ion-card-title>
+        </ion-card-header>
       
-              </div>
-              </div>
-              <ion-note>Las fotos deben ser claras y no pueden quedar cortadas
-              </ion-note>
-
-
-            </ion-col>
-   
-
-            <ion-col size="12" >
-              <h3  class="text-center">Subir Archivos</h3>
-              <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
-                <input type="file" accept="image/jpeg,image/png,application/pdf" multiple="true" multiple="true" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
-          
-                <div class="image-place-holder">
-                    <ion-icon name="cloud-upload-outline" style="width: 50px;
-                    height: 50px;" ></ion-icon>
-        
+        <ion-card-content>
+          <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+    
+            <ion-accordion-group class="ion-margin-top" [value]=" extracts['bills'].length-1">
+              <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
+                <ion-item slot="header" color="light">
+                  <ion-label>{{bill.country}}</ion-label>
+                </ion-item>
+                <div slot="content">
+                  <ion-list >
+                    <ion-item *ngFor="let billElement of bill.bill; index as i">
+                    
+                      <ion-label>
+                        <h3 *ngIf="billElement.status == 500 || billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{billElement.file}}</h3>
+                        <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
+                        <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
+                        <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
+                        <p style="color:red;" *ngIf="billElement.status == 500">Error, vuelva a intentarlo</p>
+                      <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
+                      <ion-note *ngIf="billElement.status == 0">Analizando...</ion-note>
+            
+                      </ion-label>
+                      <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
+                        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                      </ion-button>
+            
+            
+                    </ion-item>
+                  </ion-list>
                 </div>
-          
-              </div>
-              <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
-
-              <ion-note>Solo puedes subir archivos en PDF
-              </ion-note>
-            </ion-col>
-
-          </ion-row>
-
-          <ion-row class="ion-margin-top" *ngIf="imagesToUpload && imagesToUpload.length > 0">
-
-            <ion-col size="4" *ngFor="let image of imagesToUpload; index as i">
-
-              <ion-button shape="round" color="danger" class="delete-image-button" (click)="deleteImageToUpload(i)">
-                <ion-icon slot="icon-only" size="default" name="trash-outline"></ion-icon>
-              </ion-button>
-
-              <ion-img class="image-to-upload" [src]="image.dataUrl"> </ion-img>
+              </ion-accordion>
+    
+            </ion-accordion-group>
   
-            </ion-col>
-            <ion-col size="4" style="display: flex; justify-content: center; align-items: center;">
-              <ion-button shape="round" class="add-image-button" (click)="takePhoto()">
-                <ion-icon slot="icon-only" size="large" name="add-outline"></ion-icon>
-              </ion-button>
-            </ion-col>
-
-          </ion-row>
-          
-
-          <!--
-          <ion-col class="d-flex flex-justify-space-between" size="12" *ngIf="imageToUpload">
-            <ion-button  color="danger" class="button-controll" style="float:right" (click)="this.imageToUpload = undefined" >
-              Eliminar
-              <ion-icon name="trash-outline" slot="end"></ion-icon>
-            </ion-button>
-            <ion-button [disabled]="isUploading" color="primary" class="button-controll" style="float:right" (click)="uploadBillPhoto()" >
-              Confirmar
-              <ion-icon name="checkmark-outline" slot="end"></ion-icon>
-            </ion-button>
-          </ion-col>
-          -->
-
-        </ion-grid>
-
-      </div>
-
-
-      <ion-list class="ion-padding" *ngIf="!isUploadingOther" @fadeIn>
-        <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
-
-          <ion-list-header>
-            Recibos cargados
-          </ion-list-header>
   
-          <ion-accordion-group class="ion-margin-top" [value]=" extracts['bills'].length-1">
-            <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
-              <ion-item slot="header" color="light">
-                <ion-label>{{bill.country}}</ion-label>
-              </ion-item>
-              <div slot="content">
-                <ion-list >
-                  <ion-item *ngFor="let billElement of bill.bill; index as i">
-                  
-                    <ion-label>
-                      <h3 *ngIf="billElement.status == 500 || billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{billElement.file}}</h3>
-                      <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
-                      <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
-                      <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
-                      <p style="color:red;" *ngIf="billElement.status == 500">Error, vuelva a intentarlo</p>
-                    <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
-                    <ion-note *ngIf="billElement.status == 0">Analizando...</ion-note>
-          
-                    </ion-label>
-                    <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
-                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                    </ion-button>
-          
-          
-                  </ion-item>
-                </ion-list>
-              </div>
-            </ion-accordion>
+    
+          </div>
+          <div class="ion-padding" >
+            <ion-grid>
+              <ion-row class="ion-justify-content-center">
+                <ion-col size="12" size-sm="6" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+                  <ion-button color="danger" expand="block" (click)="deleteAllReceiptsAlert()">
+                    Eliminar Todo
+                    <ion-icon name="trash-outline" slot="end"></ion-icon>
+                  </ion-button>
+                </ion-col>
+                <ion-col size="12" size-sm="6">
+                  <ion-button color="secondary" expand="block" (click)="openUploading()">
+                    Subir Recibo / Factura
+                    <ion-icon name="add-outline" slot="end"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
   
-          </ion-accordion-group>
-
-
-  
-        </div>
-        <div class="ion-padding" >
-          <ion-grid>
-            <ion-row class="ion-justify-content-center">
-              <ion-col size="12" size-sm="6" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
-                <ion-button color="danger" expand="block" (click)="deleteAllReceiptsAlert()">
-                  Eliminar Todo
-                  <ion-icon name="trash-outline" slot="end"></ion-icon>
-                </ion-button>
-              </ion-col>
-              <ion-col size="12" size-sm="6">
-                <ion-button color="secondary" expand="block" (click)="openUploading()">
-                  Subir Recibo / Factura
-                  <ion-icon name="add-outline" slot="end"></ion-icon>
-                </ion-button>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-
-        </div>
-
-
-
-
-      </ion-list>
+          </div>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <div *ngIf="currentStep == 2" @fadeIn>
 
-      <div class="ion-padding">
-
-        <h3 class="text-center" >Sube tu extracto bancario o de tarjeta de crédito en PDF
-        </h3>
-      </div>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Selecciona</ion-card-title>
+          <ion-card-subtitle>Paso #3</ion-card-subtitle>
+        </ion-card-header>
       
-      
-
-      <div class="ion-padding" *ngIf="!extracts['extract'] || extracts['extract'].length <= 0">
-        <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'extracts')">
-          <input type="file" accept="image/jpeg,image/png,application/pdf" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'extracts')">
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-select label="Tipo de pago" placeholder="Seleccione uno" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['type']">
+              <ion-select-option  value="credit">Tarjeta de Crédito</ion-select-option>
+              <ion-select-option  value="debit">Tarjeta Débito</ion-select-option>
     
-          <div class="image-place-holder">
-              <ion-icon name="cloud-upload-outline" style="width: 50px;
-              height: 50px;" ></ion-icon>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-select label="Moneda" placeholder="Seleccione una" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['currency']">
+              <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">{{currency.country}} ({{currency.code}})</ion-select-option>
+    
+            </ion-select>
+          </ion-item>
 
+        </ion-card-content>
+      </ion-card>
+
+
+
+      <ion-card *ngIf="!this.extracts['extract']['file'] && this.extracts['extract']['file'] != '' && extracts['extract']['type'] != '' && extracts['extract']['currency'] != ''" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>Sube tu extracto bancario o de tarjeta de crédito en PDF</ion-card-title>
+          <ion-card-subtitle>Paso #4</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+
+          <div class="ion-padding"  >
+            <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'extracts')">
+              <input type="file" accept="image/jpeg,image/png,application/pdf" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'extracts')">
+        
+              <div class="image-place-holder">
+                  <ion-icon name="cloud-upload-outline" style="width: 50px;
+                  height: 50px;" ></ion-icon>
+    
+              </div>
+        
+        
+            </div>
+            <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+    
+            <ion-note>Solo puedes subir archivos en PDF
+            </ion-note>
           </div>
-    
-    
-        </div>
-        <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+        </ion-card-content>
+      </ion-card>
 
-        <ion-note>Solo puedes subir archivos en PDF
-        </ion-note>
-      </div>
 
 
       
-      <ion-list class="ion-padding" *ngIf="this.extracts && this.extracts['extract']" @fadeIn>
+      <ion-list class="ion-padding" *ngIf="this.extracts['extract']['file'] && this.extracts['extract']['file'] !=''" @fadeIn>
         <ion-list-header>
           Extractos cargados
         </ion-list-header>
@@ -310,21 +351,6 @@
           </ion-button>
 
         </ion-item>
-        <ion-item>
-          <ion-select label="Tipo de pago" placeholder="Seleccione uno" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['type']">
-            <ion-select-option  value="credit">Tarjeta de Crédito</ion-select-option>
-            <ion-select-option  value="debit">Tarjeta Débito</ion-select-option>
-
-          </ion-select>
-        </ion-item>
-        <ion-item>
-          <ion-select label="Moneda" placeholder="Seleccione una" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['currency']">
-            <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">{{currency.country}} ({{currency.code}})</ion-select-option>
-
-          </ion-select>
-        </ion-item>
-
-
 
 
       </ion-list>
@@ -1399,15 +1425,21 @@
 
     <div class="ion-padding d-flex flex-justify-space-between" *ngIf="currentStep > 0 ">
 
-      <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf="currentStep == 1 && isUploadingOther == false">
+      
+      <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf="currentStep == 1">
         Atrás
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
       </ion-button>
+      
 
-      <ion-button color="danger" [disabled]="isUploading" class="button-controll" (click)="cancelUploading()" *ngIf="currentStep == 1 && isUploadingOther == true">
+
+      <!--
+            <ion-button color="danger" [disabled]="isUploading" class="button-controll" (click)="cancelUploading()" *ngIf="currentStep == 1 && isUploadingOther == true">
         Cancelar
         <ion-icon name="close-outline" slot="start"></ion-icon>
       </ion-button>
+      -->
+
 
       <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf=" currentStep ==2 || currentStep == 4">
         Atrás
@@ -1419,17 +1451,20 @@
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
       </ion-button>
 
+      <!--
       <ion-button color="light" class="button-controll" (click)="isSettingBill = false" *ngIf="currentStep == 1 && isSettingBill ==true && !imageToUpload">
         Atrás
         <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
       </ion-button>
+      -->
 
-      <ion-button [disabled]="!this.extracts || !this.extracts.extract || this.extracts && this.extracts.extract && !extracts['extract']['type'] || this.extracts && this.extracts.extract && !extracts['extract']['currency']" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 2">
+
+      <ion-button [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 2">
         Siguiente
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !isUploadingOther">
+      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 ">
         Siguiente
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
@@ -1439,10 +1474,13 @@
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!currencyBlockSelected || currencyBlockSelected == '' || !imagesToUpload || imagesToUpload.length <= 0" color="primary" class="button-controll" style="float:right" (click)="uploadImagesBase64()" *ngIf="currentStep == 1 && isUploadingOther ">
+      <!--
+            <ion-button [disabled]="!currencyBlockSelected || currencyBlockSelected == '' || !imagesToUpload || imagesToUpload.length <= 0" color="primary" class="button-controll" style="float:right" (click)="uploadImagesBase64()" *ngIf="currentStep == 1 && isUploadingOther ">
         Finalizar
         <ion-icon name="checkmark-outline" slot="end"></ion-icon>
       </ion-button>
+      -->
+
 
      
       <!--

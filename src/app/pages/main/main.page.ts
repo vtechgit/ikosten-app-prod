@@ -175,7 +175,7 @@ export class MainPage implements OnInit {
 
   currencyExchange:string;
   showAlertTime:boolean=false;
-  isUploadingOther:boolean=false;
+  isUploadingOther:boolean=true;
 
   uploadLineResultId:number;
   uploadLineExtractId:number;
@@ -221,8 +221,7 @@ export class MainPage implements OnInit {
     
     this.getCurrencies();
     this.hidrate();
-    console.log(this.extracts);
-    console.log(this.results);
+    console.log('extracts',this.extracts);
     //let startDate = new Date();
     //this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T00:00:00";
     //this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
@@ -291,8 +290,29 @@ export class MainPage implements OnInit {
 
     }
     sessionStorage.setItem('exportSettings', JSON.stringify(obj));
+    if(this.countBills() > 0){
+      this.isUploadingOther=false;
+    }else{
+      this.isUploadingOther=true;
 
+    }
     //console.log('extracts',this.extracts)
+  }
+  scrollToTarget(target){
+    setTimeout(() => {
+
+      if(document.getElementById(target)){
+        document.getElementById(target).scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest"
+        });
+      }
+
+
+   // console.log('scrolling');
+      
+    }, 500);
   }
   cancelUploading(){
     this.isUploadingOther = false;
@@ -322,12 +342,16 @@ export class MainPage implements OnInit {
       this.currentStep++;
       this.loadingButtons=false;
 
+
     }else{
       let form = new FormData();
       this.api.create('processes',{}).subscribe(res=>{
         //console.log(res);
         if(res['status'] == 201){
           sessionStorage.setItem('processId', res['body']['_id']);
+          this.extracts={bills:[],extract:{ type:'', currency:''}};
+          sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+
           this.currentStep++;
 
   
@@ -338,11 +362,28 @@ export class MainPage implements OnInit {
 
 
     }
+
+    if(this.countBills() > 0){
+      this.isUploadingOther=false;
+    }else{
+      this.isUploadingOther=true;
+
+    }
+
     sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
   }
+  countBills(){
+    if(this.extracts && this.extracts['bills']){
+      return this.extracts['bills'].length;
+
+    }else{
+      return 0;
+    }
+  }
   nextStep(){
+    console.log('current step',this.currentStep)
 
     if(this.currentStep == 3){
       if(this.countNotMatched() > 0){
@@ -355,7 +396,7 @@ export class MainPage implements OnInit {
       this.currentStep++;
 
     }
-    console.log('currentStep',this.currentStep)
+
     if(this.currentStep == 3){
       this.getAnalisysResult();
 
@@ -489,6 +530,9 @@ export class MainPage implements OnInit {
       this.results=undefined;
       sessionStorage.removeItem('result');
 
+    }
+    if(this.currentStep == 1){
+      this.isUploadingOther=false;
     }
     this.currentStep--;
     sessionStorage.setItem('currentStep', this.currentStep.toString());
@@ -697,7 +741,17 @@ export class MainPage implements OnInit {
   }
   confirmDeleteExtract(){
   
-    this.extracts['extract']=undefined;
+
+    delete this.extracts['extract']['file'];
+    delete this.extracts['extract']['status'];
+    delete this.extracts['extract']['lines'];
+    delete this.extracts['extract']['bankName'];
+    delete this.extracts['extract']['blobName'];
+    delete this.extracts['extract']['document_id'];
+    delete this.extracts['extract']['endDate'];
+    delete this.extracts['extract']['file_url'];
+    delete this.extracts['extract']['mimeType'];
+    delete this.extracts['extract']['startDate'];
 
     sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
@@ -1185,7 +1239,10 @@ export class MainPage implements OnInit {
         if((fileElement.size/1048576)<=10){
           if(type == 'extracts'){
 
-            this.extracts['extract'] = {file:fileElement.name, status: 0, lines:[], type: '', currency: ''};
+            this.extracts['extract']['file'] = fileElement.name;
+            this.extracts['extract']['status'] = 0;
+            this.extracts['extract']['lines'] = [];
+            
             sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
           }
@@ -1484,8 +1541,9 @@ export class MainPage implements OnInit {
 
   }
   confirmRestartProcess(){
-    this.currentStep= 0;
     sessionStorage.clear();
+
+    this.currentStep = 0;
   }
   fileBrowseHandler(files, type){
     //console.log('file handler')
