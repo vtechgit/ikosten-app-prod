@@ -9,6 +9,7 @@ import {SharedModule} from '../../shared/shared.module';
 import { MainPage } from './main.page';
 import {ComponentsModule} from '../../components/components.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 @NgModule({
   imports: [
     CommonModule,

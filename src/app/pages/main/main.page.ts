@@ -206,7 +206,11 @@ export class MainPage implements OnInit {
   imageMimes = [ "image/png", "image/jpeg", ];
   pdfMimes = ["application/pdf"];
 
-  toggleDatesExtracts:any
+  toggleDatesExtracts:any;
+  showPicker:boolean = false;
+  pickerTitle:string = '';
+  pickerType:string = '';
+  pickerOptions:any=[];
 
 
   constructor(
@@ -222,12 +226,7 @@ export class MainPage implements OnInit {
     this.getCurrencies();
     this.hidrate();
     console.log('extracts',this.extracts);
-    //let startDate = new Date();
-    //this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T00:00:00";
-    //this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+startDate.getDate()+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
 
-    //this.startExtractWorker();
-    //this.startBillWorker();
     
   }
   hidrate(){
@@ -313,6 +312,28 @@ export class MainPage implements OnInit {
    // console.log('scrolling');
       
     }, 500);
+  }
+  showModalPicker(modaTitle, type){
+    console.log(this.currencies);
+    this.pickerTitle = modaTitle;
+    this.showPicker = true;
+    this.pickerType = type;
+    this.pickerOptions = this.currencies;
+  }
+  pickerDismissed(){
+    this.showPicker = false;
+  }
+  pickerOptionSelected(event){
+    if(this.pickerType == 'country'){
+      this.currencyBlockSelected = event;
+      this.scrollToTarget('card-step-2');
+    }
+    if(this.pickerType == 'currency'){
+      this.extracts['extract']['currency'] = event;
+      this.scrollToTarget('card-step-4');
+
+    }
+
   }
   cancelUploading(){
     this.isUploadingOther = false;

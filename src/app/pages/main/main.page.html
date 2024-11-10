@@ -90,10 +90,9 @@
         </ion-card-header>
       
         <ion-card-content>
-          <ion-item>
-            <ion-select label="Pais" placeholder="Seleccione uno" (ionChange)="scrollToTarget('card-step-2')" [(ngModel)]="currencyBlockSelected">
-              <ion-select-option *ngFor="let currency of currencies"  [value]="{country:currency.country,code:currency.code}">{{currency.country}} ({{currency.code}}) </ion-select-option>
-            </ion-select>
+          <ion-item button (click)="showModalPicker('Seleccione un país','country')">
+            <ion-label *ngIf="currencyBlockSelected">{{currencyBlockSelected['country']}} ({{currencyBlockSelected['code']}})</ion-label>
+            <ion-label *ngIf="!currencyBlockSelected">Seleccione un país</ion-label>
           </ion-item>
         </ion-card-content>
       </ion-card>
@@ -105,7 +104,7 @@
         </ion-card-header>
       
         <ion-card-content>
-          <ion-card color="primary">
+          <ion-card color="primary" class="no-margin">
             <ion-card-header>
               <ion-card-subtitle>Para mejorar el resultado, sube sólo un recibo por imagen o archivo pdf</ion-card-subtitle>
             </ion-card-header>
@@ -219,7 +218,7 @@
             <ion-accordion-group class="ion-margin-top" [value]=" extracts['bills'].length-1">
               <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
                 <ion-item slot="header" color="light">
-                  <ion-label>{{bill.country}}</ion-label>
+                  <ion-label>País: {{bill.country}}</ion-label>
                 </ion-item>
                 <div slot="content">
                   <ion-list >
@@ -290,19 +289,26 @@
     
             </ion-select>
           </ion-item>
+          <ion-item button (click)="showModalPicker('Seleccione una moneda','currency')">
+            <ion-label *ngIf="extracts['extract']['currency'] != ''">Moneda: {{extracts['extract']['currency']}}</ion-label>
+            <ion-label *ngIf="extracts['extract']['currency'] == ''">Seleccione una moneda</ion-label>
+          </ion-item>
+          <!--
           <ion-item>
             <ion-select label="Moneda" placeholder="Seleccione una" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['currency']">
               <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">{{currency.country}} ({{currency.code}})</ion-select-option>
     
             </ion-select>
           </ion-item>
+          -->
+
 
         </ion-card-content>
       </ion-card>
 
 
 
-      <ion-card *ngIf="!this.extracts['extract']['file'] && this.extracts['extract']['file'] != '' && extracts['extract']['type'] != '' && extracts['extract']['currency'] != ''" @fadeIn>
+      <ion-card id="card-step-4" *ngIf="!this.extracts['extract']['file'] && this.extracts['extract']['file'] != '' && extracts['extract']['type'] != '' && extracts['extract']['currency'] != ''" @fadeIn>
         <ion-card-header>
           <ion-card-title>Sube tu extracto bancario o de tarjeta de crédito en PDF</ion-card-title>
           <ion-card-subtitle>Paso #4</ion-card-subtitle>
@@ -1335,6 +1341,9 @@
       </ion-footer>
     </ng-template>
   </ion-modal>
+
+  <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions"></app-country-picker>
+
   <!-- alerts -->
   <!-- delete bill -->
   <ion-alert

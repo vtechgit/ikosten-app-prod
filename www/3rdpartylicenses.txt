@@ -157,6 +157,9 @@ ionicpwaelements-loader
 ng2-pdf-viewer
 MIT
 
+ngx-pipes
+MIT
+
 pdfjs-dist
 Apache-2.0
 
