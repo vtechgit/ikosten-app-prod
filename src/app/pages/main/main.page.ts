@@ -77,6 +77,22 @@ export class MainPage implements OnInit {
       },
     },
   ];
+  public deleteAllNotMatchedAlertButtons =[
+    {
+      text: 'Cancelar',
+      role: 'cancel',
+      handler: () => {
+        
+      },
+    },
+    {
+      text: 'Eliminar',
+      role: 'confirm',
+      handler: () => {
+        this.confirmDeleteAllNotMatchedLines()
+      },
+    },
+  ];
   public deleteBillAlertButtons =[
     {
       text: 'Cancelar',
@@ -162,6 +178,7 @@ export class MainPage implements OnInit {
   selectedDeleteLine:any;
   docToDelete:string;
   isDeletingLine:boolean=false;
+  isDeletingAllNotMatched:boolean=false;
 
   linesDescription:string;
   linesBill:number;
@@ -170,6 +187,7 @@ export class MainPage implements OnInit {
 
   showAlertRestart:boolean=false;
   showAlertFounds:boolean=false;
+  showAlertFoundsMatched:boolean=false;
   foundsQty:number=0;
   imagesToUpload:any=[];
 
@@ -314,7 +332,6 @@ export class MainPage implements OnInit {
     }, 500);
   }
   showModalPicker(modaTitle, type){
-    console.log(this.currencies);
     this.pickerTitle = modaTitle;
     this.showPicker = true;
     this.pickerType = type;
@@ -404,11 +421,15 @@ export class MainPage implements OnInit {
     }
   }
   nextStep(){
-    console.log('current step',this.currentStep)
 
     if(this.currentStep == 3){
       if(this.countNotMatched() > 0){
         this.showAlertFounds = true;
+
+      }else if(this.countMatched() <= 0){
+
+        this.showAlertFoundsMatched = true;
+
       }else{
         this.currentStep++;
 
@@ -579,6 +600,9 @@ export class MainPage implements OnInit {
   dismissAlertFounds(){
     this.showAlertFounds=false;
   }
+  dismissAlertFoundsNotMatched(){
+    this.showAlertFoundsMatched=false;
+  }
   dismissAlertRestart(){
     this.showAlertRestart=false;
   }
@@ -684,6 +708,9 @@ export class MainPage implements OnInit {
   onWillDismissEditLine(){
     this.isEdditingLine=false;
     this.selectedLine=undefined;
+  }
+  dismissDeleteAllNotMatched(){
+    this.isDeletingAllNotMatched=false;
   }
   changeExportSettings(){
     let obj ={
@@ -1063,6 +1090,9 @@ export class MainPage implements OnInit {
     
     this.isDeletingLine=true;
   }
+  deleteAllNotMatched(){
+    this.isDeletingAllNotMatched = true;
+  }
   deleteNotMatched(group,line, lineObj){
 
     //console.log(lineObj);
@@ -1074,6 +1104,7 @@ export class MainPage implements OnInit {
 
 
   }
+
   getNotScheduledStatus(){
     let founds =0;
 
@@ -1091,6 +1122,12 @@ export class MainPage implements OnInit {
     }else{
       return true;
     }
+
+  }
+  confirmDeleteAllNotMatchedLines(){
+    console.log('confirm Delete all')
+    this.results['notMatched']=[];
+    sessionStorage.setItem('result', JSON.stringify(this.results));
 
   }
   confirmDeleteLine(){
@@ -1563,7 +1600,7 @@ export class MainPage implements OnInit {
   }
   confirmRestartProcess(){
     sessionStorage.clear();
-
+    this.isUploadingOther=true;
     this.currentStep = 0;
   }
   fileBrowseHandler(files, type){

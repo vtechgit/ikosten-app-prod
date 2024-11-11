@@ -42,6 +42,7 @@ export class CountryPickerComponent  implements OnInit {
     this.isModalOpen=false;
   }
   onWillDismiss(){
+    this.searchText ='';
     this.dismiss.emit(false);
   }
 
