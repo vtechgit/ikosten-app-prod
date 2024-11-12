@@ -497,7 +497,7 @@
                           <span *ngIf="line.reason && line.reason == 'date'" class="color-danger"> no coincide </span> 
 
                         </p>
-                        <p>Recibo</p>
+                        <p>Recibo <span *ngIf="line.reason && line.reason == 'value'" class="color-danger"> No coincide </span> </p>
                         <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
                         <p *ngIf="line.exchange">Cambio de moneda</p>
                         <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
@@ -1205,7 +1205,7 @@
 
 
           <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;">
-            <ion-label>Fecha:</ion-label>
+            <ion-label>Fecha: <span *ngIf="editLineReason == 'date'" class="color-danger">No coincide</span></ion-label>
               <ion-chip class="chip-date" >
                 {{editLineDate | date: 'dd/MM/yyyy'}}
               <ion-ripple-effect></ion-ripple-effect>
@@ -1213,10 +1213,13 @@
             </ion-chip>
 
           </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'date'"><ion-icon name="alert-circle-outline"></ion-icon>Fecha no coincide</p>
+
           <ion-item *ngIf="toggleDate">
             <ion-datetime style="width: 100%; margin: auto;" id="dateLine"  [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
 
           </ion-item>
+
           <ion-item (click)="toggleTime = !toggleTime; toggleDate=false;">
             <ion-label>Hora:</ion-label>
               <ion-chip class="chip-date" >
@@ -1232,11 +1235,16 @@
           </ion-item>
 
           <ion-item>
-            <ion-input label="Vendedor" labelPlacement="floating" placeholder="Ingresa el vendedor" [(ngModel)]="editLineDescription"></ion-input>
+            <ion-input label="Vendedor"  labelPlacement="floating" placeholder="Ingresa el vendedor" [(ngModel)]="editLineDescription"></ion-input>
           </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'vendor'"><ion-icon name="alert-circle-outline"></ion-icon>Vendedor no coincide</p>
+
           <ion-item>
-            <ion-input label="Valor Recibo" labelPlacement="floating" type="number" min="0" placeholder="Ingresa valor en el recibo" [(ngModel)]="editLineBill"></ion-input>
+            <ion-input label="Valor Recibo" labelPlacement="floating"  type="number" min="0" placeholder="Ingresa valor en el recibo" [(ngModel)]="editLineBill"></ion-input>
+
           </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'value'"><ion-icon name="alert-circle-outline"></ion-icon>Valor no coincide</p>
+
 
           <ion-item>
             <ion-select label="Moneda Recibo" placeholder="Seleccione una"  [(ngModel)]="editLineCurrency">

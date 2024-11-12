@@ -216,6 +216,7 @@ export class MainPage implements OnInit {
   editLineReceipt:any;
   editLineExtract:any;
   editLineDocId:string;
+  editLineReason:string;
 
 
   toggleDate:boolean=false;
@@ -1011,6 +1012,7 @@ export class MainPage implements OnInit {
     this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T00:00";
     this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
 
+    this.editLineReason = line.reason && line.reason != '' ? line.reason : '';
     this.editLineDescription=line.vendor;
     this.editLineBill = line.bill;
     this.editLineCurrency = line.currency;
