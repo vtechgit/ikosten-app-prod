@@ -346,7 +346,9 @@
         <ion-item >
           <ion-label>
             <h3 *ngIf="this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName'] || this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == '' ">{{this.extracts['extract']['file']}}</h3>
-            <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] != '' ">{{this.extracts['extract']['bankName']}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] != ''  && this.extracts['extract']['bankName'] != 'undefined'">{{this.extracts['extract']['bankName']}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == 'undefined'" class="color-danger">Error al leer el nombre del banco</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 500 " class="color-danger">Error al leer el archivo, verifiquelo y vuelva a intentarlo</h3>
             <p *ngIf="this.extracts['extract']['startDate'] && this.extracts['extract']['startDate'] != '' && this.extracts['extract']['endDate'] && this.extracts['extract']['endDate'] != ''"> {{this.extracts['extract']['startDate'] | date: 'dd/MM/yyyy'}} hasta {{this.extracts['extract']['endDate'] | date: 'dd/MM/yyyy'}}</p>
           <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="this.extracts['extract']['status'] == 0"></ion-progress-bar>
           <ion-note *ngIf="this.extracts['extract']['status'] == 0">Analizando...</ion-note>
@@ -1500,7 +1502,7 @@
       -->
 
 
-      <ion-button [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 2">
+      <ion-button [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 500" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 2">
         Siguiente
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>

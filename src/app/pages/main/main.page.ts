@@ -1357,7 +1357,7 @@ export class MainPage implements OnInit {
                status =1;
 
               }else{
-                alert('Error subiendo el archivo')
+                alert('Error subiendo el archivo');
 
               }
 
