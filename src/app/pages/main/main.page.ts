@@ -1287,6 +1287,13 @@ export class MainPage implements OnInit {
 
       }
   }
+  sanitizeFileName(name){
+
+    name = name.replace(/\s+/g, '-').toLowerCase();
+    name = name.replace(/[^a-zA-Z0-9]/g,'');
+    return name;
+
+  }
   uploadFile(file,type){
     this.showAlertTime =true;
     this.isUploading=true;
@@ -1299,7 +1306,8 @@ export class MainPage implements OnInit {
         if((fileElement.size/1048576)<=10){
           if(type == 'extracts'){
 
-            this.extracts['extract']['file'] = fileElement.name;
+            this.extracts['extract']['file'] = this.sanitizeFileName(fileElement.name);
+            this.extracts['extract']['original_name'] = fileElement.name;
             this.extracts['extract']['status'] = 0;
             this.extracts['extract']['lines'] = [];
             
@@ -1316,18 +1324,18 @@ export class MainPage implements OnInit {
                 if(element.currency == this.currencyBlockSelected['code']){
                   
                   founds ++;
-                  this.extracts.bills[index]['bill'].push({ file:fileElement.name, status: 0 });
+                  this.extracts.bills[index]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
 
                 }
               });
               if(founds <=0){
-                this.extracts.bills.push({currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{file:fileElement.name, status: 0}]});
+                this.extracts.bills.push({currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{original_name:fileElement.name,file:this.sanitizeFileName(fileElement.name), status: 0}]});
 
               }
 
 
             }else{
-              this.extracts={bills :[{currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{file:fileElement.name, status: 0}]}]};
+              this.extracts={bills :[{currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{original_name:fileElement.name,file:this.sanitizeFileName(fileElement.name), status: 0}]}]};
               
 
             }

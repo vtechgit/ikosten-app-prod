@@ -225,7 +225,7 @@
                     <ion-item *ngFor="let billElement of bill.bill; index as i">
                     
                       <ion-label>
-                        <h3 *ngIf="billElement.status == 500 || billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{billElement.file}}</h3>
+                        <h3 *ngIf="billElement.status == 500 || billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{billElement.original_name}}</h3>
                         <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
                         <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
                         <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
