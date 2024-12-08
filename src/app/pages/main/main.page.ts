@@ -231,6 +231,8 @@ export class MainPage implements OnInit {
   pickerType:string = '';
   pickerOptions:any=[];
 
+  billAccOpened:number = 0;
+
 
   constructor(
     private api:ApiService,
@@ -1294,6 +1296,8 @@ export class MainPage implements OnInit {
     return name;
 
   }
+
+
   uploadFile(file,type){
     this.showAlertTime =true;
     this.isUploading=true;
@@ -1325,7 +1329,7 @@ export class MainPage implements OnInit {
                   
                   founds ++;
                   this.extracts.bills[index]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
-
+                  this.billAccOpened = index;
                 }
               });
               if(founds <=0){
@@ -1449,6 +1453,8 @@ export class MainPage implements OnInit {
       this.isUploading=false;
       this.isUploadingOther=false;
       this.imagesToUpload = [];
+
+
 
     }
   

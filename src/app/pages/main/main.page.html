@@ -215,7 +215,7 @@
         <ion-card-content>
           <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
     
-            <ion-accordion-group class="ion-margin-top" [value]=" extracts['bills'].length-1">
+            <ion-accordion-group class="ion-margin-top" [value]="billAccOpened">
               <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
                 <ion-item slot="header" color="light">
                   <ion-label>País: {{bill.country}}</ion-label>
@@ -225,7 +225,9 @@
                     <ion-item *ngFor="let billElement of bill.bill; index as i">
                     
                       <ion-label>
-                        <h3 *ngIf="billElement.status == 500 || billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{billElement.original_name}}</h3>
+                        <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
+                        <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">Error, no se pudo leer el vendedor</h3>
+
                         <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
                         <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
                         <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
