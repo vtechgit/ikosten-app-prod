@@ -453,6 +453,7 @@ export class MainPage implements OnInit {
 
   }
   finishProcess(){
+    /*
     this.extracts=[];
     sessionStorage.removeItem('extracts');
 
@@ -474,6 +475,7 @@ export class MainPage implements OnInit {
     this.sendExcel=undefined;
     this.currencyExchange=undefined;
 
+    */
 
   }
   countNotMatched(){
@@ -647,50 +649,28 @@ export class MainPage implements OnInit {
       sendExcel:this.sendExcel
 
     }
+    console.log(this.results);
 
-
+    
     this.api.create('leads', obj).subscribe(res=>{
-      //console.log('create lead', res);
       let objSendResult = {
         results: this.results,
         exportSettings : exportSettings,
         userName : this.userName,
         userEmail : this.userEmail,
       }
-      //console.log(objSendResult);
       
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
-        //console.log('send result',res);
         if(res['body'] == 202){
           this.currentStep ++;
         }
         this.sendingForm=false; 
       })
         
-        
-
     })
+      
+      
 
-    /*
-    
-    this.api.sendForm('leads',form).subscribe(res=>{
-
-      form.append('results', JSON.stringify(this.results)); 
-      form.append('exportSettings', sessionStorage.getItem('exportSettings')); 
-
-
-      this.api.sendForm('emails',form).subscribe(res=>{
-        console.log(res);
- 
-        this.currentStep++;
-        this.sendingForm=true;
-        sessionStorage.setItem('currentStep', this.currentStep.toString());
-
-
-      })
-
-    })
-      */
 
   }
   showMemberships(){

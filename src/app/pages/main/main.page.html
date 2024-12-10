@@ -261,7 +261,7 @@
                   </ion-button>
                 </ion-col>
                 <ion-col size="12" size-sm="6">
-                  <ion-button color="secondary" expand="block" (click)="openUploading()">
+                  <ion-button color="secondary" expand="block" [disabled]="checkBillsErrors()" (click)="openUploading()">
                     Subir Recibo / Factura
                     <ion-icon name="add-outline" slot="end"></ion-icon>
                   </ion-button>
@@ -337,8 +337,6 @@
         </ion-card-content>
       </ion-card>
 
-
-
       
       <ion-list class="ion-padding" *ngIf="this.extracts['extract']['file'] && this.extracts['extract']['file'] !=''" @fadeIn>
         <ion-list-header>
@@ -347,7 +345,7 @@
 
         <ion-item >
           <ion-label>
-            <h3 *ngIf="this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName'] || this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == '' ">{{this.extracts['extract']['file']}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName'] || this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == '' ">{{this.extracts['extract']['original_name']}}</h3>
             <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] != ''  && this.extracts['extract']['bankName'] != 'undefined'">{{this.extracts['extract']['bankName']}}</h3>
             <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == 'undefined'" class="color-danger">Error al leer el nombre del banco</h3>
             <h3 *ngIf="this.extracts['extract']['status'] == 500 " class="color-danger">Error al leer el archivo, verifiquelo y vuelva a intentarlo</h3>
@@ -461,6 +459,7 @@
         <h3 class="text-center" >
           Analizando Resultados
         </h3>
+        <p class="text-center">Por favor espera...</p>
         <ion-list >
           <ion-item lines="none" >
             <ion-progress-bar type="indeterminate"></ion-progress-bar>
@@ -501,7 +500,7 @@
                           <span *ngIf="line.reason && line.reason == 'date'" class="color-danger"> no coincide </span> 
 
                         </p>
-                        <p>Recibo <span *ngIf="line.reason && line.reason == 'value'" class="color-danger"> No coincide </span> </p>
+                        <p>Valor en Recibo <span *ngIf="line.reason && line.reason == 'value'" class="color-danger"> No coincide </span> </p>
                         <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
                         <p *ngIf="line.exchange">Cambio de moneda</p>
                         <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
