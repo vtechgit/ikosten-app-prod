@@ -466,7 +466,7 @@
           </ion-item>
         </ion-list>
       </div>
-      <div class="ion-padding" *ngIf="results">
+      <div class="ion-padding" *ngIf="results && checkResults">
 
         <h3 class="text-center">
           Resultados
@@ -479,13 +479,13 @@
             <div slot="content">
 
               <ion-button color="dark" style="margin-top: 10px; margin-bottom: 10px;" expand="block" class="button-controll" (click)="deleteAllNotMatched()" >
-                Eliminar todos los que no coinciden
+                Eliminar los que no coinciden
                 <ion-icon name="trash-outline" slot="end"></ion-icon>
               </ion-button>
 
               <ion-list *ngFor="let group of results.notMatched; index as igroup">
        
-                <ion-item-divider class="bordered-divider">
+                <ion-item-divider class="bordered-divider" *ngIf="group.bill && group.bill.length > 0">
                   <ion-label> {{group.country}} </ion-label>
                 </ion-item-divider>
                 <ion-item *ngFor="let line of group.bill; index as iextract" >
@@ -527,12 +527,16 @@
                   </ion-grid>
 
                   <ion-button  color="danger" (click)="deleteNotMatched(igroup,iextract, line)">
-                    Eliminar
+                    <ion-icon name="trash-outline" ></ion-icon>
 
                   </ion-button>
                   <ion-button  color="primary" (click)="editLine(line)">
                     Editar
 
+                  </ion-button>
+                  <ion-button  color="light" (click)="modalHelp=true">
+                    Ayuda
+                    <ion-icon name="help-circle-outline" slot="end"></ion-icon>
                   </ion-button>
                   </ion-label>
                   <!--
@@ -551,6 +555,7 @@
           </ion-accordion>
 
         </ion-accordion-group>
+        <!--
         <ion-accordion-group class="ion-margin-bottom" value="matched">
           <ion-accordion value="notMatched" >
             <ion-item slot="header" color="primary">
@@ -580,18 +585,7 @@
                         <p class="d-block m-auto text-center bold">Coincide</p>
       
                       </ion-col>
-                      <!--
-                      <ion-col style="display: flex;
-                      justify-content: space-around;
-                      align-items: center;flex-direction: column;">
-                        <ion-note>Coincide</ion-note>
-                        <ion-button *ngIf="line.match">
-                          <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
-      
-                        </ion-button>
-      
-                      </ion-col>
-                      -->
+
 
                     </ion-row>
                   </ion-grid>
@@ -600,20 +594,9 @@
                     Eliminar
 
                   </ion-button>
-                  <!--
-                  <ion-button  color="primary" (click)="editLine(line)">
-                    Editar
-
-                  </ion-button>
-                  -->
 
                   </ion-label>
-                  <!--
-                  <ion-button color="danger">
-                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  -->
-      
+
           
           
                 </ion-item>
@@ -643,17 +626,6 @@
 
                   </ion-label>
 
-                  <!--
-                  <ion-button  color="danger" (click)="deleteLine(i,iline)">
-                    
-                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-
-                  </ion-button>
-                  <ion-button color="danger">
-                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  -->
-      
           
           
                 </ion-item>
@@ -662,22 +634,50 @@
               </ion-list>
             </div>
           </ion-accordion>
+        
 
-        </ion-accordion-group>
-
-
-        <!--
-        <ion-list *ngIf="notmatchedExtractLines && notmatchedExtractLines.length > 0">
-          <ion-list-header>
-            {{notmatchedExtractLines.length}} {{notmatchedExtractLines.length == 1 ? 'Linea de extracto no coincide' : 'Lineas de extracto no coinciden'}} con ningún gasto:
-          </ion-list-header>
-        </ion-list>
+          </ion-accordion-group>
         -->
 
 
 
 
 
+
+
+      </div>
+      <div class="ion-padding" *ngIf="results && !checkResults">
+
+        <ion-card >
+          <ion-card-header>
+            <ion-card-title>Encontrámos {{countNotMatched()}} recibos que no coinciden con tu extracto bancario</ion-card-title>
+            <ion-card-subtitle>Revisa tus recibos</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+  
+            <div class="ion-padding"  >
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-sm="6" class="d-flex flex-center">
+                    <ion-button  color="dark" class="button-controll"  (click)="checkResults=true" >
+                      Revisar {{countNotMatched()}} recibos
+                      <ion-icon name="search" slot="end"></ion-icon>
+                    </ion-button>
+              
+                  </ion-col>
+                  <ion-col size="12" size-sm="6" class="d-flex flex-center">
+                    <ion-button  color="primary" class="button-controll"  (click)="nextStep()" >
+                      Saltarme Este paso
+                      <ion-icon name="flash" slot="end"></ion-icon>
+                    </ion-button>
+              
+                  </ion-col>
+
+                </ion-row>
+              </ion-grid>
+            </div>
+          </ion-card-content>
+        </ion-card>
 
       </div>
  
@@ -1356,6 +1356,87 @@
       
 
       </ion-footer>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="modalHelp" (willDismiss)="onWillDismissModalHelp()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start" >
+            <ion-button color="danger" (click)="modalHelp=false">Cerrar</ion-button>
+          </ion-buttons>
+          <ion-title>Ayuda</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+
+        <div class="ion-padding">
+          <ion-img
+            style="max-width: 50%;"
+            src="../../../assets/images/Identificador[Fondo Blanco].png"
+            alt="ikosten logo"
+          ></ion-img>
+          <ion-list class="ion-margin-top">
+            <ion-list-header>
+              Si tienes problemas revisando tus recibos te sugerimos:
+            </ion-list-header>
+            <ul class="helpList">
+              <li>1. Compara el nombre del vendedor con la linea del extracto</li>
+              <li>2. Verifica que la fecha del recibo coincide con la fecha del extracto</li>
+              <li>3. Si tienes varios recibos del mismo vendedor (Ejemplo: Uber) en la misma fecha, verifica que el valor del pago sea el mismo que en el extracto</li>
+              <li>4. Cuando encuentres el problema, edita el recibo para que pueda coincidir con el extracto</li>
+              <li>5. Ikosten te da algunas pistas en color rojo para que logres identificar el problema mas rápido</li>
+
+            </ul>
+            <ion-list-header>
+              También puedes saltarte la revisión de tus recibos
+            </ion-list-header>
+
+            <ion-grid>
+              <ion-row>
+                <ion-col size="6" class="d-flex flex-center">
+                  <ion-button  color="light" class="button-controll"  (click)="modalHelp=false" >
+                    Cerrar
+                  </ion-button>
+                </ion-col>
+                <ion-col size="6" class="d-flex flex-center">
+                  <ion-button  color="primary" class="button-controll"  (click)="skipRevision()" >
+                    Saltar revisión
+                    <ion-icon name="flash" slot="end"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+
+
+          </ion-list>
+        </div>
+
+
+
+      </ion-content> 
+      <!--
+            <ion-footer class="d-flex flex-justify-space-between" style="padding: 5px;">
+
+        <ion-button color="danger" class="button-controll" style="float:right" (click)="this.isEdditingLine=false" >
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cerrar
+        </ion-button>
+
+        <ion-button [disabled]="this.editLineDescription =='' 
+          || !this.editLineBill
+          || this.editLineBill <=0" color="primary" class="button-controll" style="float:right" (click)="finishEditLine()" >
+          Confirmar
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        
+
+      
+
+      </ion-footer>
+      -->
+
     </ng-template>
   </ion-modal>
 

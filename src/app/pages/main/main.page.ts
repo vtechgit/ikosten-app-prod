@@ -232,7 +232,9 @@ export class MainPage implements OnInit {
   pickerOptions:any=[];
 
   billAccOpened:number = 0;
+  checkResults:boolean=false;
 
+  modalHelp:boolean=false;
 
   constructor(
     private api:ApiService,
@@ -425,35 +427,26 @@ export class MainPage implements OnInit {
   }
   nextStep(){
 
-    if(this.currentStep == 3){
-      if(this.countNotMatched() > 0){
-        this.showAlertFounds = true;
 
-      }else if(this.countMatched() <= 0){
+    if(this.currentStep == 2){
+      this.getAnalisysResult().then(res=>{
 
-        this.showAlertFoundsMatched = true;
+         if(this.countNotMatched() <= 0){
+          this.currentStep ++;
+          sessionStorage.setItem('currentStep', this.currentStep.toString());
 
-      }else{
-        this.currentStep++;
+         }
 
-      }
-    }else{
-      this.currentStep++;
+      });
 
     }
-
-    if(this.currentStep == 3){
-      this.getAnalisysResult();
-
-    }
-
-
+    this.currentStep++;
 
     sessionStorage.setItem('currentStep', this.currentStep.toString());
 
   }
   finishProcess(){
-    /*
+    
     this.extracts=[];
     sessionStorage.removeItem('extracts');
 
@@ -474,8 +467,10 @@ export class MainPage implements OnInit {
     this.sendPdf=undefined;
     this.sendExcel=undefined;
     this.currencyExchange=undefined;
+    this.checkResults=false;
 
-    */
+
+    
 
   }
   countNotMatched(){
@@ -507,61 +502,56 @@ export class MainPage implements OnInit {
   }
   getAnalisysResult(){
 
+    return new Promise((resolve,rejected)=>{
+      if(!sessionStorage.getItem('result') || sessionStorage.getItem('result') == ''){
 
-    if(!sessionStorage.getItem('result') || sessionStorage.getItem('result') == ''){
 
-
-      console.log('extracts before analisys',this.extracts);
-      this.api.create('processes/getResult', this.extracts).subscribe(res=>{
-        console.log('result',res);
-        if(!res['error']){
-          let obj= {
-            matchedBills:res['body']['matchedExtracts'],
-            notMatched:res['body']['notMatched'],
-            notmatchedExtractLines:res['body']['notMatchedExtractLines'],
-            startDate:res['body']['startDate'],
-            endDate:res['body']['endDate']
+        console.log('extracts before analisys',this.extracts);
+        this.api.create('processes/getResult', this.extracts).subscribe(res=>{
+          console.log('result',res);
+          if(!res['error']){
+            let obj= {
+              matchedBills:res['body']['matchedExtracts'],
+              notMatched:res['body']['notMatched'],
+              notmatchedExtractLines:res['body']['notMatchedExtractLines'],
+              startDate:res['body']['startDate'],
+              endDate:res['body']['endDate']
+            }
+            this.results=obj;
+            //console.log('results',this.results);
+    
+            sessionStorage.setItem('result', JSON.stringify(this.results));
+            resolve(true);
+    
           }
-          this.results=obj;
-          //console.log('results',this.results);
+     
+    
+        })
+    
+        /*
+        let form = new FormData();
+        form.append('data', JSON.stringify(obj)); 
+        console.log(form);
+        
+        this.api.sendForm('aws/getResult',form).subscribe(res=>{
   
+          console.log('get result',res);
+          this.results=res;
           sessionStorage.setItem('result', JSON.stringify(this.results));
+          let found = this.checkMatchStatus();
   
+          if(!found.status){
+            this.showAlertFounds=true;
+            this.foundsQty= found.found;
+          }
+    
+        })
+          */
   
-        }
-   
-  
-      })
-  
-      /*
-      let form = new FormData();
-      form.append('data', JSON.stringify(obj)); 
-      console.log(form);
-      
-      this.api.sendForm('aws/getResult',form).subscribe(res=>{
-
-        console.log('get result',res);
-        this.results=res;
-        sessionStorage.setItem('result', JSON.stringify(this.results));
-        let found = this.checkMatchStatus();
-
-        if(!found.status){
-          this.showAlertFounds=true;
-          this.foundsQty= found.found;
-        }
-  
-      })
-        */
-
-    }else{
-      /*
-      let found = this.checkMatchStatus();
-      if(!found.status){
-        this.showAlertFounds=true;
-        this.foundsQty= found.found;
       }
-        */
-    }
+    })
+
+
 
       
   }
@@ -576,12 +566,24 @@ export class MainPage implements OnInit {
 
       this.results=undefined;
       sessionStorage.removeItem('result');
+      this.checkResults=false;
 
     }
+
     if(this.currentStep == 1){
       this.isUploadingOther=false;
     }
     this.currentStep--;
+    if(this.currentStep == 3){
+      if(this.countNotMatched() <= 0){
+        this.currentStep --;
+        this.results=undefined;
+        sessionStorage.removeItem('result');
+        this.checkResults=false;
+        sessionStorage.setItem('currentStep', this.currentStep.toString());
+
+       }
+    }
     sessionStorage.setItem('currentStep', this.currentStep.toString());
 
 
@@ -649,10 +651,31 @@ export class MainPage implements OnInit {
       sendExcel:this.sendExcel
 
     }
-    console.log(this.results);
+
 
     
     this.api.create('leads', obj).subscribe(res=>{
+
+      if(this.countNotMatched() > 0 ){
+
+        this.results.matchedBills.forEach( (matched,index) => {
+
+          this.results.notMatched.forEach(notMatched => {
+
+            if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
+
+              this.results.matchedBills[index].bill = this.results.matchedBills[index].bill.concat(notMatched.bill);
+
+            }
+
+          });
+
+        });
+
+        //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
+
+      }
+
       let objSendResult = {
         results: this.results,
         exportSettings : exportSettings,
@@ -663,6 +686,8 @@ export class MainPage implements OnInit {
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
           this.currentStep ++;
+          sessionStorage.setItem('currentStep', this.currentStep.toString());
+
         }
         this.sendingForm=false; 
       })
@@ -692,6 +717,9 @@ export class MainPage implements OnInit {
     this.isEdditingLine=false;
     this.selectedLine=undefined;
   }
+  onWillDismissModalHelp(){
+    this.modalHelp=false;
+  }
   dismissDeleteAllNotMatched(){
     this.isDeletingAllNotMatched=false;
   }
@@ -706,6 +734,10 @@ export class MainPage implements OnInit {
     //console.log('currencyExchange', obj)
     sessionStorage.setItem('exportSettings', JSON.stringify(obj));
 
+  }
+  skipRevision(){
+    this.nextStep();
+    this.modalHelp=false;
   }
   showModalAddBill(){
     this.openModalAddBill=true;
