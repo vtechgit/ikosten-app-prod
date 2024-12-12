@@ -4,6 +4,7 @@ import {ApiService} from '../../services/api.service';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 const enterTransition = transition(':enter', [
   style({
@@ -240,7 +241,8 @@ export class MainPage implements OnInit {
     private api:ApiService,
     private http: HttpClient,
     private _sanitizer: DomSanitizer,
-    private changeDetector:ChangeDetectorRef
+    private changeDetector:ChangeDetectorRef,
+    private router:Router
   ) { }
 
   ngOnInit() {
@@ -687,6 +689,7 @@ export class MainPage implements OnInit {
         if(res['body'] == 202){
           this.currentStep ++;
           sessionStorage.setItem('currentStep', this.currentStep.toString());
+          this.router.navigate(['./main'],{queryParams:{lead:true}});
 
         }
         this.sendingForm=false; 
