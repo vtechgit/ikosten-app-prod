@@ -1,0 +1,27 @@
+<ion-tabs>
+
+  <ion-tab-bar slot="bottom">
+
+    <ion-tab-button tab="trips" (click)="changeIndexTab(1)" href="/customer/trips">
+      <ion-icon aria-hidden="true" color="primary" [name]="'airplane' + (indexTab == 1 ? '' : '-outline')"></ion-icon>
+      <ion-label>{{'menu.tabs.trips' | translate}}</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="profile" *ngIf="userLogged" (click)="changeIndexTab(2)" href="/customer/profile">
+      <ion-icon aria-hidden="true" color="primary" [name]="'person' + (indexTab == 2 ? '' : '-outline')"></ion-icon>
+      <ion-label>{{'menu.tabs.profile' | translate}}</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="login" (click)="changeIndexTab(3)" *ngIf="!userLogged" href="/customer/login">
+      <ion-icon aria-hidden="true" color="primary" [name]="'person' + (indexTab == 3 ? '' : '-outline')"></ion-icon>
+      <ion-label>{{'menu.tabs.sing-in' | translate}}</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="language" (click)="changeIndexTab(4)" href="/customer/language">
+      <ion-icon aria-hidden="true" color="primary" [name]="'language' + (indexTab == 4 ? '' : '-outline')"></ion-icon>
+      <ion-label>{{'titles.modules.profile.language-title' | translate}}</ion-label>
+    </ion-tab-button>
+
+  </ion-tab-bar>
+
+</ion-tabs>

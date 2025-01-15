@@ -5,6 +5,7 @@ import { Output, EventEmitter } from '@angular/core';
   selector: 'app-country-picker',
   templateUrl: './country-picker.component.html',
   styleUrls: ['./country-picker.component.scss'],
+  standalone: false,
 })
 export class CountryPickerComponent  implements OnInit {
 
@@ -31,6 +32,13 @@ export class CountryPickerComponent  implements OnInit {
 
     }
     
+  }
+  convertKey(input){
+    let string = input.replace(/ /g, '-').toLowerCase();
+    string = string.replace(/,/g, '');
+    string = string.replace(/\./g, "");
+    string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return 'countries.'+string;
   }
   search(event){
     const query = event.target.value.toLowerCase();

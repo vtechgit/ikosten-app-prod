@@ -31,7 +31,7 @@
 <ion-grid class="ion-margin-top" *ngIf="rating > 0" @fadeIn>
   <ion-row>
     <ion-col>
-      <ion-textarea label="Cuentanos en que podemos mejorar" rows="8" [(ngModel)]="comment" [counter]="true" maxlength="100" mode="md" labelPlacement="floating" fill="outline" placeholder="Excribe tu comentario aquí"></ion-textarea>
+      <ion-textarea label="{{'inputs.app-feedback.title' | translate}}" rows="8" [(ngModel)]="comment" [counter]="true" maxlength="100" mode="md" labelPlacement="floating" fill="outline" placeholder="{{'inputs.app-feedback.placeholder' | translate}}"></ion-textarea>
 
     </ion-col>
   </ion-row>
@@ -41,7 +41,7 @@
   <ion-row>
     <ion-col>
       <ion-button (click)="finishRating()">
-        Finalizar
+        {{'buttons.finish' | translate}}
        
       </ion-button>
     </ion-col>

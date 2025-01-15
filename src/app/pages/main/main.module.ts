@@ -9,6 +9,9 @@ import {SharedModule} from '../../shared/shared.module';
 import { MainPage } from './main.page';
 import {ComponentsModule} from '../../components/components.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @NgModule({
   imports: [
@@ -18,8 +21,10 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     IonicModule,
     MainPageRoutingModule,
     ComponentsModule,
-    PdfViewerModule
+    PdfViewerModule,
+    TranslateModule
   ],
-  declarations: [MainPage]
+  declarations: [MainPage],
+  providers: []
 })
 export class MainPageModule {}

@@ -25,6 +25,7 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -40,6 +41,9 @@
 .d-flex{
     display: flex;
 }
+.d-none{
+    display: none !important;
+}
 .d-block{
     display: block;
 }
@@ -48,6 +52,9 @@
 }
 .flex-column{
     flex-direction: column;
+}
+.f-right{
+    float: right;
 }
 .flex-justify-space-between{
 
@@ -71,6 +78,18 @@ ion-button{
 }
 .button-controll{
     min-width: 150px;
+}
+ion-datetime{
+    background: white;
+}
+.action-fab-button{
+    min-width: 100px;
+    --border-radius:13px;
+    margin-bottom: 0px;
+
+}
+.btn-card{
+    margin: 5px;
 }
 .full-logo-img{
     max-width: 180px;
@@ -144,4 +163,46 @@ ion-button{
     --border-radius: 14px;
     margin: 2px auto;
   
+  }
+
+  ion-toolbar{
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+
+  }
+  .logo-header-desktop{
+    display: inline;
+  }
+  .logo-header-mobile{
+    display: none;
+  }
+  .responsive_container,.responsive_footer{
+    max-width: 800px;
+    display: block;
+    margin: auto;
+  }
+  .responsive_container-s{
+    max-width: 600px;
+    display: block;
+    margin: auto;
+  }
+
+  @media screen and (max-width: 700px) {
+
+    .logo-header-desktop{
+      display: none;
+    }
+    .logo-header-mobile{
+      display: block;
+    }
+    .responsive_container,.responsive_footer{
+        width: 100%;
+        display: block;
+        margin: auto;
+      }
+      .responsive_container-s{
+        width: 100%;
+        display: block;
+        margin: auto;
+      }
   }

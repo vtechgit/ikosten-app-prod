@@ -5,6 +5,7 @@ import {CountryPickerComponent} from './country-picker/country-picker.component'
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { NgArrayPipesModule } from 'ngx-pipes';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [StarRatingComponent,CountryPickerComponent],
@@ -12,6 +13,7 @@ import { NgArrayPipesModule } from 'ngx-pipes';
     CommonModule,
     FormsModule,
     NgArrayPipesModule,
+    TranslateModule,
     IonicModule
   ],
   exports:[StarRatingComponent,CountryPickerComponent]

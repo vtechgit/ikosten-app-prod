@@ -5,6 +5,9 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import { TranslateService } from '@ngx-translate/core';
+import { Device } from '@capacitor/device';
 
 const enterTransition = transition(':enter', [
   style({
@@ -21,6 +24,7 @@ const fadeIn = trigger('fadeIn', [
 
 @Component({
   selector: 'app-main',
+  standalone:false,
   templateUrl: './main.page.html',
   styleUrls: ['./main.page.scss'],
   animations: [
@@ -28,18 +32,18 @@ const fadeIn = trigger('fadeIn', [
   ]
 })
 export class MainPage implements OnInit {
-  alertButtons = ['Ok'];
+  alertButtons = ['buttons.accept'];
 
   public deleteExtractAlertButtons = [
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Eliminar',
+      text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
         this.confirmDeleteExtract()
@@ -48,14 +52,14 @@ export class MainPage implements OnInit {
   ];
   public alertRestartButtons= [
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Confirmar',
+      text: 'buttons.confirm',
       role: 'confirm',
       handler: () => {
         this.confirmRestartProcess()
@@ -64,14 +68,14 @@ export class MainPage implements OnInit {
   ];
   public deleteLineAlertButtons =[
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Eliminar',
+      text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
         this.confirmDeleteLine()
@@ -80,14 +84,14 @@ export class MainPage implements OnInit {
   ];
   public deleteAllNotMatchedAlertButtons =[
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Eliminar',
+      text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
         this.confirmDeleteAllNotMatchedLines()
@@ -96,14 +100,14 @@ export class MainPage implements OnInit {
   ];
   public deleteBillAlertButtons =[
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Eliminar',
+      text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
         this.confirmDeleteBill()
@@ -112,14 +116,14 @@ export class MainPage implements OnInit {
   ];
   public deleteAllAlertButtons =[
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Eliminar',
+      text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
         this.confirmDeleteBillAll()
@@ -128,14 +132,14 @@ export class MainPage implements OnInit {
   ];
   public goBackAlertButtons =[
     {
-      text: 'Cancelar',
+      text: 'buttons.cancel',
       role: 'cancel',
       handler: () => {
         
       },
     },
     {
-      text: 'Confirmar',
+      text: 'buttons.confirm',
       role: 'confirm',
       handler: () => {
         this.confirmGoBack()
@@ -237,83 +241,105 @@ export class MainPage implements OnInit {
 
   modalHelp:boolean=false;
 
+  userSession:any;
+  travels:any;
+  openModalAddTravel:boolean=false;
+
+  todayDate:string;
+
+  travelSelected:any;
+  showAlertLogin:boolean=false;
+  showAlert24Hours:boolean=false;
+
+  showAlertResend:boolean=false;
+
   constructor(
     private api:ApiService,
     private http: HttpClient,
     private _sanitizer: DomSanitizer,
     private changeDetector:ChangeDetectorRef,
-    private router:Router
+    private router:Router,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
 
-    
-    this.getCurrencies();
+    let today = new Date();
+    this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
     this.hidrate();
+    this.getCurrencies();
     console.log('extracts',this.extracts);
+
+    //translate alert buttons
+
+    this.translate.get(_('buttons.accept')).subscribe((text: string) => {
+      this.alertButtons[0]=text;
+    });
+    this.translate.get(_('buttons.delete')).subscribe((text: string) => {
+      this.deleteExtractAlertButtons[1].text =text;
+      this.deleteLineAlertButtons[1].text = text;
+      this.deleteAllNotMatchedAlertButtons[1].text = text;
+      this.deleteBillAlertButtons[1].text = text;
+      this.deleteAllAlertButtons[1].text = text;
+
+      
+    });
+    this.translate.get(_('buttons.cancel')).subscribe((text: string) => {
+      this.deleteExtractAlertButtons[0].text =text;
+      this.alertRestartButtons[0].text = text;
+      this.deleteLineAlertButtons[0].text = text;
+      this.deleteAllNotMatchedAlertButtons[0].text = text;
+      this.deleteBillAlertButtons[0].text = text;
+      this.deleteAllAlertButtons[0].text = text;
+      this.goBackAlertButtons[0].text = text;
+    });
+    this.translate.get(_('buttons.confirm')).subscribe((text: string) => {
+      this.alertRestartButtons[1].text = text;
+      this.goBackAlertButtons[1].text = text;
+      
+
+    });
 
     
   }
+
   hidrate(){
-    if(sessionStorage.getItem('extracts') && sessionStorage.getItem('extracts') != ''){
-      this.extracts = JSON.parse(sessionStorage.getItem('extracts'));
+
+    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+
+      this.userSession = JSON.parse(localStorage.getItem('userSession'));
+
+      this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
+        console.log('processes',res);
+        this.travels = res['body'];
+      })
+      this.api.read('leads/'+this.userSession._id).subscribe(res=>{
+
+        if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
+
+          this.userEmail = res['body']['lead_email'];
+
+        }
+        if(res['body']['lead_name'] && res['body']['lead_name'] != ''){
+
+          this.userName = res['body']['lead_name'];
+
+        }
+      })
+
+    }else{
+
+      if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
+
+        this.travels = JSON.parse(sessionStorage.getItem('travels'));
+
+      }else{
+        this.travels = [];
+      }
 
     }
-    if(sessionStorage.getItem('result') && sessionStorage.getItem('result') != ''){
-      this.results = JSON.parse(sessionStorage.getItem('result'));
+    console.log(this.travels);
 
-    }
-
-
-    if(sessionStorage.getItem('currentStep') && sessionStorage.getItem('currentStep') != ''){
-      this.currentStep = Number(sessionStorage.getItem('currentStep'));
-      //console.log('current step',this.currentStep)
-      if(this.currentStep == 3){
-        this.getAnalisysResult();
-      }
-      
-
-    }
-
-    if(sessionStorage.getItem('exportSettings') && sessionStorage.getItem('exportSettings') != ''){
-      let obj = JSON.parse(sessionStorage.getItem('exportSettings'));
-
-      if(obj['userName']){
-        this.userName = obj['userName'];
-
-      }
-      if(obj['userEmail']){
-        this.userEmail = obj['userEmail'];
-
-      }
-      
-      if(obj['sendPdf']){
-        this.sendPdf = obj['sendPdf'];
-
-      }
-      if(obj['sendExcel']){
-        
-        this.sendExcel = obj['sendExcel'];
-        
-      }
-      if(obj['currencyExchange']){
-
-        this.currencyExchange = obj['currencyExchange'];
-      }
-      //console.log('currency', obj);
-
-
-
-    }
-    let obj ={
-      userName:this.userName,
-      userEmail:this.userEmail,
-      sendPdf:this.sendPdf,
-      sendExcel:this.sendExcel,
-      currencyExchange: this.currencyExchange
-
-    }
-    sessionStorage.setItem('exportSettings', JSON.stringify(obj));
     if(this.countBills() > 0){
       this.isUploadingOther=false;
     }else{
@@ -321,6 +347,29 @@ export class MainPage implements OnInit {
 
     }
     //console.log('extracts',this.extracts)
+  }
+  openLogin(){
+    this.showAlertLogin=false;
+    setTimeout(() => {
+    this.router.navigate(['/login']);
+      
+    }, 500);
+  }
+  listProcesses(){
+    if(this.userSession){
+      this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
+        this.travels = res['body'];
+      })
+    }else{
+      if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
+
+        this.travels = JSON.parse(sessionStorage.getItem('travels'));
+
+      }else{
+        this.travels = [];
+      }
+    }
+
   }
   scrollToTarget(target){
     setTimeout(() => {
@@ -377,45 +426,157 @@ export class MainPage implements OnInit {
     this.api.read('countries').subscribe(res=>{
       if(res['status'] == 200){
         this.currencies=res['body'];
+        /*
+        console.log('currencies', this.currencies);
 
+        var jsonObj="";
+
+        this.currencies.forEach(element => {
+          let string = element.country.replace(/ /g, '-').toLowerCase();
+          string = string.replace(/,/g, '');
+          string = string.replace(/\./g, "");
+          string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          
+          let objString = '"countries.'+string+'":"'+element.country+'",';
+          jsonObj = jsonObj +objString;
+
+        });
+        console.log(jsonObj);
+        */
       }
     })
   }
-  createProcess(){
-    this.loadingButtons=true;
-    if(sessionStorage.getItem('processId') && sessionStorage.getItem('processId') != null && sessionStorage.getItem('processId') != ''){
-      this.currentStep++;
-      this.loadingButtons=false;
+  convertKey(input){
+    let string = input.replace(/ /g, '-').toLowerCase();
+    string = string.replace(/,/g, '');
+    string = string.replace(/\./g, "");
+    string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return 'countries.'+string;
+  }
+  openTravel(travel){
+    this.travelSelected = travel;
 
+    this.currentStep = this.travelSelected['process_step'];
+    this.extracts={bills:[],extract:{ type:'', currency:''}};
+    this.currencyBlockSelected = travel.process_country;
+
+    if(this.travelSelected['process_data']){
+
+      this.extracts = this.travelSelected['process_data'];
 
     }else{
-      let form = new FormData();
-      this.api.create('processes',{}).subscribe(res=>{
-        //console.log(res);
-        if(res['status'] == 201){
-          sessionStorage.setItem('processId', res['body']['_id']);
-          this.extracts={bills:[],extract:{ type:'', currency:''}};
-          sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
-          this.currentStep++;
+      this.extracts={bills:[],extract:{ type:'', currency:''}};
+      
+    }
+    if(this.travelSelected['process_result']){
 
-  
-        }
-        this.loadingButtons=false;
-
-      })
-
-
+      this.results = this.travelSelected['process_result'];
     }
 
-    if(this.countBills() > 0){
+    if(this.travelSelected['process_settings']){
+
+      if(this.travelSelected['process_settings']['sendPdf']){
+
+        this.sendPdf = this.travelSelected['process_settings']['sendPdf'];
+
+      }
+      if(this.travelSelected['process_settings']['sendExcel']){
+
+        this.sendExcel = this.travelSelected['process_settings']['sendExcel'];
+
+      }
+    }
+
+    if(this.extracts.bills.length > 0){
       this.isUploadingOther=false;
     }else{
-      this.isUploadingOther=true;
+      this.isUploadingOther = true;
 
     }
 
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
+    let date = new Date(this.travelSelected['last_uploaded_bill_date']);
+    let today = new Date();
+    var diff = Math.abs(today.getTime() - date.getTime()) / 3600000;
+    if(diff > 24){
+      this.showAlert24Hours=true;
+    }
+
+
+
+  }
+  updateTravel(){
+
+    this.travelSelected['process_data']= this.extracts;
+
+    if(this.results){
+      this.travelSelected['process_result'] = this.results;
+    }
+    
+    
+    
+    this.travels.forEach((element,index) => {
+
+      if(element._id == this.travelSelected._id){
+        this.travels[index] = this.travelSelected;
+      }
+
+    });
+    
+    if(this.userSession){
+      this.api.update('processes/'+this.travelSelected._id,this.travelSelected).subscribe(res=>{
+        console.log('update process', res);
+      })
+    }else{
+        sessionStorage.setItem('travels', JSON.stringify(this.travels));
+    }
+
+  }
+
+
+  createProcess(){
+    this.loadingButtons=true;
+    let startDate = this.todayDate.split('T')[0];
+    let processSettings = {
+      sendPdf:false,
+      sendExcel:false
+    }
+
+
+    let req = {
+      process_lead: this.userSession ? this.userSession._id : undefined,
+      process_start_date :startDate,
+      process_country: this.currencyBlockSelected,
+      process_step:1,
+      process_settings:processSettings
+    };
+    this.api.create('processes',req).subscribe(res=>{
+      if(res['status'] == 201){
+
+        this.openModalAddTravel = false;
+        this.listProcesses();
+
+        if(!this.userSession){
+          if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
+
+            this.travels = JSON.parse(sessionStorage.getItem('travels'));
+            this.travels.push(res['body']);
+            
+    
+          }else{
+            this.travels = [];
+            this.travels.push(res['body']);
+
+          }
+          sessionStorage.setItem('travels', JSON.stringify(this.travels));
+
+        }
+
+      }
+      this.loadingButtons=false;
+
+    })
+
 
 
   }
@@ -429,13 +590,23 @@ export class MainPage implements OnInit {
   }
   nextStep(){
 
+    if(this.currentStep == 1 ){
+      this.travelSelected['process_status']=1;
+      this.updateTravel();
+      if(!this.userSession){
+      
+        this.showAlertLogin = true;
+      }
+
+    }
 
     if(this.currentStep == 2){
       this.getAnalisysResult().then(res=>{
 
          if(this.countNotMatched() <= 0){
           this.currentStep ++;
-          sessionStorage.setItem('currentStep', this.currentStep.toString());
+          this.travelSelected['process_step']= this.currentStep;
+          this.updateTravel();
 
          }
 
@@ -444,32 +615,35 @@ export class MainPage implements OnInit {
     }
     this.currentStep++;
 
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
+    this.travelSelected['process_step']= this.currentStep;
+    this.updateTravel();
 
   }
-  finishProcess(){
+  finishProcess(event){
+
+    this.api.create('ratings', {ratings_lead_email: this.userEmail, ratings_process:this.travelSelected._id ,ratings_score:event['score'], ratings_comment:event['comment'] }).subscribe(res=>{
+      
+      this.api.update('processes/'+this.travelSelected._id, {process_date_finished:Date.now()}).subscribe(res=>{
+
+        this.travelSelected['process_status']=2;
+        this.updateTravel();
+        this.extracts=[];
     
-    this.extracts=[];
-    sessionStorage.removeItem('extracts');
+        this.results=undefined;
+    
+        this.exportSettings=undefined;
+    
+        this.currentExtract=0;
+        this.currentBill=0;
+        this.sendPdf=undefined;
+        this.sendExcel=undefined;
+        this.checkResults=false;
+        this.currentStep = 0;
+      })
 
-    this.results=undefined;
-    sessionStorage.removeItem('result');
-
-    this.exportSettings=undefined;
-    sessionStorage.removeItem('exportSettings');
-
-    this.currentStep=0;
-    sessionStorage.removeItem('currentStep');
-    sessionStorage.removeItem('processId');
-
+    })
     
 
-    this.currentExtract=0;
-    this.currentBill=0;
-    this.sendPdf=undefined;
-    this.sendExcel=undefined;
-    this.currencyExchange=undefined;
-    this.checkResults=false;
 
 
     
@@ -505,7 +679,7 @@ export class MainPage implements OnInit {
   getAnalisysResult(){
 
     return new Promise((resolve,rejected)=>{
-      if(!sessionStorage.getItem('result') || sessionStorage.getItem('result') == ''){
+      if(!this.travelSelected['process_result']){
 
 
         console.log('extracts before analisys',this.extracts);
@@ -522,34 +696,17 @@ export class MainPage implements OnInit {
             this.results=obj;
             //console.log('results',this.results);
     
-            sessionStorage.setItem('result', JSON.stringify(this.results));
+            this.updateTravel();
             resolve(true);
     
           }
      
     
         })
-    
-        /*
-        let form = new FormData();
-        form.append('data', JSON.stringify(obj)); 
-        console.log(form);
-        
-        this.api.sendForm('aws/getResult',form).subscribe(res=>{
   
-          console.log('get result',res);
-          this.results=res;
-          sessionStorage.setItem('result', JSON.stringify(this.results));
-          let found = this.checkMatchStatus();
-  
-          if(!found.status){
-            this.showAlertFounds=true;
-            this.foundsQty= found.found;
-          }
-    
-        })
-          */
-  
+      }else{
+        this.results = this.travelSelected['process_result'];
+        resolve(true);
       }
     })
 
@@ -567,7 +724,6 @@ export class MainPage implements OnInit {
       //console.log('reset result');
 
       this.results=undefined;
-      sessionStorage.removeItem('result');
       this.checkResults=false;
 
     }
@@ -580,14 +736,10 @@ export class MainPage implements OnInit {
       if(this.countNotMatched() <= 0){
         this.currentStep --;
         this.results=undefined;
-        sessionStorage.removeItem('result');
         this.checkResults=false;
-        sessionStorage.setItem('currentStep', this.currentStep.toString());
 
        }
     }
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
-
 
   }
   addExtract(){
@@ -602,8 +754,9 @@ export class MainPage implements OnInit {
   }
   exportResult(){
     this.currentStep++;
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
+    this.travelSelected['process_step']= this.currentStep;
 
+    this.updateTravel();
 
   }
   dismissAlertFounds(){
@@ -638,14 +791,27 @@ export class MainPage implements OnInit {
   deleteBillFromResult(docId){
     
   }
-  sendResult(){
+  updateOrCreateLead(obj){
+    return new Promise ((resolve,reject)=>{
+      if(this.userSession){
+        this.api.update('leads/'+this.userSession._id,obj).subscribe(res=>{
+          console.log('update lead', res);
+          resolve(res);
+        })
+      }else{
+        this.api.create('leads', obj).subscribe(res=>{
+          console.log('create lead', res);
+
+          resolve(res);
+        });
+      }
+
+    })
+  }
+
+  ionResult(){
     this.sendingForm=true; 
-   
-    let obj = {
-      lead_name:this.userName,
-      lead_email: this.userEmail.toLowerCase(),
-      process_id: sessionStorage.getItem('processId')
-    }
+
     let exportSettings ={
       userName:this.userName,
       userEmail:this.userEmail,
@@ -655,51 +821,150 @@ export class MainPage implements OnInit {
     }
 
 
+   let obj = {
+    lead_name:this.userName,
+    lead_email: this.userEmail.toLowerCase(),
+    process_id: this.travelSelected._id
+  }
+   this.updateOrCreateLead(obj).then(()=>{
+    if(this.countNotMatched() > 0 ){
     
-    this.api.create('leads', obj).subscribe(res=>{
+      if(this.results.matchedBills.length > 0){
+        this.results.matchedBills.forEach( (matched,index) => {
 
-      if(this.countNotMatched() > 0 ){
+          this.results.notMatched.forEach(notMatched => {
+  
+            if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
+  
+              this.results.matchedBills[index].bill = this.results.matchedBills[index].bill.concat(notMatched.bill);
+  
+            }
+  
+          });
+  
+        });
+      }else{
+        this.results.matchedBills = this.results.notMatched;
+      }
+
+
+      //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
+
+    }
+
+    let objSendResult = {
+      results: this.results,
+      exportSettings : exportSettings,
+      userName : this.userName,
+      userEmail : this.userEmail,
+    }
+    
+    this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
+      if(res['body'] == 202){
+
+        this.showAlertResend = true;
+        this.currentStep = 0;
+        this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
+
+      }
+      this.sendingForm=false; 
+    })
+   })
+
+
+  }
+  sendResult(){
+    this.sendingForm=true; 
+
+
+    let exportSettings ={
+      userName:this.userName,
+      userEmail:this.userEmail,
+      sendPdf:this.sendPdf,
+      sendExcel:this.sendExcel
+
+    }
+
+
+   let obj = {
+    lead_name:this.userName,
+    lead_email: this.userEmail.toLowerCase(),
+    process_id: this.travelSelected._id
+  }
+   this.updateOrCreateLead(obj).then(()=>{
+    if(this.countNotMatched() > 0 ){
+    
+      if(this.results.matchedBills.length > 0){
 
         this.results.matchedBills.forEach( (matched,index) => {
 
           this.results.notMatched.forEach(notMatched => {
-
+  
             if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
-
+  
+          
               this.results.matchedBills[index].bill = this.results.matchedBills[index].bill.concat(notMatched.bill);
-
+  
             }
-
+  
           });
-
+  
         });
-
-        //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
-
+      }else{
+        this.results.matchedBills = this.results.notMatched;
       }
 
+
+      //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
+
+    }
+
+    this.getlanguage().then(res=>{
+      var lang = res;
       let objSendResult = {
         results: this.results,
         exportSettings : exportSettings,
         userName : this.userName,
         userEmail : this.userEmail,
+        lang: lang
       }
-      
+      console.log(objSendResult);
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
           this.currentStep ++;
-          sessionStorage.setItem('currentStep', this.currentStep.toString());
-          this.router.navigate(['./main'],{queryParams:{lead:true}});
-
+          this.travelSelected['process_step']= this.currentStep;
+  
+          this.updateTravel();
+  
+          this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
+  
         }
         this.sendingForm=false; 
       })
-        
+
     })
-      
-      
 
 
+      
+   })
+
+
+  }
+
+  getlanguage(){
+    return new Promise((resolve,rejected)=>{
+
+      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+        resolve(localStorage.getItem('lang'));
+  
+      }else{
+        Device.getLanguageCode().then(res=>{
+          resolve(res.value);
+
+        });
+      }
+
+    })
   }
   showMemberships(){
     this.openModalMemberships=true;
@@ -707,8 +972,9 @@ export class MainPage implements OnInit {
   showCheckout(){}
   jumpToStep(step:number){
     this.currentStep=step;
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
+    this.travelSelected['process_step']= this.currentStep;
 
+    this.updateTravel();
   }
   flushData(){
     this.jumpToStep(0);
@@ -727,15 +993,13 @@ export class MainPage implements OnInit {
     this.isDeletingAllNotMatched=false;
   }
   changeExportSettings(){
-    let obj ={
-      userName: this.userName,
-      userEmail:this.userEmail,
-      sendPdf:this.sendPdf,
-      sendExcel:this.sendExcel,
-      currencyExchange: this.currencyExchange
-    }
-    //console.log('currencyExchange', obj)
-    sessionStorage.setItem('exportSettings', JSON.stringify(obj));
+
+
+    this.travelSelected['process_settings']['sendPdf'] = this.sendPdf ? true : false;
+    this.travelSelected['process_settings']['sendExcel'] = this.sendExcel? true : false;
+
+    this.updateTravel();
+
 
   }
   skipRevision(){
@@ -751,6 +1015,10 @@ export class MainPage implements OnInit {
   onWillDismissAddBill(){
     this.openModalAddBill=false;
     this.uploadedBill="";
+  }
+  onWillDismissAddTravel(){
+    this.openModalAddTravel =false;
+    this.currencyBlockSelected = undefined;
   }
   onFileDropped($event,type){
     this.uploadFile($event,type);
@@ -819,9 +1087,8 @@ export class MainPage implements OnInit {
     delete this.extracts['extract']['mimeType'];
     delete this.extracts['extract']['startDate'];
 
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
 
-    
+    this.updateTravel();
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
      // console.log(res);
     })
@@ -839,7 +1106,7 @@ export class MainPage implements OnInit {
       this.extracts['bills'].splice(this.idToDeleteBillContainer,1);
 
     }
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    this.updateTravel();
 
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
      // console.log(res);
@@ -866,77 +1133,23 @@ export class MainPage implements OnInit {
 
     });
     this.extracts['bills'] = [];
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    this.updateTravel();
+
 
 
 
   }
-  startBillWorker(){
 
-    //console.log('start bill worker')
-    if(this.extracts &&  this.extracts.bills  ){
-
-      // this.extracts[this.currentExtract]['bills'][this.currentBill]
-
-
-      setTimeout(() => {
-        this.extracts.bills.forEach((element,index) => {
-          
-          element.bill.forEach((bill,indexBill) => {
-
-            if(bill.status == 0){
-  
-              let form = new FormData();
-              form.append('jobId', bill.jobId); 
-      
-              this.api.sendForm('aws/getBillAnalysis',form).subscribe(res=>{
-               // console.log('getBillAnalysis', res);
-
-                
-                if(res['status']){
-                  let result = res['result'];
-  
-                  this.extracts.bills[index]['bill'][indexBill]['status'] = 1;
-                  this.extracts.bills[index]['bill'][indexBill]['confirmed'] = 0;
-                  this.extracts.bills[index]['bill'][indexBill]['date'] = result['date'];
-                  this.extracts.bills[index]['bill'][indexBill]['net'] = result['net'];
-                  this.extracts.bills[index]['bill'][indexBill]['tax'] = result['tax'];
-                  this.extracts.bills[index]['bill'][indexBill]['tip'] = result['tip'];
-                  this.extracts.bills[index]['bill'][indexBill]['total'] = result['total'];
-                  this.extracts.bills[index]['bill'][indexBill]['vendor'] = result['vendor'];
-                  //console.log(this.extracts);
-                  sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
-                  //console.log(JSON.stringify(this.extracts));
-                  
-                  
-                }else{
-                  this.startBillWorker();
-                }
-                  
-                  
-              })
-              
-            }
-            
-          });
- 
-        });
-
-  
-      }, 5000);
-      
-    
-
-    }
-  }
   changeExtractType(){
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    this.updateTravel();
 
   }
   nextConfirmData(){
 
     //console.log('extracts', this.extracts);
     this.currentStep =2;
+    this.travelSelected['process_step']= this.currentStep;
+
     this.getAnalisysResult();
     /*
     if(this.currentStep ==1 && this.extracts 
@@ -953,7 +1166,7 @@ export class MainPage implements OnInit {
     }
       */
 
-    sessionStorage.setItem('currentStep', this.currentStep.toString());
+    this.updateTravel();
 
   }
   confirmData(){
@@ -962,7 +1175,7 @@ export class MainPage implements OnInit {
     this.extracts[this.currentExtract]['bills'][this.currentBill]['confirmed']=1;
 
     this.currentBill = this.extracts[this.currentExtract]['bills'].length;
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    this.updateTravel();
 
     this.nextStep();
 
@@ -1043,7 +1256,7 @@ export class MainPage implements OnInit {
     this.api.create('uploads/readBlob', {
       file_name:line.blobName,
       mimeType:line.mimeType,
-      process_id:sessionStorage.getItem('processId'),
+      process_id:this.travelSelected._id,
       folder:"receipts"
     }).subscribe(res=>{
 
@@ -1057,7 +1270,7 @@ export class MainPage implements OnInit {
     this.api.create('uploads/readBlob', {
       file_name:this.extracts['extract'].blobName,
       mimeType:this.extracts['extract'].mimeType,
-      process_id:sessionStorage.getItem('processId'),
+      process_id:this.travelSelected._id,
       folder:"extracts"
     }).subscribe(res=>{
 
@@ -1144,9 +1357,8 @@ export class MainPage implements OnInit {
 
   }
   confirmDeleteAllNotMatchedLines(){
-    console.log('confirm Delete all')
     this.results['notMatched']=[];
-    sessionStorage.setItem('result', JSON.stringify(this.results));
+    this.updateTravel();
 
   }
   confirmDeleteLine(){
@@ -1170,7 +1382,7 @@ export class MainPage implements OnInit {
     this.confirmDeleteBill();
 
 
-    sessionStorage.setItem('result', JSON.stringify(this.results));
+    this.updateTravel()
 
 
   }
@@ -1231,45 +1443,13 @@ export class MainPage implements OnInit {
 
     this.isEdditingLine=false;
     this.results=undefined;
-    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+    this.updateTravel();
     sessionStorage.removeItem('result')
     this.getAnalisysResult();
     
 
   }
-  /*
-  uploadBillPhoto(){
-    this.isUploading=true;
-    let form = new FormData();
-    form.append('image64', this.imageToUpload); 
 
-
-    this.api.sendForm('aws/startExpenseAnalysisBase64',form).subscribe(res=>{
-
-      if(res['status']){
-        if(this.extracts[this.currentExtract]['bills']){
-          this.extracts[this.currentExtract]['bills'].push({file:this.imageToUpload, jobId:res['result']['JobId'], status: 0, currency:''});
-
-        }else{
-          this.extracts[this.currentExtract]['bills'] = [];
-          this.extracts[this.currentExtract]['bills'].push({file:this.imageToUpload,jobId:res['result']['JobId'], status: 0, currency:''});
-
-        }
-        this.imageToUpload=undefined;
-        sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
-        this.startBillWorker();
-      }else{
-        alert('Error subiendo el archivo')
-      }
-      this.isUploading=false;
-
-
-
-
-    })
-
-  }
-    */
   checkUploadStatus(){
     if(!this.extracts || this.extracts &&
        this.extracts['bills'].length <=0 
@@ -1312,10 +1492,11 @@ export class MainPage implements OnInit {
 
   }
 
-
   uploadFile(file,type){
     this.showAlertTime =true;
     this.isUploading=true;
+    this.travelSelected['last_uploaded_bill_date'] = Date.now();
+    this.updateTravel();
     if (file.length > 0) {
       var arrFiles =[];
     
@@ -1330,7 +1511,7 @@ export class MainPage implements OnInit {
             this.extracts['extract']['status'] = 0;
             this.extracts['extract']['lines'] = [];
             
-            sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+            this.updateTravel();
 
           }
           if(type == 'bills'){
@@ -1358,8 +1539,8 @@ export class MainPage implements OnInit {
               
 
             }
-           // console.log(this.extracts)
-            sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+            this.updateTravel();
+
           }
 
         }
@@ -1373,7 +1554,7 @@ export class MainPage implements OnInit {
 
             let form = new FormData();
             form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', sessionStorage.getItem('processId')); 
+            form.append('process_id', this.travelSelected._id); 
             form.append('model_id', 'custom-ikosten-extracts-v2'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
@@ -1398,7 +1579,8 @@ export class MainPage implements OnInit {
               this.extracts['extract']['blobName'] = res['body']['document_result']['blobName']; 
               this.extracts['extract']['mimeType'] = res['body']['document_result']['mimeType']; 
 
-              sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+              this.updateTravel();
+
 
             })
             
@@ -1406,7 +1588,7 @@ export class MainPage implements OnInit {
           }else if(type == 'bills'){
             let form = new FormData();
             form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', sessionStorage.getItem('processId')); 
+            form.append('process_id', this.travelSelected._id); 
             form.append('model_id', 'prebuilt-receipt'); 
 
             this.api.sendForm('uploads/uploadReceipt',form).subscribe(res=>{
@@ -1450,7 +1632,8 @@ export class MainPage implements OnInit {
                       this.extracts.bills[index]['bill'][indexBill]['blobName']="";
                     }
 
-                    sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
+                    this.updateTravel();
+
                     
 
                   }
@@ -1531,108 +1714,10 @@ export class MainPage implements OnInit {
 
     return new Blob([ia], {type:mimeString});
   }
-  _uploadFile(file, type){
-    this.isUploading=true;
 
-    if (file.length > 0) {
-
-      for(const fileElement of file){
-
-        if((fileElement.size/1048576)<=10){
-
-          if(type == 'extract'){
-
-            let form = new FormData();
-            form.append('file', fileElement, fileElement.name); 
-            //console.log('send form');
-  
-            this.api.sendForm('aws/startExpenseAnalysis',form).subscribe(res=>{
-      
-              //console.log(res);
-              if(res['status']){
-                this.extracts['extract'] = {file:fileElement, name:fileElement.name, jobId:res['result']['JobId'], status: 0, type:'', currency:''};
-                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
-                this.showAlertTime =true;
-                this.startExtractWorker();
-              }else{
-                alert('Error subiendo el archivo')
-              }
-              this.isUploading=false;
-
-            })
-  
-
-          }else if(type=='bill'){
-            let form = new FormData();
-            form.append('file', file[0], file[0].name); 
-            form.append('lot_id', sessionStorage.getItem('processId')); 
-
-  
-            this.api.sendForm('azure/startExpenseAnalysis',form).subscribe(res=>{
-              //console.log(res);
-              if(res['status']){
-                this.showAlertTime =true;
-                if(this.extracts && this.extracts.bills){
-
-                  let founds = 0;
-
-                  this.extracts.bills.forEach( (element,index) => {
-                    if(element.currency == this.currencyBlockSelected['code']){
-                      
-                      founds ++;
-                      this.extracts.bills[index]['bill'].push({ file:file[0], jobId:res['result']['JobId'], status: 0 });
-
-                    }
-                  });
-                  if(founds <=0){
-                    this.extracts.bills.push({currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{file:file[0], jobId:res['result']['JobId'], status: 0}]});
-
-                  }
-
-  
-                }else{
-                  this.extracts={bills :[{currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{file:file[0], jobId:res['result']['JobId'], status: 0}]}]};
-                  
-  
-                }
-                //console.log(this.extracts)
-                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
-                this.startBillWorker();
-              }else{
-                alert('Error subiendo el archivo')
-              }
-              this.isUploading=false;
-              this.isUploadingOther=false;
-
-
-
-            })
-  
-          }
-        }else{
-          this.notUploaded.push(fileElement);
-          //alert('file exeeds 10 MB')
-        }
-      }
-      
-
-      if(this.notUploaded.length > 0){
-        alert(this.notUploaded.length+' archivos exceden el máximo de 10 MB');
-      }
-
-
-
-
-
-        
-    }
-        
-
-  }
   confirmRestartProcess(){
     sessionStorage.clear();
     this.isUploadingOther=true;
-    this.currentStep = 0;
   }
   fileBrowseHandler(files, type){
     //console.log('file handler')

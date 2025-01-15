@@ -3,9 +3,9 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-button color="danger" (click)="isModalOpen=false;">Atrás</ion-button>
+          <ion-button color="danger" (click)="isModalOpen=false;">{{'buttons.back' | translate}}</ion-button>
         </ion-buttons>
-        <ion-title>{{modalTitle}}</ion-title>
+        <ion-title>{{modalTitle | translate}}</ion-title>
 
       </ion-toolbar>
       <ion-toolbar>
@@ -16,13 +16,13 @@
       <ion-list *ngIf="type == 'country'">
         <ion-item *ngFor="let option of options | filterBy: ['country', 'code', 'country_code', 'currency_name']: this.searchText" (click)="selectOption(option)">
           <ion-checkbox slot="start" [checked]="selectedOption && selectedOption.country == option.country"></ion-checkbox>
-          {{option.country}} ({{option.code}})
+          {{ convertKey(option.country) | translate}} ({{option.code}})
         </ion-item>
       </ion-list>
       <ion-list *ngIf="type == 'currency'">
         <ion-item *ngFor="let option of options | filterBy: ['country', 'code', 'country_code', 'currency_name']: this.searchText" (click)="selectOption(option)">
           <ion-checkbox slot="start" [checked]="selectedOption && selectedOption == option.code"></ion-checkbox>
-          {{option.code}} ({{option.country}})
+          {{option.code}} ({{convertKey(option.country) | translate }})
         </ion-item>
       </ion-list>
       
@@ -31,7 +31,7 @@
     <ion-footer  color="light" class="d-flex flex-end"  *ngIf="this.selectedOption">
 
       <ion-button color="primary" class="button-controll" (click)="confirmOptionSelected()" >
-        Confirmar
+        {{'buttons.confirm' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 

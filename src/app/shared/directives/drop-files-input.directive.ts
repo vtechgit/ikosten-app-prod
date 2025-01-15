@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 
 @Directive({
-  selector: '[appDropFilesInput]'
+  selector: '[appDropFilesInput]',
+  standalone:false
 })
 export class DropFilesInputDirective {
 

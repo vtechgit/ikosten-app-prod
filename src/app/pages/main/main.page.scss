@@ -56,17 +56,7 @@
   ion-list-header{
     font-size: 18px;
   }
-  ion-toolbar{
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
 
-  }
-  .logo-header-desktop{
-    display: inline;
-  }
-  .logo-header-mobile{
-    display: none;
-  }
 
   .welcome-image{
     width: 350px;
@@ -85,12 +75,7 @@
       margin: auto;
 
     }
-    .logo-header-desktop{
-      display: none;
-    }
-    .logo-header-mobile{
-      display: block;
-    }
+
     .responsive_container,.responsive_footer{
       width: 100%;
       display: block;

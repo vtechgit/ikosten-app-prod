@@ -26,6 +26,11 @@
                 "output": "assets"
               },
               {
+                "glob": "**/*",
+                "input": "i18n",
+                "output": "i18n"
+              },
+              {
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
@@ -36,11 +41,13 @@
           },
           "configurations": {
             "production": {
+              "buildOptimizer": false,
+              "optimization": false,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "10mb",
+                  "maximumError": "20mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -136,8 +143,7 @@
   "cli": {
     "schematicCollections": [
       "@ionic/angular-toolkit"
-    ],
-    "analytics": false
+    ]
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

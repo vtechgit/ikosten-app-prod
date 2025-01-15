@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "163099486974",
+    "project_id": "ikosten-app",
+    "storage_bucket": "ikosten-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163099486974:android:69a57a783a78ecf09d13af",
+        "android_client_info": {
+          "package_name": "com.ikosten.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "163099486974-3v92g120ji9gr8390qetdg6a6e30uqpj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ikosten.app",
+            "certificate_hash": "5ae2060e5913b5f7b5e89b722b56c91a233079d4"
+          }
+        },
+        {
+          "client_id": "163099486974-bhikjb7e8hcngh2lbaui24s5au2l0sm5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ikosten.app",
+            "certificate_hash": "1ffd4f04d6f5b1087e3e917447cbbf818ea55e7e"
+          }
+        },
+        {
+          "client_id": "163099486974-6inbj5tf5bk7qmm2e1ov5o7ojea044ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCggaTaaoTbxJrT_wGKM4twDfuylOJmv64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "163099486974-6inbj5tf5bk7qmm2e1ov5o7ojea044ph.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "163099486974-6lhaunblcrn1f8o3ts8d2036fjvlpat0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ikosten.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

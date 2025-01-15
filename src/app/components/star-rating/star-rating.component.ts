@@ -19,6 +19,7 @@ const fadeIn = trigger('fadeIn', [
   selector: 'app-star-rating',
   templateUrl: './star-rating.component.html',
   styleUrls: ['./star-rating.component.scss'],
+  standalone: false,
   animations: [
     fadeIn,
   ]
@@ -28,7 +29,7 @@ export class StarRatingComponent  implements OnInit {
   rating =0;
   comment:string='';
   userEmail:string='';
-  @Output() sent = new EventEmitter<string>();
+  @Output() sent = new EventEmitter<any>();
 
   constructor( private api:ApiService) { }
 
@@ -42,6 +43,9 @@ export class StarRatingComponent  implements OnInit {
     this.rating=value;
   }
   finishRating(){
+    this.sent.emit({score:this.rating, comment:this.comment});
+
+    /*
     let objSettings = JSON.parse(sessionStorage.getItem('exportSettings'));
     let process_id =  sessionStorage.getItem('processId');
 
@@ -53,11 +57,11 @@ export class StarRatingComponent  implements OnInit {
     this.api.create('ratings', {ratings_lead_email: this.userEmail, ratings_process:process_id ,ratings_score:this.rating, ratings_comment:this.comment }).subscribe(res=>{
       
       this.api.update('processes/'+process_id, {process_date_finished:Date.now()}).subscribe(res=>{
-        this.sent.emit();
 
       })
 
     })
+      */
 
     
   }
