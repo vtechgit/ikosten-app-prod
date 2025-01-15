@@ -1,0 +1,121 @@
+<ion-header [translucent]="true">
+
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="start">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+
+    </ion-buttons>
+
+  </ion-toolbar>
+
+
+</ion-header>
+<ion-content class="ion-padding">
+  <div class="responsive_container-s " >
+    <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle">
+      <ion-list>
+        <ion-button (click)="startLoginGoogle()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
+          <div class="gsi-material-button-icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block; width: 20px;height: 20px;margin: auto;">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
+            </svg>
+          </div>
+          {{'buttons.sing-in-with-google' | translate}}</ion-button>
+      </ion-list>
+    </div>
+    <ion-grid *ngIf="!isValidatingCode && !isLoginGoogle">
+      <ion-row>
+          <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
+          </ion-col>
+          <ion-col size="4" class="color-white">
+              <div class="text-center">
+                {{'titles.modules.login.or' | translate}}
+              </div>
+          </ion-col>
+
+          <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
+          </ion-col>
+      </ion-row>
+      
+      
+    </ion-grid>
+    <div class="phoneSignin ion-margin-top">
+      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
+        <ion-list-header>
+          {{'titles.modules.login.continue-with-phone-number' | translate}}
+        </ion-list-header>
+        
+        <ion-item class="ion-margin-top">
+          <ion-select label="{{'global.words.country' | translate}}" [(ngModel)]="selectedCountry" label-placement="floating">
+            <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-input label="{{'inputs.phone-number.title' | translate}}" type="number" [(ngModel)]="userPhone" labelPlacement="floating" placeholder="{{'inputs.phone-number.placeholder' | translate}}"></ion-input>
+
+        </ion-item>
+
+        
+      </ion-list>
+      <div id="captcha-container" [ngClass]="isValidatingCode ? 'd-none': ''" class="captcha-container" ></div>
+
+      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
+        <ion-button  [disabled]="isLoading || !userPhone || userPhone.length < 10 || !selectedCountry" expand="block" (click)="doLoginPhone()" color="primary" class="button-controll ion-margin">
+          {{isLoading ? '' : 'buttons.start' | translate}}
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </ion-list>
+
+
+    </div>
+
+  </div>
+  <div class="responsive_container" *ngIf="isLoginGoogle">
+    <ion-list>
+      <ion-list-header>
+        {{'titles.modules.login.google.title' | translate}}
+      </ion-list-header>
+      <ion-item class="ion-margin-top">
+        <ion-select label="{{'global.words.country' | translate}}" [(ngModel)]="selectedCountry" label-placement="floating">
+          <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-button  [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginGoogle()" color="primary" class="button-controll ion-margin">
+        {{isLoading ? '' : 'buttons.next' | translate}}
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </ion-list>
+  </div>
+  <div *ngIf="isValidatingCode" class="responsive_container">
+
+    <ion-list class="ion-margin-top">
+      <ion-list-header lass="ion-margin-bottom">
+        {{'titles.modules.login.type-validate-code' | translate}} {{phoneToSend}}
+      </ion-list-header>
+      <ion-item>
+        <ion-input label="{{'inputs.validate-code.title' | translate}}" type="text" [(ngModel)]="verificationCode" labelPlacement="floating" placeholder="{{'inputs.validate-code.placeholder' | translate}}"></ion-input>
+
+      </ion-item>
+      <ion-button  [disabled]="!verificationCode || verificationCode.length <4 || isLoadingCode" expand="block" (click)="validateCode()" color="primary" class="button-controll ion-margin">
+        {{isLoadingCode ? '' : 'buttons.validate' | translate}}
+        <ion-spinner name="crescent" *ngIf="isLoadingCode"></ion-spinner>
+        <ion-icon *ngIf="!isLoadingCode" name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </ion-list>
+  </div>
+</ion-content>
+
+
+<ion-alert
+  header="{{'alerts.invalid-code.title' | translate}}"
+  subHeader="{{'alerts.invalid-code.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertCodeError"
+></ion-alert>

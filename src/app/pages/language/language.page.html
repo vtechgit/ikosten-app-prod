@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="start">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+
+    </ion-buttons>
+
+  </ion-toolbar>
+
+
+</ion-header>
+
+<ion-content class="content-background">
+
+  <div class="responsive_container">
+
+    <ion-list class="ion-margin-top">
+      <ion-list-header>
+        {{'titles.modules.profile.language-title' | translate}}
+      </ion-list-header>
+      <ion-item >
+        <ion-select label="{{'inputs.app-language.title' | translate}}" [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage()" label-placement="floating">
+          <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">{{language.title}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+  
+    </ion-list>
+
+  
+  </div>
+
+
+
+</ion-content>

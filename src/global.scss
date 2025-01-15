@@ -25,6 +25,7 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -34,4 +35,174 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+//@import "@ionic/angular/css/palettes/dark.system.css";
+
+
+.d-flex{
+    display: flex;
+}
+.d-none{
+    display: none !important;
+}
+.d-block{
+    display: block;
+}
+.m-auto{
+    margin: auto;
+}
+.flex-column{
+    flex-direction: column;
+}
+.f-right{
+    float: right;
+}
+.flex-justify-space-between{
+
+    justify-content: space-between;
+}
+.flex-end{
+    justify-content: end;
+}
+.flex-center{
+    justify-content: center;
+}
+.text-center{
+    text-align: center;
+}
+.text-right{
+    text-align: right;
+}
+ion-button{
+    color: white;
+    --color: white;
+}
+.button-controll{
+    min-width: 150px;
+}
+ion-datetime{
+    background: white;
+}
+.action-fab-button{
+    min-width: 100px;
+    --border-radius:13px;
+    margin-bottom: 0px;
+
+}
+.btn-card{
+    margin: 5px;
+}
+.full-logo-img{
+    max-width: 180px;
+    display: block;
+    margin: auto;
+}
+.list-col p{
+    margin-top: 5px;
+}
+.bold{
+    font-weight: bold !important;
+}
+.color-danger{
+  color:  #c5000f !important;
+  --color:  #c5000f !important;
+
+}
+.line-through{
+    text-decoration:line-through;
+}
+.no-padding{
+    padding: 0px !important;
+}
+.no-margin{
+    margin: 0px !important;
+}
+.no-margin-right{
+    margin-right: 0px !important;
+}
+.takePhoto{
+    width: 100%;
+    height: 75px;
+    padding: 10px;
+    text-align: center;
+    border: dashed 1px #7eb474;
+    position: relative;
+    cursor: pointer;
+    margin: 5px 16px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.dropzone{
+    width: 100%;
+    height: 75px;
+    padding: 10px;
+    text-align: center;
+    border: dashed 1px #7eb474;
+    position: relative;
+    cursor: pointer;
+    margin: 5px 16px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .dropzone input{
+    opacity: 0;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  .dropzone ion-thumbnail{
+    --size: 100px;
+    --border-radius: 14px;
+    margin: 2px auto;
+  
+  }
+
+  ion-toolbar{
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+
+  }
+  .logo-header-desktop{
+    display: inline;
+  }
+  .logo-header-mobile{
+    display: none;
+  }
+  .responsive_container,.responsive_footer{
+    max-width: 800px;
+    display: block;
+    margin: auto;
+  }
+  .responsive_container-s{
+    max-width: 600px;
+    display: block;
+    margin: auto;
+  }
+
+  @media screen and (max-width: 700px) {
+
+    .logo-header-desktop{
+      display: none;
+    }
+    .logo-header-mobile{
+      display: block;
+    }
+    .responsive_container,.responsive_footer{
+        width: 100%;
+        display: block;
+        margin: auto;
+      }
+      .responsive_container-s{
+        width: 100%;
+        display: block;
+        margin: auto;
+      }
+  }

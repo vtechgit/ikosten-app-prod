@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="start">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+
+    </ion-buttons>
+
+  </ion-toolbar>
+
+
+</ion-header>
+
+<ion-content class="content-background">
+
+  <div class="responsive_container">
+    <ion-list class="ion-margin-top">
+      <ion-list-header>
+        {{'titles.modules.profile.title' | translate}}
+      </ion-list-header>
+      <ion-item>
+        <ion-input label="{{'inputs.user-name.title' | translate}}" type="text" disabled="true"  [(ngModel)]="userName" labelPlacement="floating" requried placeholder="{{'inputs.user-name.place-holder' | translate}}"></ion-input>
+  
+      </ion-item>
+      <ion-item >
+        <ion-select label="{{'inputs.user-country.title' | translate}}" [(ngModel)]="selectedCountry" id="selectedCountryInput" #selectedCountryInput="ngModel" required label-placement="floating" placeholder="{{'inputs.user-country.placeholder' | translate}}">
+          <ion-select-option *ngFor="let country of availableCountries" [value]="country._id">{{convertKey(country.title) |translate}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-input label="{{'inputs.phone-number.title' | translate}}" type="phone" [(ngModel)]="userPhone" id="userPhoneInput" #userPhoneInput="ngModel" labelPlacement="floating" requried placeholder="{{'inputs.phone-number.placeholder' | translate}}"></ion-input>
+  
+      </ion-item>
+      <ion-item>
+        <ion-input label="{{'inputs.user-email.title' | translate}}" type="email" [(ngModel)]="userEmail" id="userEmailInput" #userEmailInput="ngModel" labelPlacement="floating" requried placeholder="{{'inputs.user-email.placeholder' | translate}}"></ion-input>
+  
+      </ion-item>
+      <ion-button class="ion-margin" (click)="updateUserInfo()" [disabled]="selectedCountryInput.invalid || userPhoneInput.invalid || userEmailInput.invalid || loadingButtons" expand="block">{{'buttons.save' | translate}}</ion-button>
+    </ion-list>
+  
+    <!--
+    <ion-list class="ion-margin-top">
+      <ion-list-header>
+        {{'titles.modules.profile.language-title' | translate}}
+      </ion-list-header>
+      <ion-item >
+        <ion-select label="{{'inputs.app-language.title' | translate}}" [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage()" label-placement="floating">
+          <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">{{language.title}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+  
+    </ion-list>
+    -->
+
+    <ion-list>
+      <ion-button class="ion-margin" (click)="closeSession()" color="light" expand="block">{{'buttons.close-session' | translate}}</ion-button>
+      
+    </ion-list>
+  
+  </div>
+
+
+
+</ion-content>

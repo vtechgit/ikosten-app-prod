@@ -1,9 +1,15 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'ikosten_app_v2',
-  webDir: 'www'
+  appId: 'com.ikosten.app',
+  appName: 'Ikosten',
+  webDir: 'www',
+  plugins: {
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ["google.com", "phone"]
+    }
+  },
 };
 
 export default config;

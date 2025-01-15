@@ -1,0 +1,49 @@
+<ion-grid class="ion-margin-top">
+  <ion-row>
+    <ion-col (click)="setRating(1)">
+      <ion-icon name="star-outline" *ngIf="this.rating <1" @fadeIn></ion-icon>
+      <ion-icon name="star" *ngIf="this.rating >=1" @fadeIn></ion-icon>
+
+    </ion-col>
+    <ion-col (click)="setRating(2)">
+      <ion-icon name="star-outline" *ngIf="this.rating <2" @fadeIn></ion-icon>
+      <ion-icon name="star" *ngIf="this.rating >=2" @fadeIn></ion-icon>
+
+    </ion-col>
+    <ion-col (click)="setRating(3)">
+      <ion-icon name="star-outline" *ngIf="this.rating <3" @fadeIn></ion-icon>
+      <ion-icon name="star" *ngIf="this.rating >=3" @fadeIn></ion-icon>
+
+    </ion-col>
+    <ion-col (click)="setRating(4)">
+      <ion-icon name="star-outline" *ngIf="this.rating <4" @fadeIn></ion-icon>
+      <ion-icon name="star" *ngIf="this.rating >=4" @fadeIn></ion-icon>
+
+    </ion-col>
+    <ion-col (click)="setRating(5)">
+      <ion-icon name="star-outline" *ngIf="this.rating <5" @fadeIn></ion-icon>
+      <ion-icon name="star" *ngIf="this.rating >=5" @fadeIn></ion-icon>
+
+    </ion-col>
+  </ion-row>
+
+</ion-grid>
+<ion-grid class="ion-margin-top" *ngIf="rating > 0" @fadeIn>
+  <ion-row>
+    <ion-col>
+      <ion-textarea label="{{'inputs.app-feedback.title' | translate}}" rows="8" [(ngModel)]="comment" [counter]="true" maxlength="100" mode="md" labelPlacement="floating" fill="outline" placeholder="{{'inputs.app-feedback.placeholder' | translate}}"></ion-textarea>
+
+    </ion-col>
+  </ion-row>
+</ion-grid>
+
+<ion-grid *ngIf="rating > 0" @fadeIn>
+  <ion-row>
+    <ion-col>
+      <ion-button (click)="finishRating()">
+        {{'buttons.finish' | translate}}
+       
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid>
