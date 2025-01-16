@@ -589,7 +589,7 @@ export class MainPage implements OnInit {
     }
   }
   nextStep(){
-
+    console.log(this.results);
     if(this.currentStep == 1 ){
       this.travelSelected['process_status']=1;
       this.updateTravel();
@@ -894,18 +894,21 @@ export class MainPage implements OnInit {
     process_id: this.travelSelected._id
   }
    this.updateOrCreateLead(obj).then(()=>{
+
+    var resultToSend = this.results;
+
     if(this.countNotMatched() > 0 ){
     
-      if(this.results.matchedBills.length > 0){
+      if(resultToSend.matchedBills.length > 0){
 
-        this.results.matchedBills.forEach( (matched,index) => {
+        resultToSend.matchedBills.forEach( (matched,index) => {
 
-          this.results.notMatched.forEach(notMatched => {
+          resultToSend.notMatched.forEach(notMatched => {
   
             if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
   
           
-              this.results.matchedBills[index].bill = this.results.matchedBills[index].bill.concat(notMatched.bill);
+              resultToSend.matchedBills[index].bill = resultToSend.matchedBills[index].bill.concat(notMatched.bill);
   
             }
   
@@ -913,18 +916,17 @@ export class MainPage implements OnInit {
   
         });
       }else{
-        this.results.matchedBills = this.results.notMatched;
+        resultToSend.matchedBills = resultToSend.notMatched;
       }
 
 
-      //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
 
     }
 
     this.getlanguage().then(res=>{
       var lang = res;
       let objSendResult = {
-        results: this.results,
+        results: resultToSend,
         exportSettings : exportSettings,
         userName : this.userName,
         userEmail : this.userEmail,
@@ -933,12 +935,12 @@ export class MainPage implements OnInit {
       console.log(objSendResult);
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
-          //this.currentStep ++;
-          //this.travelSelected['process_step']= this.currentStep;
+          this.currentStep ++;
+          this.travelSelected['process_step']= this.currentStep;
   
-          //this.updateTravel();
+          this.updateTravel();
   
-          //this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
+          this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
   
         }
         this.sendingForm=false; 
