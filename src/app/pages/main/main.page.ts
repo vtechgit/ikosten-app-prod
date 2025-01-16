@@ -268,7 +268,7 @@ export class MainPage implements OnInit {
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
     this.hidrate();
     this.getCurrencies();
-    console.log('extracts',this.extracts);
+   //console.log('extracts',this.extracts);
 
     //translate alert buttons
 
@@ -310,7 +310,7 @@ export class MainPage implements OnInit {
       this.userSession = JSON.parse(localStorage.getItem('userSession'));
 
       this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
-        console.log('processes',res);
+        //console.log('processes',res);
         this.travels = res['body'];
       })
       this.api.read('leads/'+this.userSession._id).subscribe(res=>{
@@ -338,7 +338,7 @@ export class MainPage implements OnInit {
       }
 
     }
-    console.log(this.travels);
+    //console.log(this.travels);
 
     if(this.countBills() > 0){
       this.isUploadingOther=false;
@@ -510,7 +510,12 @@ export class MainPage implements OnInit {
     this.travelSelected['process_data']= this.extracts;
 
     if(this.results){
+     // console.log('yes results')
+
       this.travelSelected['process_result'] = this.results;
+    }else{
+      //console.log('no results')
+      this.travelSelected['process_result'] = undefined;
     }
     
     
@@ -522,10 +527,10 @@ export class MainPage implements OnInit {
       }
 
     });
-    
+   // console.log(this.travelSelected);
     if(this.userSession){
       this.api.update('processes/'+this.travelSelected._id,this.travelSelected).subscribe(res=>{
-        console.log('update process', res);
+        //console.log('update process', res);
       })
     }else{
         sessionStorage.setItem('travels', JSON.stringify(this.travels));
@@ -589,8 +594,10 @@ export class MainPage implements OnInit {
     }
   }
   nextStep(){
-    console.log(this.results);
+    //console.log(this.results);
     if(this.currentStep == 1 ){
+      this.currentStep ++;
+      this.travelSelected['process_step']= this.currentStep;
       this.travelSelected['process_status']=1;
       this.updateTravel();
       if(!this.userSession){
@@ -598,25 +605,31 @@ export class MainPage implements OnInit {
         this.showAlertLogin = true;
       }
 
-    }
+    }else if(this.currentStep == 2){
+      this.currentStep ++;
 
-    if(this.currentStep == 2){
       this.getAnalisysResult().then(res=>{
 
-         if(this.countNotMatched() <= 0){
-          this.currentStep ++;
-          this.travelSelected['process_step']= this.currentStep;
-          this.updateTravel();
+        if(this.countNotMatched() <= 0){
+         this.currentStep ++;
 
-         }
 
-      });
+        }
+        this.travelSelected['process_step']= this.currentStep;
+        this.updateTravel();
 
+     });
+     this.travelSelected['process_step']= this.currentStep;
+     this.updateTravel();
+    }else{
+      this.currentStep++;
+
+      this.travelSelected['process_step']= this.currentStep;
+      this.updateTravel();
     }
-    this.currentStep++;
 
-    this.travelSelected['process_step']= this.currentStep;
-    this.updateTravel();
+
+
 
   }
   finishProcess(event){
@@ -681,10 +694,8 @@ export class MainPage implements OnInit {
     return new Promise((resolve,rejected)=>{
       if(!this.travelSelected['process_result']){
 
-
-        console.log('extracts before analisys',this.extracts);
         this.api.create('processes/getResult', this.extracts).subscribe(res=>{
-          console.log('result',res);
+
           if(!res['error']){
             let obj= {
               matchedBills:res['body']['matchedExtracts'],
@@ -694,7 +705,6 @@ export class MainPage implements OnInit {
               endDate:res['body']['endDate']
             }
             this.results=obj;
-            //console.log('results',this.results);
     
             this.updateTravel();
             resolve(true);
@@ -705,6 +715,7 @@ export class MainPage implements OnInit {
         })
   
       }else{
+        console.log('entra a else')
         this.results = this.travelSelected['process_result'];
         resolve(true);
       }
@@ -719,9 +730,7 @@ export class MainPage implements OnInit {
   }
   backStep(){
     this.isSettingBill=false;
-    //console.log(this.currentStep);
     if(this.currentStep == 3){
-      //console.log('reset result');
 
       this.results=undefined;
       this.checkResults=false;
@@ -741,8 +750,11 @@ export class MainPage implements OnInit {
 
        }
     }
+    if(this.currentStep > 0){
+      this.travelSelected['process_step']= this.currentStep;
+      this.updateTravel();
+    }
 
-    console.log(this.imagesToUpload);
   }
   addExtract(){
     this.extracts.push({
@@ -797,12 +809,12 @@ export class MainPage implements OnInit {
     return new Promise ((resolve,reject)=>{
       if(this.userSession){
         this.api.update('leads/'+this.userSession._id,obj).subscribe(res=>{
-          console.log('update lead', res);
+          //console.log('update lead', res);
           resolve(res);
         })
       }else{
         this.api.create('leads', obj).subscribe(res=>{
-          console.log('create lead', res);
+          //console.log('create lead', res);
 
           resolve(res);
         });
@@ -932,7 +944,7 @@ export class MainPage implements OnInit {
         userEmail : this.userEmail,
         lang: lang
       }
-      console.log(objSendResult);
+      //console.log(objSendResult);
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
           this.currentStep ++;
@@ -1130,7 +1142,7 @@ export class MainPage implements OnInit {
 
     
         this.api.update('documents/'+ bill.document_id,{deleted:true}).subscribe(res=>{
-          console.log(res);
+          //console.log(res);
         })
         
       });
@@ -1562,7 +1574,7 @@ export class MainPage implements OnInit {
             form.append('model_id', 'custom-ikosten-extracts-v2'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
-              console.log('extract',res);
+              //console.log('extract',res);
 
               let status =500;
               if(!res['error'] && !res['body']['error']){
@@ -1596,7 +1608,7 @@ export class MainPage implements OnInit {
             form.append('model_id', 'prebuilt-receipt'); 
 
             this.api.sendForm('uploads/uploadReceipt',form).subscribe(res=>{
-              console.log(res);
+              //console.log(res);
               
               let status =500;
               if(!res['body']['error']){
