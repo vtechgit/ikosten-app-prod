@@ -730,6 +730,7 @@ export class MainPage implements OnInit {
 
     if(this.currentStep == 1){
       this.isUploadingOther=false;
+
     }
     this.currentStep--;
     if(this.currentStep == 3){
@@ -741,6 +742,7 @@ export class MainPage implements OnInit {
        }
     }
 
+    console.log(this.imagesToUpload);
   }
   addExtract(){
     this.extracts.push({
@@ -931,12 +933,12 @@ export class MainPage implements OnInit {
       console.log(objSendResult);
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
-          this.currentStep ++;
-          this.travelSelected['process_step']= this.currentStep;
+          //this.currentStep ++;
+          //this.travelSelected['process_step']= this.currentStep;
   
-          this.updateTravel();
+          //this.updateTravel();
   
-          this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
+          //this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
   
         }
         this.sendingForm=false; 

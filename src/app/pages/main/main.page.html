@@ -1663,7 +1663,7 @@
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload">
+      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
         {{'buttons.next' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
