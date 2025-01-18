@@ -1050,7 +1050,7 @@
           </ion-item>
           <ion-modal [keepContentsMounted]="true">
             <ng-template>
-              <ion-datetime  [showDefaultButtons]="true" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].date" presentation="date" id="datetime"></ion-datetime>
+              <ion-datetime  [showDefaultButtons]="true" [locale]="dateLocale" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].date" presentation="date" id="datetime"></ion-datetime>
             </ng-template>
           </ion-modal>
           <ion-item>
@@ -1151,7 +1151,7 @@
           <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'date'"><ion-icon name="alert-circle-outline"></ion-icon>{{'errors.analysis.date-does-not-match' | translate}}</p>
 
           <ion-item *ngIf="toggleDate">
-            <ion-datetime style="width: 100%; margin: auto;" id="dateLine"  [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
+            <ion-datetime style="width: 100%; margin: auto;" id="dateLine" [locale]="dateLocale"  [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
 
           </ion-item>
 
@@ -1165,7 +1165,7 @@
 
           </ion-item>
           <ion-item *ngIf="toggleTime">
-            <ion-datetime style="width: 100%; margin: auto;"  [(ngModel)]="editLineTime" id="hourLine" presentation="time"></ion-datetime>
+            <ion-datetime style="width: 100%; margin: auto;" [locale]="dateLocale"  [(ngModel)]="editLineTime" id="hourLine" presentation="time"></ion-datetime>
 
           </ion-item>
 
@@ -1413,7 +1413,7 @@
     
               </ion-item>    
               <ion-item *ngIf="toggleDate">
-                <ion-datetime style="width: 100%; margin: auto;"  id="dateLine" locale="es-ES"  [(ngModel)]="todayDate" presentation="date"></ion-datetime>
+                <ion-datetime style="width: 100%; margin: auto;"  id="dateLine" [locale]="dateLocale"  [(ngModel)]="todayDate" presentation="date"></ion-datetime>
     
               </ion-item>
             </ion-card-content>

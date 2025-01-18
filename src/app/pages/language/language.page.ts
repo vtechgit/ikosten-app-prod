@@ -28,6 +28,12 @@ export class LanguagePage implements OnInit {
     this.translate.use(this.selectedLanguage);
     localStorage.setItem('lang',this.selectedLanguage);
 
+    this.availableLanguages.forEach(lang => {
+      if(lang.code == this.selectedLanguage){
+        localStorage.setItem('langIntl', lang.intl);
+      }
+    });
+
 
   }
   getLanguages(){

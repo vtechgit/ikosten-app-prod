@@ -14,31 +14,54 @@ import { Device } from '@capacitor/device';
 })
 export class AppComponent {
 
+  availableLanguage:any;
+
   constructor(public platform: Platform, private translate: TranslateService, private api:ApiService) {
     
-    
-    this.api.read('languages').subscribe(res=>{
-      var languages = [];
-      res['body'].forEach(element => {
-        languages.push(element.code)
-      });
-      this.translate.addLangs(languages);
-
-    })
+    var languages = [];
     var languageToUse = 'en';
     this.translate.setDefaultLang('en');
 
-    if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-      let lang=localStorage.getItem('lang');
-      this.translate.use(lang);
+    this.api.read('languages').subscribe(res=>{
+      this.availableLanguage = res['body'];
 
-    }else{
-      Device.getLanguageCode().then(lang=>{
-        languageToUse = lang.value;
-        this.translate.use(languageToUse);
-
+      res['body'].forEach(element => {
+        languages.push(element.code)
       });
-    }
+
+      this.translate.addLangs(languages);
+      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+        languageToUse=localStorage.getItem('lang');
+  
+        this.translate.use(languageToUse);
+        console.log('main : entra a localstorage')
+        this.availableLanguage.forEach(lang => {
+          if(lang.code == languageToUse){
+            localStorage.setItem('langIntl', lang.intl);
+          }
+        });
+  
+      }else{
+  
+        Device.getLanguageCode().then(lang=>{
+          languageToUse = lang.value;
+          this.translate.use(languageToUse);  
+          
+            this.availableLanguage.forEach(lang => {
+              console.log(lang)
+            if(lang.code == languageToUse){
+              console.log('main : lang found', lang.code)
+              
+              localStorage.setItem('langIntl', lang.intl);
+            }
+          });
+        });
+      }
+    })
+
+
+
+
 
 
     this.platform.ready().then(async () => {

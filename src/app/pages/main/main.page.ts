@@ -253,6 +253,9 @@ export class MainPage implements OnInit {
 
   showAlertResend:boolean=false;
 
+  dateLocale:string ='en-US';
+
+
   constructor(
     private api:ApiService,
     private http: HttpClient,
@@ -268,6 +271,8 @@ export class MainPage implements OnInit {
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
     this.hidrate();
     this.getCurrencies();
+
+
    //console.log('extracts',this.extracts);
 
     //translate alert buttons
@@ -348,6 +353,15 @@ export class MainPage implements OnInit {
     }
     //console.log('extracts',this.extracts)
   }
+  ionViewWillEnter(){
+    if(localStorage.getItem('langIntl') && localStorage.getItem('langIntl') != '' && localStorage.getItem('langIntl') != null){
+      
+      this.dateLocale=localStorage.getItem('langIntl');
+    }else{
+  
+    }
+  }
+
   openLogin(){
     this.showAlertLogin=false;
     setTimeout(() => {
