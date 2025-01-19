@@ -51,6 +51,7 @@ export class CountryPickerComponent  implements OnInit {
   }
   onWillDismiss(){
     this.searchText ='';
+    this.selectedOption = undefined;
     this.dismiss.emit(false);
   }
 

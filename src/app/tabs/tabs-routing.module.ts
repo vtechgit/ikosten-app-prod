@@ -24,6 +24,10 @@ const routes: Routes = [
         loadChildren: () => import('../pages/language/language.module').then(m => m.LanguagePageModule)
       },
       {
+        path: 'memberships',
+        loadChildren: () => import('../pages/memberships/memberships.module').then(m => m.MembershipsPageModule)
+      },
+      {
         path: '',
         redirectTo: '/customer/trips',
         pathMatch: 'full'

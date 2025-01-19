@@ -3,9 +3,6 @@
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
-
-
-
     </ion-buttons>
 
     <ion-buttons slot="end" *ngIf="currentStep > 0">
@@ -22,8 +19,6 @@
 <ion-content  class="content-background">
 
   <div class="responsive_container">
-
-
 
     <div *ngIf="currentStep == 0" @fadeIn>
       <ion-list class="ion-margin-bottom">
@@ -1498,6 +1493,27 @@
 
   <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions"></app-country-picker>
 
+  <ion-modal [isOpen]="showModalUpgrade" (willDismiss)="showModalUpgrade=false;">
+    <ng-template>
+      <ion-header [translucent]="true">
+        <ion-toolbar color="primary">
+          <ion-buttons slot="start" >
+            <ion-button color="light" (click)="showModalUpgrade=false">{{'buttons.close' | translate}}</ion-button>
+          </ion-buttons>
+          <ion-title>Upgrade</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+
+
+
+      </ion-content> 
+
+
+    </ng-template>
+  </ion-modal>
+
   <!-- alerts -->
   <!-- delete bill -->
   <ion-alert
@@ -1600,14 +1616,14 @@
     (didDismiss)="isAlertGoBack=false"
     ></ion-alert>
 
-<!-- action buttons -->
-<ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
-  <ion-fab-button size="small" class="action-fab-button" (click)="openModalAddTravel=true;">
-    <ion-icon name="add"></ion-icon>
-    <ion-label>{{'buttons.trip' | translate}}</ion-label>
-    
-  </ion-fab-button>
-</ion-fab>
+  <!-- action buttons -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
+    <ion-fab-button size="small" class="action-fab-button" (click)="addTravel()">
+      <ion-icon name="add"></ion-icon>
+      <ion-label>{{'buttons.trip' | translate}}</ion-label>
+      
+    </ion-fab-button>
+  </ion-fab>
 
 </ion-content>
 <ion-footer class="responsive_footer">
@@ -1663,7 +1679,7 @@
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors()" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
+      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors() || isUploadingOther" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
         {{'buttons.next' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>

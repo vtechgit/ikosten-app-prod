@@ -254,7 +254,8 @@ export class MainPage implements OnInit {
   showAlertResend:boolean=false;
 
   dateLocale:string ='en-US';
-
+  limitations:any;
+  showModalUpgrade:boolean=false;
 
   constructor(
     private api:ApiService,
@@ -271,11 +272,6 @@ export class MainPage implements OnInit {
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
     this.hidrate();
     this.getCurrencies();
-
-
-   //console.log('extracts',this.extracts);
-
-    //translate alert buttons
 
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
       this.alertButtons[0]=text;
@@ -307,6 +303,7 @@ export class MainPage implements OnInit {
 
     
   }
+
 
   hidrate(){
 
@@ -343,6 +340,15 @@ export class MainPage implements OnInit {
       }
 
     }
+    var lead_role = 0;
+    if(this.userSession){
+      lead_role = this.userSession.lead_role;
+    }
+    this.api.read('limitations/role/'+lead_role).subscribe(res=>{
+      console.log('res limitations', res);
+      this.limitations = res['body'][0];
+
+    })
     //console.log(this.travels);
 
     if(this.countBills() > 0){
@@ -409,9 +415,45 @@ export class MainPage implements OnInit {
   }
   pickerDismissed(){
     this.showPicker = false;
+    
+
+    
+
+
   }
   pickerOptionSelected(event){
     if(this.pickerType == 'country'){
+          
+      /*
+      if(this.travelSelected.process_data.bills.length >= this.limitations.limitations_country_x_travel){
+
+
+        var founds = 0;
+        this.travelSelected.process_data.bills.forEach(bill => {
+
+
+          if(bill.country == event.country){
+            founds ++;
+          }
+        });
+
+
+        if(founds == 0){
+          this.showModalUpgrade=true;
+          this.currencyBlockSelected=undefined;
+        }else{
+          this.currencyBlockSelected = event;
+          this.scrollToTarget('card-step-2');
+        }
+        
+
+      }else{
+
+        this.currencyBlockSelected = event;
+        this.scrollToTarget('card-step-2');
+      }
+        */
+
       this.currencyBlockSelected = event;
       this.scrollToTarget('card-step-2');
     }
@@ -552,7 +594,19 @@ export class MainPage implements OnInit {
 
   }
 
+  addTravel(){
+    /*
+    if(this.travels.length >= this.limitations.limitations_travel_month){
+      this.showModalUpgrade = true;
 
+    }else{
+      this.openModalAddTravel =true;
+
+    }
+      */
+
+    this.openModalAddTravel =true;
+  }
   createProcess(){
     this.loadingButtons=true;
     let startDate = this.todayDate.split('T')[0];
@@ -1688,8 +1742,18 @@ export class MainPage implements OnInit {
   
   }
   openUploading(){
+
     this.currencyBlockSelected=undefined;
     this.isUploadingOther = true
+    /*
+    if(this.extracts['bills'].length >= this.limitations.limitations_country_x_travel){
+      this.router.navigate(['/customer/memberships'])
+    }else{
+
+
+    }*/
+
+
   }
   checkBillsErrors(){
     let founds = 0;
