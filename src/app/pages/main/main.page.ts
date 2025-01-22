@@ -637,8 +637,7 @@ export class MainPage implements OnInit {
       }else{
         this.showModalUpgrade=true;
       }
-    })
-      */
+    })*/
     
     
     this.openModalAddTravel =true;
