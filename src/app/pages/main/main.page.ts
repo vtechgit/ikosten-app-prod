@@ -340,15 +340,7 @@ export class MainPage implements OnInit {
       }
 
     }
-    var lead_role = 0;
-    if(this.userSession){
-      lead_role = this.userSession.lead_role;
-    }
-    this.api.read('limitations/role/'+lead_role).subscribe(res=>{
-      console.log('res limitations', res);
-      this.limitations = res['body'][0];
 
-    })
     //console.log(this.travels);
 
     if(this.countBills() > 0){
@@ -421,9 +413,49 @@ export class MainPage implements OnInit {
 
 
   }
+  validateCountriesLimitations(){
+    return new Promise ((resolve,rejected)=>{
+      var user_id;
+    
+      if(this.userSession){
+        user_id= this.userSession._id;
+        this.api.read('limitations/validateCountries/'+this.userSession._id).subscribe(res=>{
+          console.log('res limitations', res);
+          if(res['body']['result']){
+            resolve(true);
+          }else{
+            resolve(false);
+          }
+    
+        })
+  
+      }else{
+
+        
+      }
+    })
+
+
+
+
+  }
   pickerOptionSelected(event){
     if(this.pickerType == 'country'){
-          
+
+      this.currencyBlockSelected = event;
+      this.scrollToTarget('card-step-2');
+
+      /*
+      this.validateCountriesLimitations().then(res=>{
+        if(res){
+          this.currencyBlockSelected = event;
+          this.scrollToTarget('card-step-2');
+        }else{
+          this.showModalUpgrade=true;
+          this.currencyBlockSelected=undefined;
+        }
+      })*/
+
       /*
       if(this.travelSelected.process_data.bills.length >= this.limitations.limitations_country_x_travel){
 
@@ -453,9 +485,10 @@ export class MainPage implements OnInit {
         this.scrollToTarget('card-step-2');
       }
         */
+      
 
-      this.currencyBlockSelected = event;
-      this.scrollToTarget('card-step-2');
+
+      
     }
     if(this.pickerType == 'currency'){
       this.extracts['extract']['currency'] = event;
@@ -595,17 +628,21 @@ export class MainPage implements OnInit {
   }
 
   addTravel(){
+
     /*
-    if(this.travels.length >= this.limitations.limitations_travel_month){
-      this.showModalUpgrade = true;
+    this.validateCountriesLimitations().then(res=>{
+      if(res){
+        this.openModalAddTravel =true;
 
-    }else{
-      this.openModalAddTravel =true;
-
-    }
+      }else{
+        this.showModalUpgrade=true;
+      }
+    })
       */
-
+    
+    
     this.openModalAddTravel =true;
+    
   }
   createProcess(){
     this.loadingButtons=true;
