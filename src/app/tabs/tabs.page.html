@@ -22,6 +22,11 @@
       <ion-label>{{'titles.modules.profile.language-title' | translate}}</ion-label>
     </ion-tab-button>
 
+    <ion-tab-button tab="memberships" (click)="changeIndexTab(5)" href="/customer/memberships">
+      <ion-icon aria-hidden="true" color="primary" [name]="'diamond' + (indexTab == 5 ? '' : '-outline')"></ion-icon>
+      <ion-label>{{'menu.tabs.memberships' | translate}}</ion-label>
+    </ion-tab-button>
+
   </ion-tab-bar>
 
 </ion-tabs>

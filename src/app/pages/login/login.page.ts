@@ -71,7 +71,8 @@ export class LoginPage implements OnInit {
           lead_token: user.uid,
           lead_name: user.displayName,
           lead_phone: user.phoneNumber,
-          lead_country: country
+          lead_country: country,
+          lead_role:0
         }
         this.api.create('leads/auth', obj).subscribe(res=>{
           console.log(res);
@@ -170,7 +171,8 @@ export class LoginPage implements OnInit {
                 lead_token: user.uid,
                 lead_name: user.displayName,
                 lead_phone: this.userPhone,
-                lead_country: country
+                lead_country: country,
+                lead_role:0
               }
               this.api.create('leads/auth', obj).subscribe(res=>{
   

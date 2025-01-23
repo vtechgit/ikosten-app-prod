@@ -7,12 +7,14 @@ import { IonicModule } from '@ionic/angular';
 import { MembershipsPageRoutingModule } from './memberships-routing.module';
 
 import { MembershipsPage } from './memberships.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    TranslateModule,
     MembershipsPageRoutingModule
   ],
   declarations: [MembershipsPage]

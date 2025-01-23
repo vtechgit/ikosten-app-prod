@@ -415,12 +415,11 @@ export class MainPage implements OnInit {
   }
   validateCountriesLimitations(){
     return new Promise ((resolve,rejected)=>{
-      var user_id;
+
     
       if(this.userSession){
-        user_id= this.userSession._id;
+        console.log(this.userSession._id);
         this.api.read('limitations/validateCountries/'+this.userSession._id).subscribe(res=>{
-          console.log('res limitations', res);
           if(res['body']['result']){
             resolve(true);
           }else{
@@ -430,8 +429,8 @@ export class MainPage implements OnInit {
         })
   
       }else{
+        resolve(true);
 
-        
       }
     })
 
@@ -442,19 +441,16 @@ export class MainPage implements OnInit {
   pickerOptionSelected(event){
     if(this.pickerType == 'country'){
 
-      this.currencyBlockSelected = event;
-      this.scrollToTarget('card-step-2');
 
-      /*
       this.validateCountriesLimitations().then(res=>{
         if(res){
           this.currencyBlockSelected = event;
           this.scrollToTarget('card-step-2');
         }else{
-          this.showModalUpgrade=true;
+          this.router.navigate(['/customer/memberships']);
           this.currencyBlockSelected=undefined;
         }
-      })*/
+      })
 
       /*
       if(this.travelSelected.process_data.bills.length >= this.limitations.limitations_country_x_travel){
@@ -627,20 +623,44 @@ export class MainPage implements OnInit {
 
   }
 
+  validateTravelLimitations(){
+    return new Promise ((resolve,rejected)=>{
+
+      this.api.read('limitations/validateTravel/'+this.userSession._id).subscribe(res=>{
+        if(res['body']['result']){
+          resolve(true);
+        }else{
+          resolve(false);
+        }
+  
+      })
+
+    })
+  }
   addTravel(){
+    
+      if(this.userSession){
+        this.validateTravelLimitations().then(res=>{
+          if(res){
+            this.openModalAddTravel =true;
 
-    /*
-    this.validateCountriesLimitations().then(res=>{
-      if(res){
-        this.openModalAddTravel =true;
+          }else{
+            this.router.navigate(['/customer/memberships']);
 
+
+          }
+        })
       }else{
-        this.showModalUpgrade=true;
+        
+        if(this.travels && this.travels.length <= 0 || !this.travels){
+          this.openModalAddTravel =true;
+        }else{
+          this.router.navigate(['/customer/memberships']);
+
+
+        }
       }
-    })*/
     
-    
-    this.openModalAddTravel =true;
     
   }
   createProcess(){

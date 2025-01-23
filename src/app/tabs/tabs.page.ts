@@ -35,6 +35,10 @@ export class TabsPage implements OnInit {
     if(lastSegment == 'language'){
       this.changeIndexTab(4);
     }
+    if(lastSegment == 'memberships'){
+      this.changeIndexTab(5);
+    }
+
   }
 
   validateUserLogged(){

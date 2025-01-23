@@ -43,6 +43,7 @@
 	"buttons.save": "Guardar",
 	"buttons.send": "Enviar",
 	"buttons.sign-in": "Iniciar Sesión",
+	"buttons.purchase": "Obtener",
 	"buttons.sing-in-with-google": "Continuar con Google",
 	"buttons.skip-revision": "Saltar revisión",
 	"buttons.skip-this-step": "Saltarme Este paso",
@@ -350,6 +351,7 @@
 	"menu.tabs.profile": "Perfil",
 	"menu.tabs.sing-in": "Iniciar Sesión",
 	"menu.tabs.trips": "Viajes",
+	"menu.tabs.memberships": "Mejorar Plan",
 	"titles.modules.login.continue-with-phone-number": "Continúa con tu número de teléfono",
 	"titles.modules.login.or": "O",
 	"titles.modules.login.title": "Inicia Sesión",
@@ -415,5 +417,31 @@
 	"titles.modules.travels.main": "Tus Viajes",
 	"titles.modules.travels.status.finished": "Finalizado",
 	"titles.modules.travels.status.in-progress": "En Progreso",
-	"titles.modules.travels.status.new": "Nuevo"
+	"titles.modules.travels.status.new": "Nuevo",
+	"titles.modules.memberships.main": "Mejora tu plan para obtener más beneficios",
+	"titles.modules.memberships.plans.senador.title": "Plan Senador",
+	"titles.modules.memberships.plans.senador.subtitle": "$13.99 USD / Mes (recomendado)",
+	"titles.modules.memberships.plans.senador.content.1": "Paises ilimitados",
+	"titles.modules.memberships.plans.senador.content.2": "Guarda tu infomación por 12 meses",
+	"titles.modules.memberships.plans.senador.content.3": "Exporta tus resultados en formato Excel y PDF",
+	"titles.modules.memberships.plans.senador.content.4": "Edita la plantilla de resultados antes de exportar",
+	"titles.modules.memberships.plans.platino.title": "Plan Platino",
+	"titles.modules.memberships.plans.platino.subtitle": "$12.00 USD / Mes",
+	"titles.modules.memberships.plans.platino.content.1": "Hasta 5 Paises al mes",
+	"titles.modules.memberships.plans.platino.content.2": "Guarda tu infomación por 4 meses",
+	"titles.modules.memberships.plans.platino.content.3": "Exporta tus resultados en formato Excel y PDF",
+	"titles.modules.memberships.plans.platino.content.4": "",
+	"titles.modules.memberships.plans.gold.title": "Plan Oro",
+	"titles.modules.memberships.plans.gold.subtitle": "$6.99 USD / Mes",
+	"titles.modules.memberships.plans.gold.content.1": "Hasta 3 Paises al mes",
+	"titles.modules.memberships.plans.gold.content.2": "Guarda tu infomación por 2 meses",
+	"titles.modules.memberships.plans.gold.content.3": "Exporta tus resultados en formato Excel y PDF",
+	"titles.modules.memberships.plans.gold.content.4": ""
+
+
+
+
+
+
+
 }
