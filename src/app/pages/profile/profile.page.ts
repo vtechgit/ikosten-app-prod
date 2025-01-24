@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
 import {TranslateService} from "@ngx-translate/core";
 import { Device } from '@capacitor/device';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-profile',
@@ -25,7 +26,7 @@ export class ProfilePage implements OnInit {
 
   loadingButtons:boolean=false;
 
-  constructor(private router:Router, private api:ApiService, private translate: TranslateService) { }
+  constructor(private router:Router, private api:ApiService, private translate: TranslateService, public platform: Platform) { }
 
   ngOnInit() {
 

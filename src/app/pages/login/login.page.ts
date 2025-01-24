@@ -120,7 +120,7 @@ export class LoginPage implements OnInit {
 
     FirebaseAuthentication.signInWithApple().then(res=>{
       let user = res['user'];
-      
+      console.log('user',user);
       if(user){
         let full_name = user['displayName'];
         let email = user.email && user.email != 'null' ? user.email : '';
@@ -137,7 +137,7 @@ export class LoginPage implements OnInit {
           lead_country: country
         }
         this.api.create('leads/auth', obj).subscribe(res=>{
-          console.log(res);
+          console.log('auth response',res);
   
           if(res['body']['data'].length > 0){
   

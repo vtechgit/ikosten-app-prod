@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
 import {TranslateService} from "@ngx-translate/core";
 import { Device } from '@capacitor/device';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-language',
@@ -17,7 +18,9 @@ export class LanguagePage implements OnInit {
   userSession:any;
 
 
-  constructor(private router:Router, private api:ApiService, private translate: TranslateService) { }
+  constructor(private router:Router, private api:ApiService, 
+    private translate: TranslateService,
+    public platform: Platform) { }
 
   ngOnInit() {
     this.userSession = JSON.parse(localStorage.getItem('userSession'));

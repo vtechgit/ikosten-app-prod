@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
+import { Platform } from '@ionic/angular';
 
 const enterTransition = transition(':enter', [
   style({
@@ -263,7 +264,8 @@ export class MainPage implements OnInit {
     private _sanitizer: DomSanitizer,
     private changeDetector:ChangeDetectorRef,
     private router:Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    public platform: Platform
   ) { }
 
   ngOnInit() {
