@@ -9,7 +9,13 @@
     border-radius: 13px;
 }
 .gsi-material-button-icon{
-    margin-right: 7px;
+    height: 46px;
+    margin-right: 12px;
+    min-width: 20px;
+    width: 46px;
+    display: flex;
+    position: absolute;
+    left: 0;
 }
 .captcha-container{
     display: flex;

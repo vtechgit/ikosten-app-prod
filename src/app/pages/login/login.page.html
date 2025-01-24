@@ -13,7 +13,7 @@
 </ion-header>
 <ion-content class="ion-padding">
   <div class="responsive_container-s " >
-    <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle">
+    <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
       <ion-list>
         <ion-button (click)="startLoginGoogle()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
           <div class="gsi-material-button-icon">
@@ -26,9 +26,16 @@
             </svg>
           </div>
           {{'buttons.sing-in-with-google' | translate}}</ion-button>
+
+          <!--*ngIf="platform.is('ios') && !this.platform.is('mobileweb')"-->
+          <ion-button  (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
+            <div class="gsi-material-button-icon">
+              <img src="assets/images/apple_black_2x.png" alt="">
+            </div>
+            {{'buttons.sing-in-with-apple' | translate}}</ion-button>
       </ion-list>
     </div>
-    <ion-grid *ngIf="!isValidatingCode && !isLoginGoogle">
+    <ion-grid *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
       <ion-row>
           <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
           </ion-col>
@@ -45,7 +52,7 @@
       
     </ion-grid>
     <div class="phoneSignin ion-margin-top">
-      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
+      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
         <ion-list-header>
           {{'titles.modules.login.continue-with-phone-number' | translate}}
         </ion-list-header>
@@ -64,7 +71,7 @@
       </ion-list>
       <div id="captcha-container" [ngClass]="isValidatingCode ? 'd-none': ''" class="captcha-container" ></div>
 
-      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
+      <ion-list *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
         <ion-button  [disabled]="isLoading || !userPhone || userPhone.length < 10 || !selectedCountry" expand="block" (click)="doLoginPhone()" color="primary" class="button-controll ion-margin">
           {{isLoading ? '' : 'buttons.start' | translate}}
           <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
@@ -76,7 +83,7 @@
     </div>
 
   </div>
-  <div class="responsive_container" *ngIf="isLoginGoogle">
+  <div class="responsive_container" *ngIf="isLoginGoogle || isLoginApple">
     <ion-list>
       <ion-list-header>
         {{'titles.modules.login.google.title' | translate}}
@@ -86,7 +93,12 @@
           <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
         </ion-select>
       </ion-item>
-      <ion-button  [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginGoogle()" color="primary" class="button-controll ion-margin">
+      <ion-button *ngIf="isLoginGoogle"  [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginGoogle()" color="primary" class="button-controll ion-margin">
+        {{isLoading ? '' : 'buttons.next' | translate}}
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="isLoginApple" [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginApple()" color="primary" class="button-controll ion-margin">
         {{isLoading ? '' : 'buttons.next' | translate}}
         <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
         <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
@@ -118,4 +130,12 @@
   subHeader="{{'alerts.invalid-code.subtitle' | translate}}"
   [buttons]="alertButtons"
   [isOpen]="showAlertCodeError"
+></ion-alert>
+
+<!-- apple alerts -->
+<ion-alert
+  header="{{'alerts.general.header' | translate}}"
+  subHeader="{{'alerts.general.try-again-later' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAppleAlertLogin"
 ></ion-alert>
