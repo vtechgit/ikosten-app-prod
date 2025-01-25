@@ -5,12 +5,6 @@
       <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
     </ion-buttons>
 
-    <ion-buttons slot="end" *ngIf="currentStep > 0">
-      <ion-button color="light" fill="solid" (click)="currentStep=0">
-        <ion-icon slot="start" name="close-outline"></ion-icon>
-        {{'buttons.exit' | translate}}</ion-button>
-
-    </ion-buttons>
   </ion-toolbar>
 
 
@@ -19,6 +13,10 @@
 <ion-content  class="content-background">
 
   <div class="responsive_container">
+
+    <ion-button color="primary" fill="outline" *ngIf="currentStep==1" (click)="currentStep=0">
+      <ion-icon slot="start" name="close-outline"></ion-icon>
+      {{'buttons.exit' | translate}}</ion-button>
 
     <div *ngIf="currentStep == 0" @fadeIn>
       <ion-list class="ion-margin-bottom">
@@ -1288,6 +1286,9 @@
   <ion-modal [isOpen]="modalHelp" (willDismiss)="onWillDismissModalHelp()">
     <ng-template>
       <ion-header>
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
         <ion-toolbar>
           <ion-buttons slot="start" >
             <ion-button color="danger" (click)="modalHelp=false">{{'buttons.close' | translate}}</ion-button>
@@ -1369,6 +1370,9 @@
   <ion-modal [isOpen]="openModalAddTravel" (willDismiss)="onWillDismissAddTravel()">
     <ng-template>
       <ion-header>
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
         <ion-toolbar>
           <ion-buttons slot="start">
             <ion-button (click)="onWillDismissAddTravel()" color="primary">{{'buttons.cancel' | translate}}</ion-button>
@@ -1419,7 +1423,8 @@
         
 
       </ion-content>
-      <ion-footer class="d-flex flex-center " style="padding: 5px;">
+      <ion-footer class="d-flex flex-center " style="padding: 10px 5px 20px 5px;">
+
         <ion-button [disabled]="!this.currencyBlockSelected
         || !todayDate" color="primary" class="button-controll" (click)="createProcess()" >
         {{'buttons.create-travel' | translate}}
@@ -1432,6 +1437,9 @@
   <ion-modal [isOpen]="showAlertLogin" (willDismiss)="showAlertLogin=false;">
     <ng-template>
       <ion-header [translucent]="true">
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
         <ion-toolbar color="primary">
           <ion-buttons slot="start" >
             <ion-button color="light" (click)="showAlertLogin=false">{{'buttons.close' | translate}}</ion-button>
@@ -1496,6 +1504,9 @@
   <ion-modal [isOpen]="showModalUpgrade" (willDismiss)="showModalUpgrade=false;">
     <ng-template>
       <ion-header [translucent]="true">
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
         <ion-toolbar color="primary">
           <ion-buttons slot="start" >
             <ion-button color="light" (click)="showModalUpgrade=false">{{'buttons.close' | translate}}</ion-button>
