@@ -257,7 +257,7 @@ export class MainPage implements OnInit {
   dateLocale:string ='en-US';
   limitations:any;
   showModalUpgrade:boolean=false;
-
+  availableLanguage:any;
   constructor(
     private api:ApiService,
     private http: HttpClient,
@@ -268,13 +268,21 @@ export class MainPage implements OnInit {
     public platform: Platform
   ) { }
 
+
+
   ngOnInit() {
 
     let today = new Date();
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
+
     this.hidrate();
     this.getCurrencies();
 
+
+
+    
+  }
+  translateAlerts(){
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
       this.alertButtons[0]=text;
     });
@@ -302,8 +310,6 @@ export class MainPage implements OnInit {
       
 
     });
-
-    
   }
 
 
@@ -360,6 +366,48 @@ export class MainPage implements OnInit {
     }else{
   
     }
+    var languages = [];
+    var languageToUse = 'en';
+    this.translate.setDefaultLang('en');
+
+    this.api.read('languages').subscribe(res=>{
+      this.availableLanguage = res['body'];
+
+      res['body'].forEach(element => {
+        languages.push(element.code)
+      });
+
+      this.translate.addLangs(languages);
+      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+        languageToUse=localStorage.getItem('lang');
+  
+        this.translate.use(languageToUse);
+        this.translateAlerts();
+        console.log('main : entra a localstorage')
+        this.availableLanguage.forEach(lang => {
+          if(lang.code == languageToUse){
+            localStorage.setItem('langIntl', lang.intl);
+          }
+        });
+  
+      }else{
+  
+        Device.getLanguageCode().then(lang=>{
+          languageToUse = lang.value;
+          this.translate.use(languageToUse);  
+          this.translateAlerts();
+          
+            this.availableLanguage.forEach(lang => {
+              console.log(lang)
+            if(lang.code == languageToUse){
+              console.log('main : lang found', lang.code)
+              
+              localStorage.setItem('langIntl', lang.intl);
+            }
+          });
+        });
+      }
+    })
   }
 
   openLogin(){

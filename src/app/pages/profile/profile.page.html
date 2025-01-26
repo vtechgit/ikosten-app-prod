@@ -60,6 +60,41 @@
   
   </div>
 
+  <div class="responsive_container">
+    <ion-list>
+      <ion-list-header>
+        {{'titles.modules.profile.danger-zone' | translate}}
+      </ion-list-header>
+      <ion-button class="ion-margin" (click)="deleteAccount()" fill="outline" color="danger" expand="block">{{'buttons.delete-account' | translate}}</ion-button>
 
+    </ion-list>
+  </div>
 
 </ion-content>
+
+<!--Alerts-->
+
+<!--Delete Account-->
+
+<ion-alert 
+[isOpen]="showAlertDeleteAccount"
+header="{{'alerts.delete-account.title' | translate}} "
+subHeader="{{'alerts.delete-account.subtitle' | translate}}"
+[buttons]="alertButtons"
+(didDismiss)="showAlertDeleteAccount = false;"
+></ion-alert>
+
+<ion-alert 
+[isOpen]="showAlertAccountDeleted"
+header="{{'alerts.deleted-account.title' | translate}} "
+subHeader="{{'alerts.deleted-account.subtitle' | translate}}"
+[buttons]="['buttons.accept' | translate]"
+(didDismiss)="dissmisAccountDeletion()"
+></ion-alert>
+
+<ion-alert
+  header="{{'alerts.general.header' | translate}}"
+  subHeader="{{'alerts.general.try-again-later' | translate}}"
+  [buttons]="['buttons.accept' | translate]"
+  [isOpen]="showAlertError"
+></ion-alert>

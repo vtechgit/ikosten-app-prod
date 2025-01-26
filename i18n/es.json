@@ -27,6 +27,10 @@
 	"alerts.time-warning.title": "Analizar un documento puede tomar hasta 30s",
 	"alerts.general.header": "Ha ocurrido un error",
 	"alerts.general.try-again-later": "Intentalo de nuevo mas tarde",
+	"alerts.delete-account.title": "¿Estás seguro que quieres eliminar tu cuenta?",
+	"alerts.delete-account.subtitle": "Esta acción no se puede deshacer",
+	"alerts.deleted-account.title": "Tu cuenta ha sido eliminada",
+	"alerts.deleted-account.subtitle": "Para usar volver a usar ikosten debes crear una cuenta de nuevo",
 	"buttons.accept": "Aceptar",
 	"buttons.back": "Atrás",
 	"buttons.cancel": "Cancelar",
@@ -53,6 +57,7 @@
 	"buttons.trip": "Viaje",
 	"buttons.upload-receipt": "Cargar recibo",
 	"buttons.validate": "Validar",
+	"buttons.delete-account": "Eliminar Cuenta",
 	"countries.alemania": "Alemania",
 	"countries.andorra": "Andorra",
 	"countries.angola": "Angola",
@@ -408,6 +413,7 @@
 	"titles.modules.process.step4.uploaded-files.title": "Extractos cargados",
 	"titles.modules.profile.language-title": "Idioma",
 	"titles.modules.profile.title": "Tu información personal",
+	"titles.modules.profile.danger-zone": "Zona de riesgo",
 	"titles.modules.travels.create.complement": "Seleccione el país donde se originan los gastos",
 	"titles.modules.travels.create.date-travel-complement": "Seleccione la fecha de inicio del viaje",
 	"titles.modules.travels.create.title": "Crear Viaje",
@@ -419,4 +425,5 @@
 	"titles.modules.travels.status.finished": "Finalizado",
 	"titles.modules.travels.status.in-progress": "En Progreso",
 	"titles.modules.travels.status.new": "Nuevo"
+
 }

@@ -4,6 +4,7 @@ import {ApiService} from '../../services/api.service';
 import {TranslateService} from "@ngx-translate/core";
 import { Device } from '@capacitor/device';
 import { Platform } from '@ionic/angular';
+import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
 @Component({
   selector: 'app-profile',
@@ -25,18 +26,110 @@ export class ProfilePage implements OnInit {
   userSession:any;
 
   loadingButtons:boolean=false;
+  availableLanguage:any;
 
-  constructor(private router:Router, private api:ApiService, private translate: TranslateService, public platform: Platform) { }
 
+
+  showAlertDeleteAccount:boolean=false;
+  showAlertAccountDeleted:boolean=false;
+  showAlertError:boolean=false;
+  
+  alertButtonsAccept = ['buttons.accept'];
+  loadingDelete:boolean=false;
+
+  public alertButtons = [
+    {
+      text: 'buttons.cancel',
+      role: 'cancel',
+      handler: () => {
+        
+      },
+    },
+    {
+      text: 'buttons.delete-account',
+      role: 'confirm',
+      handler: () => {
+        this.confirmDeleteAccount()
+      },
+    },
+  ];
+
+  constructor(
+    private router:Router, 
+    private api:ApiService, 
+    private translate: TranslateService, 
+    public platform: Platform,
+  ) { }
+
+  ionViewWillEnter(){
+    var languages = [];
+    var languageToUse = 'en';
+    this.translate.setDefaultLang('en');
+
+    this.api.read('languages').subscribe(res=>{
+      this.availableLanguage = res['body'];
+
+      res['body'].forEach(element => {
+        languages.push(element.code)
+      });
+
+      this.translate.addLangs(languages);
+      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+        languageToUse=localStorage.getItem('lang');
+  
+        this.translate.use(languageToUse);
+        this.translateAlerts();
+        console.log('main : entra a localstorage')
+        this.availableLanguage.forEach(lang => {
+          if(lang.code == languageToUse){
+            localStorage.setItem('langIntl', lang.intl);
+          }
+        });
+  
+      }else{
+  
+        Device.getLanguageCode().then(lang=>{
+          languageToUse = lang.value;
+          this.translate.use(languageToUse);  
+          this.translateAlerts();
+          
+            this.availableLanguage.forEach(lang => {
+              console.log(lang)
+            if(lang.code == languageToUse){
+              console.log('main : lang found', lang.code)
+              
+              localStorage.setItem('langIntl', lang.intl);
+            }
+          });
+        });
+      }
+    })
+
+  }
   ngOnInit() {
 
     this.userSession = JSON.parse(localStorage.getItem('userSession'));
     this.userName = this.userSession.lead_name;
     this.userEmail = this.userSession.lead_email;
-
     this.userPhone = this.userSession.lead_phone;
     this.getAvailableCountries();
     this.getLanguages();
+  }
+  translateAlerts(){
+    this.translate.get(_('buttons.accept')).subscribe((text: string) => {
+      this.alertButtonsAccept[0] =text;
+      console.log('translate', this.alertButtonsAccept)
+
+    });
+    this.translate.get(_('buttons.delete-account')).subscribe((text: string) => {
+      this.alertButtons[1].text =text;
+
+    });
+    this.translate.get(_('buttons.cancel')).subscribe((text: string) => {
+      this.alertButtons[0].text =text;
+
+    });
+
   }
   changeLanguage(){
     this.translate.use(this.selectedLanguage);
@@ -114,5 +207,26 @@ export class ProfilePage implements OnInit {
     string = string.replace(/\./g, "");
     string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return 'countries.'+string;
+  }
+  deleteAccount(){
+    this.showAlertDeleteAccount = true;
+  }
+  confirmDeleteAccount(){
+    this.loadingDelete=true;
+    this.api.create('leads/deleteAccount',{id:this.userSession._id}).subscribe(res=>{
+       if(!res['error']){
+        localStorage.clear();
+        this.showAlertAccountDeleted = true;
+       }else{
+        this.showAlertError = true;
+       }
+
+
+    })
+  }
+  dissmisAccountDeletion(){
+    this.showAlertAccountDeleted = false;
+    window.location.href = '/';
+
   }
 }
