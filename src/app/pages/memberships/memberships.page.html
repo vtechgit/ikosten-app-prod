@@ -91,3 +91,44 @@
     </ion-row>
   </ion-grid>
 </ion-content>
+<ion-modal [isOpen]="showAlertPayment" (willDismiss)="showAlertPayment=false;">
+  <ng-template>
+    <ion-header [translucent]="true">
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start" >
+          <ion-button color="light" (click)="showAlertLogin=false">{{'buttons.close' | translate}}</ion-button>
+        </ion-buttons>
+        <ion-title>{{'titles.modules.login-warning.title' | translate}}</ion-title>
+
+      </ion-toolbar>
+    </ion-header>
+    <ion-content >
+
+      <div class="ion-padding">
+        <ion-img
+          style="max-width: 50%;"
+          src="../../../assets/images/Identificador[Fondo Blanco].png"
+          alt="ikosten logo"
+        ></ion-img>
+        <ion-list class="ion-margin-top">
+          <ion-list-header>
+            {{'titles.modules.login-warning.title-complement' | translate}}
+          </ion-list-header>
+          <div class="ion-margin-start ion-margin-bottom">
+            <p>{{'titles.modules.login-warning.content-1' | translate}}</p>
+            <p>{{'titles.modules.login-warning.content-2' | translate}}</p>
+          </div>
+          <ion-button expand="block" color="primary" class="ion-margin-top"  (click)="openLogin()" >
+            {{'buttons.sign-in' | translate}}
+          </ion-button>
+
+
+        </ion-list>
+      </div>
+
+
+
+    </ion-content> 
+
+  </ng-template>
+</ion-modal>
