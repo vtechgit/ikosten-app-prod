@@ -25,6 +25,10 @@
 	"alerts.restart-process.title": "Sind Sie sicher, dass Sie den Prozess neu starten wollen?",
 	"alerts.time-warning.subtitle": "Geduldig sein...",
 	"alerts.time-warning.title": "Die Analyse eines Dokuments kann bis zu 30 Sekunden dauern.",
+	"alerts.payment.error.title": "Fehler bei der Zahlungsabwicklung",
+	"alerts.payment.error.subtitle": "Bitte wenden Sie sich an den Support",
+	"alerts.payment.success.title": "Ihr Abonnement wurde erfolgreich bezahlt",
+	"alerts.payment.success.subtitle": "Überprüfen Sie Ihre Zahlungs- und Abonnementinformationen in Ihrem Profil",
 	"buttons.accept": "Akzeptieren",
 	"buttons.back": "Zurück",
 	"buttons.cancel": "Abbrechen",
@@ -318,6 +322,8 @@
 	"global.words.date": "Datum",
 	"global.words.help": "Hilfe",
 	"global.words.hour": "Zeit",
+	"global.words.total": "Gesamt",
+	"global.words.checkout": "Kasse",
 	"inputs.app-feedback.placeholder": "Schreiben Sie Ihren Kommentar hier",
 	"inputs.app-feedback.title": "Sagen Sie uns, wie wir uns verbessern können",
 	"inputs.app-language.title": "Wählen Sie",
@@ -436,5 +442,6 @@
 	"titles.modules.memberships.plans.gold.content.1": "Bis zu 3 Länder pro Monat",
 	"titles.modules.memberships.plans.gold.content.2": "Speichern Sie Ihre Daten 2 Monate lang",
 	"titles.modules.memberships.plans.gold.content.3": "Exportieren Sie Ihre Ergebnisse im Excel- und PDF-Format",
-	"titles.modules.memberships.plans.gold.content.4": ""
+	"titles.modules.memberships.plans.gold.content.4": "",
+	"titles.modules.payments.payment-methods": "Zahlungsmethoden"
 }

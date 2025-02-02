@@ -22,20 +22,41 @@ export class ProfilePage implements OnInit {
   selectedLanguage:string;
   availableLanguages:any=[];
   userSession:any;
+  activeMebership:any;
 
   loadingButtons:boolean=false;
+
 
   constructor(private router:Router, private api:ApiService, private translate: TranslateService) { }
 
   ngOnInit() {
 
-    this.userSession = JSON.parse(localStorage.getItem('userSession'));
+    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+
+      this.userSession = JSON.parse(localStorage.getItem('userSession'));
+      
+      if(this.userSession.lead_role > 0){
+        this.getActiveMembership();
+
+      }
+    }
+
     this.userName = this.userSession.lead_name;
     this.userEmail = this.userSession.lead_email;
-
     this.userPhone = this.userSession.lead_phone;
     this.getAvailableCountries();
     this.getLanguages();
+  }
+  getActiveMembership(){
+    this.api.read('membership/role/'+this.userSession.lead_role).subscribe(res=>{
+      console.log('membership',res);
+      if(res['body'].length >0){
+        this.activeMebership = res['body'][0];
+      }
+    })
+  }
+  openMemberships(){
+    this.router.navigate(['/customer/memberships']);
   }
   changeLanguage(){
     this.translate.use(this.selectedLanguage);

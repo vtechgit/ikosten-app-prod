@@ -25,6 +25,10 @@
 	"alerts.restart-process.title": "Estas seguro de reiniciar el proceso?",
 	"alerts.time-warning.subtitle": "Se paciente...",
 	"alerts.time-warning.title": "Analizar un documento puede tomar hasta 30s",
+	"alerts.payment.error.title": "Error al procesar el pago",
+	"alerts.payment.error.subtitle": "Por favor comunicate con soporte",
+	"alerts.payment.success.title": "Tu suscripción ha sido pagada con éxito",
+	"alerts.payment.success.subtitle": "Consulta la información de tus pagos y suscripciones en tu perfil",
 	"buttons.accept": "Aceptar",
 	"buttons.back": "Atrás",
 	"buttons.cancel": "Cancelar",
@@ -318,6 +322,8 @@
 	"global.words.date": "Fecha",
 	"global.words.help": "Ayuda",
 	"global.words.hour": "Hora",
+	"global.words.total": "Total",
+	"global.words.checkout": "Pagar",
 	"inputs.app-feedback.placeholder": "Escribe tu comentario aquí",
 	"inputs.app-feedback.title": "Cuéntanos en que podemos mejorar",
 	"inputs.app-language.title": "Selecciona",
@@ -436,7 +442,10 @@
 	"titles.modules.memberships.plans.gold.content.1": "Hasta 3 Paises al mes",
 	"titles.modules.memberships.plans.gold.content.2": "Guarda tu infomación por 2 meses",
 	"titles.modules.memberships.plans.gold.content.3": "Exporta tus resultados en formato Excel y PDF",
-	"titles.modules.memberships.plans.gold.content.4": ""
+	"titles.modules.memberships.plans.gold.content.4": "",
+	"titles.modules.payments.payment-methods": "Métodos de pago"
+
+
 
 
 

@@ -25,6 +25,10 @@
 	"alerts.restart-process.title": "هل أنت متأكد من رغبتك في إعادة تشغيل العملية؟",
 	"alerts.time-warning.subtitle": "تحلى بالصبر...",
 	"alerts.time-warning.title": "يمكن أن يستغرق تحليل مستند ما يصل إلى 30 ثانية",
+	"alerts.payment.error.title": "حدث خطأ أثناء معالجة الدفع",
+	"alerts.payment.error.subtitle": "يرجى الاتصال بالدعم",
+	"alerts.payment.success.title": "لقد تم دفع اشتراكك بنجاح",
+	"alerts.payment.success.subtitle": "تحقق من معلومات الدفع والاشتراك في ملفك الشخصي",
 	"buttons.accept": "قبول",
 	"buttons.back": "رجوع",
 	"buttons.cancel": "إلغاء",
@@ -318,6 +322,8 @@
 	"global.words.date": "التاريخ",
 	"global.words.help": "المساعدة",
 	"global.words.hour": "الوقت",
+	"global.words.total": "المجموع",
+	"global.words.checkout": "الدفع",
 	"inputs.app-feedback.placeholder": "اكتب تعليقك هنا",
 	"inputs.app-feedback.title": "أخبرنا كيف يمكننا التحسين",
 	"inputs.app-language.title": "اختر",
@@ -436,5 +442,6 @@
 	"titles.modules.memberships.plans.gold.content.1": "ما يصل إلى 3 دول شهريا",
 	"titles.modules.memberships.plans.gold.content.2": "احفظ معلوماتك لمدة شهرين",
 	"titles.modules.memberships.plans.gold.content.3": "قم بتصدير نتائجك بتنسيق Excel وPDF",
-	"titles.modules.memberships.plans.gold.content.4": ""
+	"titles.modules.memberships.plans.gold.content.4": "",
+	"titles.modules.payments.payment-methods": "طرق الدفع"
 }

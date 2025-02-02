@@ -25,6 +25,10 @@
 	"alerts.restart-process.title": "Tem a certeza de que pretende reiniciar o processo?",
 	"alerts.time-warning.subtitle": "Ter paciência...",
 	"alerts.time-warning.title": "A análise de um documento pode demorar até 30s",
+	"alerts.payment.error.title": "Erro ao processar o pagamento",
+	"alerts.payment.error.subtitle": "Entre em contato com o suporte",
+	"alerts.payment.success.title": "Sua assinatura foi paga com sucesso",
+	"alerts.payment.success.subtitle": "Verifique suas informações de pagamento e assinatura em seu perfil",
 	"buttons.accept": "Aceitar",
 	"buttons.back": "Voltar",
 	"buttons.cancel": "Cancelar",
@@ -318,6 +322,8 @@
 	"global.words.date": "Data",
 	"global.words.help": "Ajuda",
 	"global.words.hour": "Tempo",
+	"global.words.total": "Total",
+	"global.words.checkout": "Pagar",
 	"inputs.app-feedback.placeholder": "Escreva aqui o seu comentário",
 	"inputs.app-feedback.title": "Diga-nos como podemos melhorar",
 	"inputs.app-language.title": "Selecionar",
@@ -436,5 +442,6 @@
 	"titles.modules.memberships.plans.gold.content.1": "Até 3 países por mês",
 	"titles.modules.memberships.plans.gold.content.2": "Salve suas informações por 2 meses",
 	"titles.modules.memberships.plans.gold.content.3": "Exporte seus resultados em formato Excel e PDF",
-	"titles.modules.memberships.plans.gold.content.4": ""
+	"titles.modules.memberships.plans.gold.content.4": "",
+	"titles.modules.payments.payment-methods": "Métodos de pagamento"
 }

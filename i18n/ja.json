@@ -25,6 +25,10 @@
 	"alerts.restart-process.title": "プロセスの再開は確かですか？",
 	"alerts.time-warning.subtitle": "忍耐強く...",
 	"alerts.time-warning.title": "文書の分析には最大30秒かかることがある",
+	"alerts.payment.error.title": "支払い処理中にエラーが発生しました",
+	"alerts.payment.error.subtitle": "サポートにお問い合わせください",
+	"alerts.payment.success.title": "サブスクリプションの支払いが完了しました",
+	"alerts.payment.success.subtitle": "プロフィールで支払いとサブスクリプション情報を確認してください",
 	"buttons.accept": "受け入れる",
 	"buttons.back": "バック",
 	"buttons.cancel": "キャンセル",
@@ -318,6 +322,8 @@
 	"global.words.date": "日付",
 	"global.words.help": "ヘルプ",
 	"global.words.hour": "時間",
+	"global.words.total": "合計",
+	"global.words.checkout": "支払う",
 	"inputs.app-feedback.placeholder": "ここにコメントを書く",
 	"inputs.app-feedback.title": "どうすれば改善できるか教えてください",
 	"inputs.app-language.title": "選択",
@@ -436,5 +442,6 @@
 	"titles.modules.memberships.plans.gold.content.1": "毎月最大 3 か国",
 	"titles.modules.memberships.plans.gold.content.2": "情報を 2 か月間保存します",
 	"titles.modules.memberships.plans.gold.content.3": "結果を Excel および PDF 形式でエクスポートします",
-	"titles.modules.memberships.plans.gold.content.4": ""
+	"titles.modules.memberships.plans.gold.content.4": "",
+	"titles.modules.payments.payment-methods": "支払い方法"
 }

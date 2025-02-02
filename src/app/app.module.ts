@@ -21,12 +21,14 @@ import {ProfilePageModule} from './pages/profile/profile.module';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { NgxPayPalModule } from 'ngx-paypal';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
     ComponentsModule,
+    NgxPayPalModule,
     PdfViewerModule,
     IonicModule.forRoot({ mode: 'ios' }), 
     AppRoutingModule,

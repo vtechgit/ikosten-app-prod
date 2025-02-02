@@ -11,7 +11,7 @@ export class TabsPage implements OnInit {
   indexTab:Number=1;
   isLoginOpened:boolean=false;
   userLogged:boolean=false;
-
+  userSession:any;
 
   constructor(
     private router:Router,
@@ -43,6 +43,7 @@ export class TabsPage implements OnInit {
 
   validateUserLogged(){
    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' && localStorage.getItem('userSession') != null){
+    this.userSession = JSON.parse(localStorage.getItem('userSession'));
     this.userLogged=true;
    }else{
     this.userLogged=false;

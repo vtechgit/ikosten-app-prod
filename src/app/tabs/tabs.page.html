@@ -22,7 +22,7 @@
       <ion-label>{{'titles.modules.profile.language-title' | translate}}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="memberships" (click)="changeIndexTab(5)" href="/customer/memberships">
+    <ion-tab-button *ngIf="!userSession || userSession && userSession.lead_role <3" tab="memberships" (click)="changeIndexTab(5)" href="/customer/memberships">
       <ion-icon aria-hidden="true" color="primary" [name]="'diamond' + (indexTab == 5 ? '' : '-outline')"></ion-icon>
       <ion-label>{{'menu.tabs.memberships' | translate}}</ion-label>
     </ion-tab-button>
