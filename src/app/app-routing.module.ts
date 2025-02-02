@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: '',
+    path: '', 
     redirectTo: '/customer/trips',
     pathMatch: 'full'
   },
