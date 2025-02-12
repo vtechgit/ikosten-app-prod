@@ -20,7 +20,7 @@
   <ion-grid class="ion-margin-top">
     <ion-row>
       <ion-col size="12" size-sm="4" *ngFor="let membership of memberships">
-        <ion-card class="no-margin card-memberships" [ngClass]="membership.membership_featured ? 'card-recomended' : ''">
+        <ion-card *ngIf="this.userSession && this.userSession.lead_role <= membership.membership_role || !this.userSession" class="no-margin card-memberships" [ngClass]="membership.membership_featured ? 'card-recomended' : ''">
           <img  [src]="'../../../assets/images/' + membership.membership_image" />
           <ion-card-header>
             <ion-card-title>{{membership.membership_title | translate}}<ion-icon class="icon-recomended" color="primary" name="diamond-outline" *ngIf="membership.membership_featured"></ion-icon></ion-card-title>
@@ -35,7 +35,8 @@
             </ul>
 
           </ion-card-content>
-          <ion-button (click)="openCheckout(membership)" class="ion-margin" fill="outline" expand="block" color="primary">{{'buttons.purchase' | translate}}</ion-button>
+          <ion-button *ngIf="!this.userSession || this.userSession && this.userSession.lead_role != membership.membership_role" (click)="openCheckout(membership)" class="ion-margin" fill="outline" expand="block" color="primary">{{'buttons.purchase' | translate}}</ion-button>
+          <ion-button *ngIf="this.userSession && this.userSession.lead_role == membership.membership_role" [disabled]="true" class="ion-margin"  expand="block" color="primary">Plan Actual</ion-button>
 
         </ion-card>
       </ion-col>
@@ -132,7 +133,7 @@
 
   </ng-template>
 </ion-modal>
-<ion-modal [isOpen]="showPaymentcheckout" (willDismiss)="showPaymentcheckout=false;">
+<ion-modal [isOpen]="showPaymentcheckout" (willDismiss)="closeModalCheckout()">
   <ng-template>
     <ion-header [translucent]="true">
       <ion-toolbar color="primary">
@@ -310,6 +311,16 @@
         </ion-list>
 
       </div>
+      <!--
+      <div class="ion-padding" *ngIf="showAlertSuccess == true">
+        <h1 class="text-center">
+          {{'alerts.payment.success.title' | translate}}
+        </h1>
+        <p class="text-center">{{'alerts.payment.success.subtitle' | translate}}</p>
+        <ion-button expand="block" color="light">{{'buttons.accept' | translate}}</ion-button>
+      </div>
+      -->
+
 
 
 
@@ -326,10 +337,11 @@ subHeader="{{'alerts.payment.error.subtitle' | translate}}"
 (didDismiss)="showAlertError=false;"
 ></ion-alert>
 
-<ion-alert
+<ion-alert style="z-index: 9999;"
 [isOpen]="showAlertSuccess"
 header="{{'alerts.payment.success.title' | translate}}"
 subHeader="{{'alerts.payment.success.subtitle' | translate}}"
 [buttons]="successButtons"
 (didDismiss)="onDissmissAlertSuccess()"
-></ion-alert>
+></ion-alert> 
+

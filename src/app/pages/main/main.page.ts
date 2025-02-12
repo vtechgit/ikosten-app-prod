@@ -4,7 +4,7 @@ import {ApiService} from '../../services/api.service';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
@@ -256,14 +256,16 @@ export class MainPage implements OnInit {
   dateLocale:string ='en-US';
   limitations:any;
   showModalUpgrade:boolean=false;
-
+  selectedLanguage:string;
+  availableLanguages:any=[];
   constructor(
     private api:ApiService,
     private http: HttpClient,
     private _sanitizer: DomSanitizer,
     private changeDetector:ChangeDetectorRef,
     private router:Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private activatedRoute:ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -273,8 +275,65 @@ export class MainPage implements OnInit {
     this.hidrate();
     this.getCurrencies();
 
+
+    
+  }
+
+  getLanguages(){
+    this.api.read('languages').subscribe(res=>{
+
+      this.availableLanguages= res['body'];
+
+      if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' && localStorage.getItem('userSession') != null){
+        let userSession = JSON.parse(localStorage.getItem('userSession'));
+        console.log('get languages - user logged')
+        if(userSession.lead_preferred_language && userSession.lead_preferred_language != ''){
+          this.selectedLanguage = userSession.lead_preferred_language;
+          this.translate.use(this.selectedLanguage);  
+          this.translateWords();
+
+        }else{
+          if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+            this.selectedLanguage = localStorage.getItem('lang');
+            this.translate.use(this.selectedLanguage);  
+            this.translateWords();
+          }else{
+            Device.getLanguageCode().then(lang=>{
+              this.selectedLanguage = lang.value;
+              this.translate.use(this.selectedLanguage);  
+              this.translateWords();
+  
+            });
+          }
+
+        }
+      }else{
+        console.log('get languages - user not logged')
+
+        if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+          this.selectedLanguage = localStorage.getItem('lang');
+          this.translate.use(this.selectedLanguage);  
+          console.log(this.selectedLanguage);
+          this.translateWords();
+        }else{
+          Device.getLanguageCode().then(lang=>{
+            this.selectedLanguage = lang.value;
+          console.log(this.selectedLanguage);
+
+            this.translate.use(this.selectedLanguage);  
+            this.translateWords();
+
+          });
+        }
+      }
+    })
+  }
+  translateWords(){
+    
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
       this.alertButtons[0]=text;
+
+      console.log(this.alertButtons)
     });
     this.translate.get(_('buttons.delete')).subscribe((text: string) => {
       this.deleteExtractAlertButtons[1].text =text;
@@ -293,6 +352,7 @@ export class MainPage implements OnInit {
       this.deleteBillAlertButtons[0].text = text;
       this.deleteAllAlertButtons[0].text = text;
       this.goBackAlertButtons[0].text = text;
+
     });
     this.translate.get(_('buttons.confirm')).subscribe((text: string) => {
       this.alertRestartButtons[1].text = text;
@@ -300,11 +360,7 @@ export class MainPage implements OnInit {
       
 
     });
-
-    
   }
-
-
   hidrate(){
 
     if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
@@ -314,9 +370,20 @@ export class MainPage implements OnInit {
       this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
         //console.log('processes',res);
         this.travels = res['body'];
+        console.log('trip', this.activatedRoute.snapshot.queryParamMap.get('trip'));
+        let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
+        
+        if(trip && trip != ''){
+          this.travels.forEach(element => {
+            if(element._id == trip){
+              this.openTravel(element);
+            }
+          });
+        }
+
       })
       this.api.read('leads/'+this.userSession._id).subscribe(res=>{
-
+4
         if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
 
           this.userEmail = res['body']['lead_email'];
@@ -352,6 +419,8 @@ export class MainPage implements OnInit {
     //console.log('extracts',this.extracts)
   }
   ionViewWillEnter(){
+    this.hidrate();
+    this.getLanguages();
     if(localStorage.getItem('langIntl') && localStorage.getItem('langIntl') != '' && localStorage.getItem('langIntl') != null){
       
       this.dateLocale=localStorage.getItem('langIntl');

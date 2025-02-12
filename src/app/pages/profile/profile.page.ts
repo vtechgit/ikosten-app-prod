@@ -25,7 +25,10 @@ export class ProfilePage implements OnInit {
   activeMebership:any;
 
   loadingButtons:boolean=false;
-
+  transactions:any;
+  transactionsHistory:any;
+  showModalAllTransacions:boolean=false;
+  isTransactionsLoading:boolean=false;
 
   constructor(private router:Router, private api:ApiService, private translate: TranslateService) { }
 
@@ -36,6 +39,7 @@ export class ProfilePage implements OnInit {
       this.userSession = JSON.parse(localStorage.getItem('userSession'));
       
       if(this.userSession.lead_role > 0){
+
         this.getActiveMembership();
 
       }
@@ -46,13 +50,30 @@ export class ProfilePage implements OnInit {
     this.userPhone = this.userSession.lead_phone;
     this.getAvailableCountries();
     this.getLanguages();
+    this.getTransactions();
+  }
+  openModalTransactions(){
+    this.showModalAllTransacions = true;
+    this.isTransactionsLoading=true;
+
+    this.api.read('transactions/lead/'+this.userSession._id).subscribe(res=>{
+      this.isTransactionsLoading=false;
+      this.transactionsHistory = res['body'];
+    })
   }
   getActiveMembership(){
-    this.api.read('membership/role/'+this.userSession.lead_role).subscribe(res=>{
+    this.api.read('purchasedMemberships/lead/'+this.userSession._id).subscribe(res=>{
       console.log('membership',res);
       if(res['body'].length >0){
         this.activeMebership = res['body'][0];
       }
+    })
+  }
+
+  getTransactions(){
+    this.api.read('transactions/top3/lead/'+this.userSession._id).subscribe(res=>{
+      console.log('transactions',res);
+      this.transactions = res['body'];
     })
   }
   openMemberships(){
