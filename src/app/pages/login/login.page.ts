@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Platform } from '@ionic/angular';
 
 
 @Component({
@@ -14,6 +15,7 @@ export class LoginPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    public platform: Platform,
   ) { }
 
   ngOnInit() {

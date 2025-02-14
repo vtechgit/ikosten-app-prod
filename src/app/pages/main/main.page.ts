@@ -433,48 +433,6 @@ export class MainPage implements OnInit {
     }else{
   
     }
-    var languages = [];
-    var languageToUse = 'en';
-    this.translate.setDefaultLang('en');
-
-    this.api.read('languages').subscribe(res=>{
-      this.availableLanguage = res['body'];
-
-      res['body'].forEach(element => {
-        languages.push(element.code)
-      });
-
-      this.translate.addLangs(languages);
-      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-        languageToUse=localStorage.getItem('lang');
-  
-        this.translate.use(languageToUse);
-        this.translateAlerts();
-        console.log('main : entra a localstorage')
-        this.availableLanguage.forEach(lang => {
-          if(lang.code == languageToUse){
-            localStorage.setItem('langIntl', lang.intl);
-          }
-        });
-  
-      }else{
-  
-        Device.getLanguageCode().then(lang=>{
-          languageToUse = lang.value;
-          this.translate.use(languageToUse);  
-          this.translateAlerts();
-          
-            this.availableLanguage.forEach(lang => {
-              console.log(lang)
-            if(lang.code == languageToUse){
-              console.log('main : lang found', lang.code)
-              
-              localStorage.setItem('langIntl', lang.intl);
-            }
-          });
-        });
-      }
-    })
   }
 
   openLogin(){
