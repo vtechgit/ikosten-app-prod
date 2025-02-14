@@ -578,6 +578,9 @@ ionic-loader
 ng2-pdf-viewer
 MIT
 
+ngx-paypal
+MIT
+
 ngx-pipes
 MIT
 

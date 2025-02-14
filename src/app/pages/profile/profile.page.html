@@ -20,7 +20,10 @@
         <ion-card-title>{{'titles.modules.profile.plans.free.title' | translate}}</ion-card-title>
         <ion-card-subtitle>{{'titles.modules.profile.active-plan' | translate}} <ion-icon name="ellipse" color="success"></ion-icon></ion-card-subtitle>
       </ion-card-header>
-      <ion-button fill="clear" color="primary" (click)="openMemberships()">{{'titles.modules.profile.upgrade-plan' | translate}} <ion-icon name="diamond-outline" slot="end"></ion-icon></ion-button>
+      <!-- uncomment
+            <ion-button fill="clear" color="primary" (click)="openMemberships()">{{'titles.modules.profile.upgrade-plan' | translate}} <ion-icon name="diamond-outline" slot="end"></ion-icon></ion-button>
+
+      -->
     </ion-card>
     <ion-card *ngIf="this.userSession && this.userSession.lead_role > 0 && this.activeMebership">
       <ion-card-header>

@@ -1,5 +1,5 @@
 <div class="responsive_container-s " >
-  <ion-list>
+  <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
     <ion-list-header>
       {{mainTitle | translate}}
     </ion-list-header>

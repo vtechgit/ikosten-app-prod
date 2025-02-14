@@ -510,7 +510,10 @@ export class MainPage implements OnInit {
   pickerOptionSelected(event){
     if(this.pickerType == 'country'){
 
-
+      this.currencyBlockSelected = event;
+      this.scrollToTarget('card-step-2');
+      /*
+      uncomment
       this.validateCountriesLimitations().then(res=>{
         if(res){
           this.currencyBlockSelected = event;
@@ -520,6 +523,7 @@ export class MainPage implements OnInit {
           this.currencyBlockSelected=undefined;
         }
       })
+        */
 
       /*
       if(this.travelSelected.process_data.bills.length >= this.limitations.limitations_country_x_travel){
@@ -707,7 +711,9 @@ export class MainPage implements OnInit {
     })
   }
   addTravel(){
-    
+    this.openModalAddTravel =true;
+    /*
+    uncomment
       if(this.userSession){
         this.validateTravelLimitations().then(res=>{
           if(res){
@@ -729,6 +735,7 @@ export class MainPage implements OnInit {
 
         }
       }
+        */
     
     
   }
@@ -793,10 +800,6 @@ export class MainPage implements OnInit {
       this.travelSelected['process_step']= this.currentStep;
       this.travelSelected['process_status']=1;
       this.updateTravel();
-      if(!this.userSession){
-      
-        this.showAlertLogin = true;
-      }
 
     }else if(this.currentStep == 2){
       this.currentStep ++;

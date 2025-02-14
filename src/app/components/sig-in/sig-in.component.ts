@@ -39,11 +39,16 @@ export class SigInComponent  implements OnInit {
     const auth = getAuth();
     this.recaptchaVerifier= new RecaptchaVerifier(auth, 'captcha-container', {
       'expired-callback': async () => {
+        console.log('expired callback');
+
         await FirebaseAuthentication.removeAllListeners();
         this.isLoading=false;
         this.isValidatingCode = false;
         
-      } 
+      },
+      'callback': (response: any) => {
+        console.log('callback ==>',response);
+      }
     });
     this.getAvailableCountries();
   }
@@ -78,7 +83,6 @@ export class SigInComponent  implements OnInit {
           lead_role:0
         }
         this.api.create('leads/auth', obj).subscribe(res=>{
-          console.log(res);
 
           if(res['body']['data'].length > 0){
 
@@ -100,7 +104,6 @@ export class SigInComponent  implements OnInit {
                 this.isLoading=false;
 
                 if(this.backParams){
-
                   if(this.backParams.back && this.backParams.back != ''){
 
                     if(this.backParams.membership && this.backParams.membership != ''){
@@ -121,9 +124,14 @@ export class SigInComponent  implements OnInit {
                       window.location.href = '/customer/'+this.backParams.back;
 
                     }
+                  }else{
+
+                    window.location.href = '/';
+
                   }
 
                 }else{
+
                   window.location.href = '/';
 
                 }
@@ -155,6 +163,9 @@ export class SigInComponent  implements OnInit {
                     window.location.href = '/customer/'+this.backParams.back;
 
                   }
+                }else{
+                  window.location.href = '/';
+
                 }
 
               }else{
@@ -173,13 +184,15 @@ export class SigInComponent  implements OnInit {
   }
   async doLoginPhone(){
     this.isLoading = true;
-      return new Promise(async resolve => {
+      //return new Promise(async resolve => {
         // Attach `phoneCodeSent` listener to be notified as soon as the SMS is sent
         await FirebaseAuthentication.addListener('phoneCodeSent', async event => {
 
           this.isValidatingCode = true;
           this.verificationId = event.verificationId;
 
+        }).catch(err=>{
+          console.log(err);
         });
         // Attach `phoneVerificationCompleted` listener to be notified if phone verification could be finished automatically
         
@@ -188,18 +201,24 @@ export class SigInComponent  implements OnInit {
           async event => {
 
 
-            resolve(event['result']['user']);
+            //resolve(event['result']['user']);
           },
-        );
+        ).catch(err=>{
+          console.log(err);
+        });;
         
         this.phoneToSend = this.selectedCountry['digit']+this.userPhone;
         await FirebaseAuthentication.signInWithPhoneNumber({
           phoneNumber: this.phoneToSend,
           recaptchaVerifier: this.recaptchaVerifier
-        });
+        }).then(res=>{
+          console.log('response',res);
+        }).catch(err=>{
+          console.log('error',err)
+        })
         // Start sign in with phone number and send the SMS
 
-      });
+      //});
 
   }
 
@@ -272,6 +291,8 @@ export class SigInComponent  implements OnInit {
                             window.location.href = '/customer/'+this.backParams.back;
         
                           }
+                        }else{
+                          window.location.href = '/';
                         }
         
                       }else{
@@ -306,6 +327,8 @@ export class SigInComponent  implements OnInit {
                           window.location.href = '/customer/'+this.backParams.back;
       
                         }
+                      }else{
+                        window.location.href = '/';
                       }
       
                     }else{
