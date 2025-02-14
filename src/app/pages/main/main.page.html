@@ -20,9 +20,12 @@
 
     <div *ngIf="currentStep == 0" @fadeIn>
       <ion-list class="ion-margin-bottom">
+        <!--
         <ion-list-header>
           {{'titles.modules.travels.main' | translate}}
         </ion-list-header>
+        -->
+
         <ion-card *ngIf="travels && travels.length <= 0 ">
           <ion-card-header>
             <ion-card-title>{{'titles.modules.travels.first-travel-title' | translate}}</ion-card-title>
@@ -34,7 +37,20 @@
           </ion-card-content>
           <ion-button class="f-right ion-margin" (click)="openModalAddTravel=true">{{'buttons.start' | translate}}</ion-button>
         </ion-card>
-        <ion-item lines="none"></ion-item>
+        <ion-card *ngIf="travels && travels.length > 0 ">
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.travels.add-travel-title' | translate}}</ion-card-title>
+            <!--
+            <ion-card-subtitle>{{'titles.modules.travels.first-travel-subtitle' | translate}}</ion-card-subtitle>
+
+            -->
+          </ion-card-header>
+        
+          <ion-card-content style="padding-bottom:0px">
+            {{'titles.modules.travels.add-travel-content' | translate}}
+          </ion-card-content>
+          <ion-button class="f-right ion-margin" (click)="addTravel()">{{'buttons.create-travel' | translate}}</ion-button>
+        </ion-card>
         <ion-item *ngFor="let travel of travels" button (click)="openTravel(travel)">
           <ion-label>
             <h2>{{convertKey(travel.process_country.country) | translate}}</h2>
@@ -665,24 +681,24 @@
     <div *ngIf="currentStep == 4" @fadeIn>
 
       <div *ngIf="!sendingForm">
-        <div class="ion-padding">
+
+        <!-- logged in-->
+        <div class="ion-padding" *ngIf="userSession">
   
-          <h3 class="text-center">
+          <h3 class="text-center" *ngIf="userSession">
             {{'titles.modules.process.send-results.title' | translate}}
           </h3>
   
         </div>
-        <div class="ion-padding">
+        <div class="ion-padding" *ngIf="userSession">
           <ion-item>
             <ion-input label="{{'inputs.user-name.title' | translate}}" labelPlacement="floating" placeholder="{{'inputs.user-name.place-holder' | translate}}" (ionChange)="changeExportSettings()" [(ngModel)]="userName"></ion-input>
           </ion-item>
           <ion-item>
             <ion-input label="{{'inputs.user-email.title' | translate}}" labelPlacement="floating" placeholder="{{'inputs.user-email.placeholder' | translate}}" (ionChange)="changeExportSettings()" [(ngModel)]="userEmail"></ion-input>
           </ion-item>
-  
-  
         </div>
-        <div class="ion-padding">
+        <div class="ion-padding" *ngIf="userSession">
           <ion-list>
             <ion-list-header>
               {{'inputs.export-format.title' | translate}}
@@ -696,6 +712,14 @@
       
             </ion-item>
           </ion-list>
+        </div>
+
+        <!-- Not logged in-->
+        <div class="ion-padding" *ngIf="!userSession">
+  
+          <app-sig-in mainTitle = "titles.modules.login.to-continue" [backParams]="{back:'trips',trip:travelSelected._id,step:this.currentStep}"></app-sig-in>
+
+  
         </div>
         <!--
         <div class="ion-padding">
@@ -1501,29 +1525,6 @@
 
   <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions"></app-country-picker>
 
-  <ion-modal [isOpen]="showModalUpgrade" (willDismiss)="showModalUpgrade=false;">
-    <ng-template>
-      <ion-header [translucent]="true">
-        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
-
-        </ion-toolbar>
-        <ion-toolbar color="primary">
-          <ion-buttons slot="start" >
-            <ion-button color="light" (click)="showModalUpgrade=false">{{'buttons.close' | translate}}</ion-button>
-          </ion-buttons>
-          <ion-title>Upgrade</ion-title>
- 
-        </ion-toolbar>
-      </ion-header>
-      <ion-content >
-
-
-
-      </ion-content> 
-
-
-    </ng-template>
-  </ion-modal>
 
   <!-- alerts -->
   <!-- delete bill -->
@@ -1596,7 +1597,7 @@
   [isOpen]="showAlertTime"
   header="{{'alerts.time-warning.title' | translate}}"
   subHeader="{{'alerts.time-warning.subtitle' | translate}}"
-  [buttons]="alertButtons"
+  [buttons]="['buttons.accept' | translate]"
   (didDismiss)="showAlertTime=false"
   ></ion-alert>
 
@@ -1628,13 +1629,23 @@
     ></ion-alert>
 
   <!-- action buttons -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
+   <!--
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
     <ion-fab-button size="small" class="action-fab-button" (click)="addTravel()">
       <ion-icon name="add"></ion-icon>
       <ion-label>{{'buttons.trip' | translate}}</ion-label>
       
     </ion-fab-button>
   </ion-fab>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
+    <ion-fab-button size="small" class="action-fab-button" (click)="addTravel()">
+      <ion-icon name="add"></ion-icon>
+      <ion-label>{{'buttons.trip' | translate}}</ion-label>
+      
+    </ion-fab-button>
+  </ion-fab>
+  -->
+
 
 </ion-content>
 <ion-footer class="responsive_footer">
@@ -1735,7 +1746,7 @@
       -->
 
 
-      <ion-button [disabled]="!userName || userName == '' ||!userEmail || userEmail =='' || !sendPdf && !sendExcel || sendingForm" color="primary" class="button-controll" (click)="sendResult()" *ngIf="currentStep == 4">
+      <ion-button [disabled]="!userName || userName == '' ||!userEmail || userEmail =='' || !sendPdf && !sendExcel || sendingForm || !userSession" color="primary" class="button-controll" (click)="sendResult()" *ngIf="currentStep == 4">
         {{'buttons.send' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>

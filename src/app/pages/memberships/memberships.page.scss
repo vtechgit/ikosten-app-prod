@@ -1,0 +1,308 @@
+.card-memberships{
+    min-height: 530px;
+}
+.spacer{
+    width: 100%;
+    height: 21px;
+}
+.icon-recomended{
+    position: relative;
+    top: 5px;
+    left: 5px;
+
+}
+.card-recomended{
+    border: 2px solid #1e96fc;
+}
+
+/*credit card*/
+
+
+.credit-card-box {
+    width: 400px;
+    height: 260px;
+    border-radius: 12px;
+    background: white;
+    position: relative;
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+
+    .front {
+      width: 400px;
+      height: 250px;
+      backface-visibility: hidden;
+      position: absolute;
+      color: #fff;
+      top: 0px;
+      left: 0px;
+      text-shadow: 0 1px 1px hsla(0, 0, 0, 0.3);
+      box-shadow: 0 1px 6px hsla(0, 0, 0, 0.3);
+      overflow: hidden;
+      border-radius: 12px;
+  
+      &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 105px;
+        left: 0;
+        background-color: var(--ion-color-primary);
+        background-image: linear-gradient(to bottom, var(--ion-color-primary) 0%, royalblue 60%);
+        background-size: cover;
+        opacity: 1;
+      }
+    }
+  
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      position: absolute;
+      top: 0;
+      transform: translateX(20%) translateY(90%);
+      left: 0px;
+      border-radius: 4px;
+      padding: 8px 12px;
+      background: #f7f7f7;
+      color: #171717;
+    }
+    
+  
+    .wave {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      right: 0;
+  
+      svg path {
+        fill: var(--ion-color-primary);
+      }
+    }
+  
+    .front {
+      z-index: 2;
+      transform: rotateY(0deg);
+    }
+  
+    .strip {
+      background: linear-gradient(135deg, hsl(0, 0, 25%), hsl(0, 0, 10%));
+      position: absolute;
+      width: 100%;
+      height: 50px;
+      top: 30px;
+      left: 0;
+    }
+  
+    .number {
+      position: absolute;
+      margin: 0 auto;
+      top: 103px;
+      left: 19px;
+      font-size: 38px;
+      
+    }
+  
+    label {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-shadow: none;
+      text-transform: uppercase;
+      font-weight: normal;
+      opacity: 1;
+      display: block;
+      margin-bottom: 3px;
+      color: var(--ion-color-primary-contrast);
+    }
+  
+  
+    .card-holder,
+    .card-expiration-date {
+      position: absolute;
+      margin: 0 auto;
+      top: 160px;
+      left: 19px;
+      font-size: 22px;
+      text-transform: capitalize;
+      color: var(--ion-color-primary-contrast);
+    }
+  
+    .card-expiration-date {
+      text-align: right;
+      left: auto;
+      right: 20px;
+      color: var(--ion-color-primary-contrast);
+    }
+  
+    .card-number {
+      font-size: 18px;
+      margin-bottom: 12px;
+      font-weight: bold;
+      color: var(--ion-color-primary-contrast);
+    }
+  
+    .ccv {
+      height: 36px;
+      width: 91%;
+      border-radius: 5px;
+      top: 110px;
+      left: 0;
+      right: 0;
+      position: absolute;
+      margin: 0 auto;
+      color: #000;
+      text-align: right;
+      padding: 10px;
+      color: var(--ion-color-primary-contrast);
+  
+      label {
+        margin: -25px 0 14px;
+        color: var(--ion-color-primary-contrast);
+      }
+    }
+  
+  
+  }
+  
+
+.box {
+    display: flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    margin-top: 50px;
+  }
+  
+  .layout-column {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .layout-row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  
+  .card {
+    background: white;
+    box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
+    border-radius: 4px;
+  }
+  
+  .card-container {
+    padding: 8px;
+  }
+  
+  label {
+    font-size: 12px;
+    color: #0f0f0f;
+  }
+  .input-hint{
+    margin-bottom: 0px;
+  }
+  input {
+    padding: 12px;
+    border-radius: 4px;
+    border-width: 2px;
+    outline: none;
+    font-size: 14px;
+    border: 2px solid grey;
+    box-sizing: border-bottom;
+  
+  
+    &:focus {
+      border-bottom: 2px solid #000;
+    }
+  }
+  
+  .pa-50 {
+    padding: 50px;
+  }
+  
+  .mt-20 {
+    margin-top: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+  
+  input {
+    width: 100%;
+  }
+  
+  button {
+    margin-top: 50px;
+    height: 44px;
+    background-color: var(--button-color);
+    border: none;
+    outline: 2px dashed var(--button-color);
+    outline-offset: 3px;
+    border-radius: 4px;
+    cursor: pointer;
+  
+    &:active {
+      outline: none;
+    }
+  }
+  
+  
+  .error-text {
+    margin-bottom: 0;
+    min-height: 16px;
+  }
+  
+  .card-container {
+    position: relative;
+    margin-top: 200px;
+  }
+  
+  .card-info {
+    justify-content: space-between;;
+  }
+  
+  .expiry-month,
+  .expiry-year {
+  
+    input {
+      max-width: 75px;
+    }
+  }
+  
+  .expiry-year {
+    margin-left: 8px;
+  }
+  
+  .cvv-number {
+    input {
+      max-width: 100px;
+    }
+  }
+  
+  
+  
+  credit-card {
+    position: absolute;
+    top: -215px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .form-container{
+    padding: 16px;
+  }
+/*end credit card*/
+
+@media screen and (max-width: 700px) {
+    .card-memberships{
+        min-height: auto !important;
+    }
+    
+}

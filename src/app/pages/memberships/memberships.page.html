@@ -11,3 +11,337 @@
 
 
 </ion-header>
+<ion-content class="ion-padding">
+  <ion-list class=" ion-margin-bottom">
+    <ion-list-header>
+      {{'titles.modules.memberships.main' | translate}}
+    </ion-list-header>
+  </ion-list>
+  <ion-grid class="ion-margin-top">
+    <ion-row>
+      <ion-col size="12" size-sm="4" *ngFor="let membership of memberships">
+        <ion-card *ngIf="this.userSession && this.userSession.lead_role <= membership.membership_role || !this.userSession" class="no-margin card-memberships" [ngClass]="membership.membership_featured ? 'card-recomended' : ''">
+          <img  [src]="'../../../assets/images/' + membership.membership_image" />
+          <ion-card-header>
+            <ion-card-title>{{membership.membership_title | translate}}<ion-icon class="icon-recomended" color="primary" name="diamond-outline" *ngIf="membership.membership_featured"></ion-icon></ion-card-title>
+            <ion-card-subtitle>{{membership.membership_sub_title | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ul class="no-margin">
+              <li *ngFor="let item of membership.membership_list">{{item | translate}}</li>
+
+
+            </ul>
+
+          </ion-card-content>
+          <ion-button *ngIf="!this.userSession || this.userSession && this.userSession.lead_role != membership.membership_role" (click)="openCheckout(membership)" class="ion-margin" fill="outline" expand="block" color="primary">{{'buttons.purchase' | translate}}</ion-button>
+          <ion-button *ngIf="this.userSession && this.userSession.lead_role == membership.membership_role" [disabled]="true" class="ion-margin"  expand="block" color="primary">Plan Actual</ion-button>
+
+        </ion-card>
+      </ion-col>
+
+      <!--
+      <ion-col size="12" size-sm="4">
+        <ion-card class="no-margin card-memberships">
+          <img  src="../../../assets/images/membership_example_banner-min.png" />
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.memberships.plans.platino.title' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.memberships.plans.platino.subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ul class="no-margin">
+              <li>{{'titles.modules.memberships.plans.platino.content.1' | translate}}</li>
+              <li>{{'titles.modules.memberships.plans.platino.content.2' | translate}}</li>
+              <li>{{'titles.modules.memberships.plans.platino.content.3' | translate}}</li>
+
+            </ul>
+            <div class="spacer"></div>
+          </ion-card-content>
+          <ion-button class="ion-margin" fill="outline" expand="block" color="primary">{{'buttons.purchase' | translate}}</ion-button>
+
+
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-sm="4">
+        <ion-card class="no-margin card-memberships">
+          <img  src="../../../assets/images/membership_example_banner-min.png" />
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.memberships.plans.gold.title' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.memberships.plans.gold.subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ul class="no-margin">
+              <li>{{'titles.modules.memberships.plans.gold.content.1' | translate}}</li>
+              <li>{{'titles.modules.memberships.plans.gold.content.2' | translate}}</li>
+              <li>{{'titles.modules.memberships.plans.gold.content.3' | translate}}</li>
+
+            </ul>
+            <div class="spacer"></div>
+
+          </ion-card-content>
+          <ion-button class="ion-margin" fill="outline" expand="block" color="primary">{{'buttons.purchase' | translate}}</ion-button>
+
+
+        </ion-card>
+      </ion-col>
+      -->
+
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-modal [isOpen]="showAlertPayment" (willDismiss)="showAlertPayment=false;">
+  <ng-template>
+    <ion-header [translucent]="true">
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start" >
+          <ion-button color="light" (click)="showAlertLogin=false">{{'buttons.close' | translate}}</ion-button>
+        </ion-buttons>
+        <ion-title>{{'titles.modules.login-warning.title' | translate}}</ion-title>
+
+      </ion-toolbar>
+    </ion-header>
+    <ion-content >
+
+      <div class="ion-padding">
+        <ion-img
+          style="max-width: 50%;"
+          src="../../../assets/images/Identificador[Fondo Blanco].png"
+          alt="ikosten logo"
+        ></ion-img>
+        <ion-list class="ion-margin-top">
+          <ion-list-header>
+            {{'titles.modules.login-warning.title-complement' | translate}}
+          </ion-list-header>
+          <div class="ion-margin-start ion-margin-bottom">
+            <p>{{'titles.modules.login-warning.content-1' | translate}}</p>
+            <p>{{'titles.modules.login-warning.content-2' | translate}}</p>
+          </div>
+          <ion-button expand="block" color="primary" class="ion-margin-top"  (click)="openLogin()" >
+            {{'buttons.sign-in' | translate}}
+          </ion-button>
+
+
+        </ion-list>
+      </div>
+
+
+
+    </ion-content> 
+
+  </ng-template>
+</ion-modal>
+<ion-modal [isOpen]="showPaymentcheckout" (willDismiss)="closeModalCheckout()">
+  <ng-template>
+    <ion-header [translucent]="true">
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start" >
+          <ion-button color="light" (click)="showPaymentcheckout=false">{{'buttons.close' | translate}}</ion-button>
+        </ion-buttons>
+        <ion-title>{{'global.words.checkout' | translate}}</ion-title>
+
+      </ion-toolbar>
+    </ion-header>
+    <ion-content >
+
+      <div class="ion-padding">
+        <ion-list>
+
+          <ion-item>
+            <ion-list-header style="padding: 0px;">
+              {{membershipSelected.membership_title | translate}}
+            </ion-list-header>
+          </ion-item>
+          <p class="ion-margin-start" style="text-align: right;">{{'global.words.total' | translate}}: ${{membershipSelected.membership_price}}</p>
+        </ion-list>
+        <ion-list class="ion-margin-bottom">
+          <ion-item>
+            <ion-list-header style="padding: 0px;">
+              {{'titles.modules.payments.payment-methods' | translate}}
+            </ion-list-header>
+          </ion-item>
+        </ion-list>
+        <ion-list class="ion-padding-start">
+          <ion-progress-bar type="indeterminate" *ngIf="!payPalConfig"></ion-progress-bar>
+
+
+          <ngx-paypal [config]="payPalConfig"></ngx-paypal>
+
+          <!--
+          <ion-radio-group [value]="paymentMethodSelected" (ionChange)="changePaymentMethod($event)">
+
+            <ion-item>
+              <ion-icon name="add-circle-outline" color="primary" slot="start"></ion-icon>
+              <ion-radio value="new-card">Nueva tarjeta de crédito</ion-radio>
+            </ion-item>
+          </ion-radio-group>
+          -->
+
+
+          <!--
+            <div class="credit-card-box">
+              <div class="wave">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                  <path
+                    fill-opacity="1"
+                    d="M0,224L48,208C96,192,192,160,288,144C384,128,480,128,576,149.3C672,171,768,213,864,229.3C960,245,1056,235,1152,192C1248,149,1344,75,1392,37.3L1440,0L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="logo">Ikosten</h3>
+            
+              <div class="front">
+                <div class="number"></div>
+                <div class="card-holder">
+                  <label class="card-number">{{ cardNumber }}</label>
+                  <label>{{ cardHolderName }}</label>
+                </div>
+                <div class="card-expiration-date">
+                  <label>{{ cardExpiryMonth }} / {{ cardExpiryYear }}</label>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          -->
+
+          <!--
+            <div class="form-container">
+              <form [formGroup]="cardForm" (ngSubmit)="onSubmit()" class="layout-column">
+                <label class="mt-20">
+                  <input
+                    type="text"
+                    data-test-id="number-input"
+                    autocomplete="off"
+                    formControlName="number"
+                    class="white large outlined"
+                    [class]="{'error': true}"
+                    placeholder="Card Number"
+                  />
+                  <p class="text-danger input-hint"
+                  *ngIf="(cardFormControl.number.touched || submitted) && cardFormControl.number.errors?.required">
+                  Card number is required
+                  </p>
+                </label>
+
+                <label class="mt-20">
+                  <input
+                    type="text"
+                    formControlName="name"
+                    autocomplete="off"
+                    data-test-id="name-input"
+                    class="white large outlined"
+                    [class]="{'error': true}"
+                    placeholder="Name on card"
+                  />
+                  <p class="text-danger input-hint"
+                  *ngIf="(cardFormControl.name.touched || submitted) && cardFormControl.name.errors?.required">
+                  Name on card is required
+                  </p>
+                </label>
+
+                <div class="layout-row card-info mt-20">
+                  <section class="layout-column">
+                    <div class="flex">
+                      <label class="expiry-month">
+                        <input
+                          type="text"
+                          formControlName="month"
+                          data-test-id="month-input"
+                          autocomplete="off"
+                          class="white large outlined"
+                          [class]="{'error': true}"
+                          placeholder="##"
+                        />
+                        <p [ngClass]="((cardFormControl.month.touched || submitted) && cardFormControl.month.errors?.required) ? 'text-danger' : ''" >Expiry Month</p>
+                      </label>
+                      <label class="expiry-year ml-8">
+                        <input
+                          type="number"
+                          formControlName="year"
+                          data-test-id="year-input"
+                          autocomplete="off"
+                          class="white large outlined"
+                          [class]="{'error': true}"
+                          placeholder="####"
+                        />
+                        <p [ngClass]="((cardFormControl.year.touched || submitted) && cardFormControl.year.errors?.required) ? 'text-danger' : ''">Expiry Year</p>
+                      </label>
+                    </div>
+                  </section>
+          
+                  <label class="cvv-number">
+                    <input
+                      type="number"
+                      formControlName="cvv"
+                      autocomplete="off"
+                      data-test-id="cvv-input"
+                      class="white large outlined"
+                      [class]="{'error': true}"
+                      placeholder="###"
+                    />
+                    <p [ngClass]="((cardFormControl.cvv.touched || submitted) && cardFormControl.cvv.errors?.required) ? 'text-danger' : ''">CVV/CVC</p>
+                  </label>
+                </div>
+                <table border="0" cellpadding="10" cellspacing="0" align="left">
+                  <tr>
+                    <td align="center"></td>
+                  </tr>
+                  <tr>
+                    <td align="left">
+                      <a href="https://www.paypal.com/webapps/mpp/paypal-popup" title="How PayPal Works" (click)="openLink('https://www.paypal.com/webapps/mpp/paypal-popup')" >
+                        <img src="https://www.paypalobjects.com/webstatic/mktg/logo/bdg_secured_by_pp_2line.png" border="0" alt="Secured by PayPal">
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <ion-button type="submit" data-test-id="submit-button" class="ion-margin-top">
+                  <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+                  Add Card
+                </ion-button>
+
+              </form>
+            </div>
+          -->
+
+            
+
+
+        </ion-list>
+
+      </div>
+      <!--
+      <div class="ion-padding" *ngIf="showAlertSuccess == true">
+        <h1 class="text-center">
+          {{'alerts.payment.success.title' | translate}}
+        </h1>
+        <p class="text-center">{{'alerts.payment.success.subtitle' | translate}}</p>
+        <ion-button expand="block" color="light">{{'buttons.accept' | translate}}</ion-button>
+      </div>
+      -->
+
+
+
+
+    </ion-content> 
+
+  </ng-template>
+</ion-modal>
+
+<ion-alert
+[isOpen]="showAlertError"
+header="{{'alerts.payment.error.title' | translate}}"
+subHeader="{{'alerts.payment.error.subtitle' | translate}}"
+[buttons]="errorButtons"
+(didDismiss)="showAlertError=false;"
+></ion-alert>
+
+<ion-alert style="z-index: 9999;"
+[isOpen]="showAlertSuccess"
+header="{{'alerts.payment.success.title' | translate}}"
+subHeader="{{'alerts.payment.success.subtitle' | translate}}"
+[buttons]="successButtons"
+(didDismiss)="onDissmissAlertSuccess()"
+></ion-alert> 
+

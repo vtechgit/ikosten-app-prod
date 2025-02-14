@@ -24,9 +24,14 @@ export class ProfilePage implements OnInit {
   selectedLanguage:string;
   availableLanguages:any=[];
   userSession:any;
+  activeMebership:any;
 
   loadingButtons:boolean=false;
   availableLanguage:any;
+  transactions:any;
+  transactionsHistory:any;
+  showModalAllTransacions:boolean=false;
+  isTransactionsLoading:boolean=false;
 
 
 
@@ -108,12 +113,50 @@ export class ProfilePage implements OnInit {
   }
   ngOnInit() {
 
-    this.userSession = JSON.parse(localStorage.getItem('userSession'));
+    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+
+      this.userSession = JSON.parse(localStorage.getItem('userSession'));
+      
+      if(this.userSession.lead_role > 0){
+
+        this.getActiveMembership();
+
+      }
+    }
+
     this.userName = this.userSession.lead_name;
     this.userEmail = this.userSession.lead_email;
     this.userPhone = this.userSession.lead_phone;
     this.getAvailableCountries();
     this.getLanguages();
+    this.getTransactions();
+  }
+  openModalTransactions(){
+    this.showModalAllTransacions = true;
+    this.isTransactionsLoading=true;
+
+    this.api.read('transactions/lead/'+this.userSession._id).subscribe(res=>{
+      this.isTransactionsLoading=false;
+      this.transactionsHistory = res['body'];
+    })
+  }
+  getActiveMembership(){
+    this.api.read('purchasedMemberships/lead/'+this.userSession._id).subscribe(res=>{
+      console.log('membership',res);
+      if(res['body'].length >0){
+        this.activeMebership = res['body'][0];
+      }
+    })
+  }
+
+  getTransactions(){
+    this.api.read('transactions/top3/lead/'+this.userSession._id).subscribe(res=>{
+      console.log('transactions',res);
+      this.transactions = res['body'];
+    })
+  }
+  openMemberships(){
+    this.router.navigate(['/customer/memberships']);
   }
   translateAlerts(){
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
