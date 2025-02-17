@@ -17,7 +17,7 @@
           </svg>
         </div>
         {{'buttons.sing-in-with-google' | translate}}</ion-button>
-        <ion-button  (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
+        <ion-button  *ngIf="platform.is('ios') && !this.platform.is('mobileweb')" (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
           <div class="gsi-material-button-icon">
             <img src="assets/images/apple_black_2x.png" alt="">
           </div>

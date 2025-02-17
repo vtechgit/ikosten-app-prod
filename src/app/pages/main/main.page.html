@@ -14,9 +14,10 @@
 
   <div class="responsive_container">
 
-    <ion-button color="primary" fill="outline" *ngIf="currentStep==1" (click)="currentStep=0">
+    <ion-button color="primary" class="ion-margin-start" fill="outline" *ngIf="currentStep==1" (click)="currentStep=0">
       <ion-icon slot="start" name="close-outline"></ion-icon>
-      {{'buttons.exit' | translate}}</ion-button>
+      {{'buttons.exit' | translate}}
+    </ion-button>
 
     <div *ngIf="currentStep == 0" @fadeIn>
       <ion-list class="ion-margin-bottom">
@@ -26,6 +27,44 @@
         </ion-list-header>
         -->
 
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.travels.create.complement' | translate}}</ion-card-title>
+          </ion-card-header>
+        
+          <ion-card-content>
+            
+            <ion-item button (click)="showModalPicker('inputs.select-country.title','country')">
+              <ion-label *ngIf="currencyBlockSelected">{{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
+              <ion-label *ngIf="!currencyBlockSelected">{{'inputs.select-country.title' | translate}}</ion-label>
+            </ion-item>
+          </ion-card-content>
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.travels.create.date-travel-complement' | translate}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;scrollToTarget('dateLine');">
+              <ion-label>{{'global.words.date' | translate}}:</ion-label>
+                <ion-chip class="chip-date" >
+                  {{todayDate | date: 'dd/MM/yyyy'}}
+                <ion-ripple-effect></ion-ripple-effect>
+  
+              </ion-chip>
+  
+            </ion-item>    
+            <ion-item *ngIf="toggleDate">
+              <ion-datetime style="width: 100%; margin: auto;"  id="dateLine" [locale]="dateLocale"  [(ngModel)]="todayDate" presentation="date"></ion-datetime>
+  
+            </ion-item>
+          </ion-card-content>
+          <ion-button [disabled]="!this.currencyBlockSelected
+            || !todayDate" color="primary" class="button-controll button-card" (click)="createProcess()" >
+            {{'buttons.create-travel' | translate}}
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </ion-card>
+
+        <!--
         <ion-card *ngIf="travels && travels.length <= 0 ">
           <ion-card-header>
             <ion-card-title>{{'titles.modules.travels.first-travel-title' | translate}}</ion-card-title>
@@ -40,10 +79,7 @@
         <ion-card *ngIf="travels && travels.length > 0 ">
           <ion-card-header>
             <ion-card-title>{{'titles.modules.travels.add-travel-title' | translate}}</ion-card-title>
-            <!--
-            <ion-card-subtitle>{{'titles.modules.travels.first-travel-subtitle' | translate}}</ion-card-subtitle>
 
-            -->
           </ion-card-header>
         
           <ion-card-content style="padding-bottom:0px">
@@ -51,6 +87,8 @@
           </ion-card-content>
           <ion-button class="f-right ion-margin" (click)="addTravel()">{{'buttons.create-travel' | translate}}</ion-button>
         </ion-card>
+        -->
+
         <ion-item *ngFor="let travel of travels" button (click)="openTravel(travel)">
           <ion-label>
             <h2>{{convertKey(travel.process_country.country) | translate}}</h2>
