@@ -247,6 +247,9 @@ export class MainPage implements OnInit {
   openModalAddTravel:boolean=false;
 
   todayDate:string;
+  startDateTrip:any;
+  endDateTrip:any;
+  dateRangeSelected:any;
 
   travelSelected:any;
   showAlertLogin:boolean=false;
@@ -277,7 +280,11 @@ export class MainPage implements OnInit {
 
     let today = new Date();
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
-
+    //this.dateRangeSelected = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
+    this.dateRangeSelected = [];
+    this.startDateTrip = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
+    
+    this.dateRangeSelected = [this.startDateTrip];
     this.hidrate();
     this.getCurrencies();
 
@@ -389,7 +396,7 @@ export class MainPage implements OnInit {
 
       })
       this.api.read('leads/'+this.userSession._id).subscribe(res=>{
-4
+
         if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
 
           this.userEmail = res['body']['lead_email'];
@@ -434,7 +441,67 @@ export class MainPage implements OnInit {
   
     }
   }
+  changeStartDatePicker(event){
 
+    this.dateRangeSelected = event.target.value;
+
+    if(!this.startDateTrip && !this.endDateTrip){
+
+      this.startDateTrip = this.dateRangeSelected[0];
+    }else if(!this.endDateTrip && this.startDateTrip){
+      
+      this.endDateTrip = this.dateRangeSelected[this.dateRangeSelected.length-1];
+
+
+
+
+    }else{
+      let aux = this.dateRangeSelected[this.dateRangeSelected.length-1];
+
+      this.dateRangeSelected = [aux];
+      this.startDateTrip = aux;
+      this.endDateTrip = undefined;
+
+    }
+    if(this.startDateTrip && this.endDateTrip){
+      if(new Date(this.startDateTrip).getTime() > new Date(this.endDateTrip).getTime()){
+        let aux2 = this.startDateTrip;
+        this.startDateTrip = this.endDateTrip;
+        this.endDateTrip = aux2;
+  
+      }
+      let start = new Date(this.startDateTrip);
+      let end = new Date(this.endDateTrip);
+      let days = (end.getTime()- start.getTime()) /86400000;
+      console.log(days);
+
+      for (let index =1 ; index < days; index++) {
+        
+        let newDate = new Date(this.calcular(this.dateRangeSelected[index-1]));
+
+        this.dateRangeSelected[index] = newDate.getFullYear()+"-"+this.addZero(newDate.getMonth()+1)+"-"+this.addZero(newDate.getDate())
+        
+      }
+      this.dateRangeSelected.push(this.endDateTrip);
+    }
+
+    this.changeDetector.detectChanges();
+
+
+
+
+    
+  }
+  calcular(fecha, operacion='sumar', dias=1) {
+    var date = fecha.split("-"),
+        hoy = new Date(date[0], date[1], date[2]),
+        calculado = new Date(),
+        dateResul = operacion == "sumar" ? hoy.getDate() + dias : hoy.getDate() - dias;
+    calculado.setDate(dateResul);
+    return calculado.getFullYear()+'-'+(calculado.getMonth() + 1)+'-'+calculado.getDate();
+   
+      
+  }
   openLogin(){
     this.showAlertLogin=false;
     setTimeout(() => {
@@ -747,7 +814,6 @@ export class MainPage implements OnInit {
   }
   createProcess(){
     this.loadingButtons=true;
-    let startDate = this.todayDate.split('T')[0];
     let processSettings = {
       sendPdf:false,
       sendExcel:false
@@ -756,7 +822,8 @@ export class MainPage implements OnInit {
 
     let req = {
       process_lead: this.userSession ? this.userSession._id : undefined,
-      process_start_date :startDate,
+      process_start_date :this.startDateTrip,
+      process_end_date: this.endDateTrip,
       process_country: this.currencyBlockSelected,
       process_step:1,
       process_settings:processSettings
@@ -785,6 +852,16 @@ export class MainPage implements OnInit {
 
       }
       this.loadingButtons=false;
+      this.currencyBlockSelected=undefined;
+      this.openTravel(res['body']);
+      this.toggleDate=false;
+      this.endDateTrip=undefined;
+      let today = new Date();
+
+      this.dateRangeSelected = [];
+      this.startDateTrip = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
+      
+      this.dateRangeSelected = [this.startDateTrip];
 
     })
 

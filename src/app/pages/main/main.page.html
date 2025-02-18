@@ -46,19 +46,25 @@
             <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;scrollToTarget('dateLine');">
               <ion-label>{{'global.words.date' | translate}}:</ion-label>
                 <ion-chip class="chip-date" >
-                  {{todayDate | date: 'dd/MM/yyyy'}}
+                  {{startDateTrip | date: 'dd/MM/yyyy'}}
                 <ion-ripple-effect></ion-ripple-effect>
   
               </ion-chip>
+              -
+              <ion-chip class="chip-date" >
+                {{endDateTrip | date: 'dd/MM/yyyy'}}
+              <ion-ripple-effect></ion-ripple-effect>
+
+            </ion-chip>
   
             </ion-item>    
             <ion-item *ngIf="toggleDate">
-              <ion-datetime style="width: 100%; margin: auto;"  id="dateLine" [locale]="dateLocale"  [(ngModel)]="todayDate" presentation="date"></ion-datetime>
-  
+              <ion-datetime [multiple]="true" style="width: 100%; margin: auto;" (ionChange)="changeStartDatePicker($event)"  id="dateLine" [locale]="dateLocale"  [value]="dateRangeSelected" presentation="date"></ion-datetime>
+
             </ion-item>
           </ion-card-content>
           <ion-button [disabled]="!this.currencyBlockSelected
-            || !todayDate" color="primary" class="button-controll button-card" (click)="createProcess()" >
+            || !startDateTrip || !endDateTrip" color="primary" class="button-controll button-card" (click)="createProcess()" >
             {{'buttons.create-travel' | translate}}
             <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
           </ion-button>
@@ -89,10 +95,55 @@
         </ion-card>
         -->
 
+        <ion-list-header >{{'titles.modules.profile.history' | translate}}</ion-list-header>
+
+        <ion-list *ngIf="!travels">
+          <ion-item>
+            <ion-label>
+              <h2>
+                <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
+  
+              </h2>
+              <p>
+                <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
+              </p>
+            </ion-label>
+
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <h2>
+                <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
+  
+              </h2>
+              <p>
+                <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
+              </p>
+            </ion-label>
+
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <h2>
+                <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
+  
+              </h2>
+              <p>
+                <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
+              </p>
+            </ion-label>
+
+          </ion-item>
+        </ion-list>
+        <ion-item *ngIf="travels && travels.length <=0">
+          <ion-label>
+            <h2>{{'titles.modules.travels.history.no-trips-yet' | translate}}...</h2>
+          </ion-label>
+        </ion-item>
         <ion-item *ngFor="let travel of travels" button (click)="openTravel(travel)">
           <ion-label>
             <h2>{{convertKey(travel.process_country.country) | translate}}</h2>
-            <p>{{'titles.modules.travels.list-start-date' | translate}} {{travel.process_start_date | date: 'dd/MM/yyyy'}}</p>
+            <p>{{'titles.modules.travels.list-start-date' | translate}} {{travel.process_start_date | date: 'dd/MM/yyyy'}} <span *ngIf="travel.process_end_date && travel.process_end_date != ''"> {{'titles.modules.travels.list-end-date' | translate}} {{travel.process_end_date | date: 'dd/MM/yyyy'}}</span></p>
             
           </ion-label>
           <ion-badge slot="end" color="primary" *ngIf="travel.process_status == 0">{{'titles.modules.travels.status.new' | translate}}</ion-badge>
