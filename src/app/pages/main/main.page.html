@@ -14,7 +14,7 @@
 
   <div class="responsive_container">
 
-    <ion-button color="primary" class="ion-margin-start" fill="outline" *ngIf="currentStep==1" (click)="currentStep=0">
+    <ion-button color="primary" class="ion-margin-start" fill="outline" *ngIf="currentStep>=1" (click)="currentStep=0">
       <ion-icon slot="start" name="close-outline"></ion-icon>
       {{'buttons.exit' | translate}}
     </ion-button>
