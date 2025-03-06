@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "Salve suas informações por 2 meses",
 	"titles.modules.memberships.plans.gold.content.3": "Exporte seus resultados em formato Excel e PDF",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "Métodos de pagamento"
+	"titles.modules.payments.payment-methods": "Métodos de pagamento",
+	"titles.modules.tour.step-1.title": "Guia de início rápido",
+	"titles.modules.tour.step-1.description": "Para criar seu primeiro relatório de viagem, selecione um país",
+	"titles.modules.tour.step-2.title": "Datas da sua viagem",
+	"titles.modules.tour.step-2.description": "Selecione uma data de início e término para sua viagem",
+	"titles.modules.tour.step-3.title": "Crie sua viagem",
+	"titles.modules.tour.step-3.description": "Clique neste botão para criar e salvar sua viagem",
+	"titles.modules.tour.step-4.title": "Seu histórico de viagens",
+	"titles.modules.tour.step-4.description": "Cada vez que você criar uma nova viagem, ela será salva no seu histórico"
 }

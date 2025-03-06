@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "Salva le tue informazioni per 2 mesi",
 	"titles.modules.memberships.plans.gold.content.3": "Esporta i tuoi risultati in formato Excel e PDF",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "Metodi di pagamento"
+	"titles.modules.payments.payment-methods": "Metodi di pagamento",
+	"titles.modules.tour.step-1.title": "Guida rapida",
+	"titles.modules.tour.step-1.description": "Per creare il tuo primo resoconto di viaggio, seleziona un paese",
+	"titles.modules.tour.step-2.title": "Date del tuo viaggio",
+	"titles.modules.tour.step-2.description": "Seleziona una data di inizio e di fine per il tuo viaggio",
+	"titles.modules.tour.step-3.title": "Crea il tuo viaggio",
+	"titles.modules.tour.step-3.description": "Fai clic su questo pulsante per creare e salvare il tuo viaggio",
+	"titles.modules.tour.step-4.title": "La tua cronologia di viaggio",
+	"titles.modules.tour.step-4.description": "Ogni volta che crei un nuovo viaggio, questo verrà salvato nella tua cronologia"
 }

@@ -5,6 +5,7 @@ import { environment } from '../environments/environment';
 import {TranslateService} from "@ngx-translate/core";
 import {ApiService} from "./services/api.service";
 import { Device } from '@capacitor/device';
+import { ActivatedRoute } from '@angular/router'; 
 
 @Component({
   selector: 'app-root',
@@ -16,8 +17,24 @@ export class AppComponent {
 
   availableLanguage:any;
 
-  constructor(public platform: Platform, private translate: TranslateService, private api:ApiService) {
-    
+  constructor(
+    public platform: Platform,
+    private translate: TranslateService,
+    private api:ApiService,
+    private activatedRoute:ActivatedRoute  
+  ) {
+    this.activatedRoute.queryParams.subscribe(params=>{
+
+      if(params['source']){
+        localStorage.setItem('clientSource', params['source']);
+        this.api.create('sources/register_visits',{source_name:params['source']}).subscribe(res=>{
+          console.log('register visits ',res)
+        })
+      }
+  
+    })
+
+
     var languages = [];
     var languageToUse = 'en';
     this.translate.setDefaultLang('en');
