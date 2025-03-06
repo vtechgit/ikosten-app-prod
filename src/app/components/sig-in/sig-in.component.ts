@@ -81,7 +81,8 @@ export class SigInComponent  implements OnInit {
           lead_name: user.displayName,
           lead_phone: user.phoneNumber,
           lead_country: country,
-          lead_role:0
+          lead_role:0,
+          lead_source: localStorage.getItem('clientSource')
         }
         this.api.create('leads/auth', obj).subscribe(res=>{
 
@@ -198,7 +199,9 @@ export class SigInComponent  implements OnInit {
           lead_token: token,
           lead_name: full_name,
           lead_phone: user.phoneNumber,
-          lead_country: country
+          lead_role:0,
+          lead_country: country,
+          lead_source: localStorage.getItem('clientSource')
         }
         this.api.create('leads/auth', obj).subscribe(res=>{
           console.log('auth response',res);
@@ -346,7 +349,8 @@ export class SigInComponent  implements OnInit {
                 lead_name: user.displayName,
                 lead_phone: this.userPhone,
                 lead_country: country,
-                lead_role:0
+                lead_role:0,
+                lead_source: localStorage.getItem('clientSource')
               }
               this.api.create('leads/auth', obj).subscribe(res=>{
   

@@ -11,7 +11,7 @@ const formHeaders = new HttpHeaders().set("rcy-key", "Jxa4lyCUktiBkhC0IiL4");
 export class ApiService {
   endpoint = "https://api.ikosten.com/api/";
 
-  //endpoint = "http://localhost:4000/api/";
+  //endpoint = "https://ikosten-api-v2-hbcqgacnehfjbdch.eastus-01.azurewebsites.net/api/";
   //
   constructor(private http: HttpClient) {}
   //

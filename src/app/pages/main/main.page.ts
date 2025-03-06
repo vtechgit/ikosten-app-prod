@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { transition, style, animate, trigger } from '@angular/animations';
 import {ApiService} from '../../services/api.service';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
@@ -9,6 +9,7 @@ import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
 import { Platform } from '@ionic/angular';
+import { ShepherdService } from 'angular-shepherd';
 
 const enterTransition = transition(':enter', [
   style({
@@ -263,6 +264,132 @@ export class MainPage implements OnInit {
   availableLanguage:any;
   selectedLanguage:string;
   availableLanguages:any=[];
+
+  guideSteps: any = [
+    {
+      id: 'tour-step-1',
+      attachTo: {
+        element: '.tour-step-1',
+        on: 'bottom'
+      },
+      beforeShowPromise: function() {
+        return new Promise((resolve)=> {
+          setTimeout(function() {
+            window.scrollTo(0, 0);
+            resolve(0);
+          }, 500);
+        });
+      },
+      buttons: [
+        {
+          classes: 'shepherd-button-primary',
+          text: 'Siguiente',
+          action: ()=> {
+            return this.shepherdService.next();
+          }
+        }
+      ],
+      cancelIcon: {
+        enabled: false
+      },
+      classes: 'guided-tour-dialog',
+      highlightClass: 'highlight',
+      scrollTo: false,
+      title: 'Guía de inicio rápido',
+      text: ['Para crear tu primer reporte de viaticos, selecciona un país'],
+      when: {
+        show: () => {
+          console.log('show step');
+        },
+        hide: () => {
+          console.log('hide step');
+        }
+      }
+    },
+    {
+      id: 'tour-step-3',
+      attachTo: {
+        element: '.tour-step-3',
+        on: 'bottom'
+      },
+      beforeShowPromise: function() {
+        return new Promise((resolve)=> {
+          setTimeout(function() {
+            window.scrollTo(0, 0);
+            resolve(0);
+          }, 500);
+        });
+      },
+      buttons: [
+        {
+          classes: 'shepherd-button-primary',
+          text: 'Siguiente',
+          action: ()=> {
+            return this.shepherdService.next();
+          }
+        }
+      ],
+      cancelIcon: {
+        enabled: false
+      },
+      classes: 'guided-tour-dialog',
+      highlightClass: 'highlight',
+      scrollTo: false,
+      title: 'Crea tu viaje',
+      text: ['Haz click en este boton para crear y guardar tu viaje'],
+      when: {
+        show: () => {
+          console.log('show step');
+        },
+        hide: () => {
+          console.log('hide step');
+        }
+      }
+    },   
+    {
+      id: 'tour-step-4',
+      attachTo: {
+        element: '.tour-step-4',
+        on: 'bottom'
+      },
+      beforeShowPromise: function() {
+        return new Promise((resolve)=> {
+          setTimeout(function() {
+            window.scrollTo(0, 0);
+            resolve(0);
+          }, 500);
+        });
+      },
+      buttons: [
+        {
+          classes: 'shepherd-button-primary',
+          text: 'Cerrar',
+          action: ()=> {
+            localStorage.setItem('tourCompleted','1');
+            return this.shepherdService.complete();
+          }
+        }
+      ],
+      cancelIcon: {
+        enabled: false
+      },
+      classes: 'guided-tour-dialog',
+      highlightClass: 'highlight',
+      scrollTo: false,
+      title: 'Tu historial de viajes',
+      text: ['Cada vez que crees un viaje nuevo, estára guardado en tu historial'],
+      when: {
+        show: () => {
+          console.log('show step');
+        },
+        hide: () => {
+          console.log('hide step');
+        }
+      }
+    },
+
+  ];
+
   constructor(
     private api:ApiService,
     private http: HttpClient,
@@ -271,12 +398,28 @@ export class MainPage implements OnInit {
     private router:Router,
     private translate: TranslateService,
     public platform: Platform,
-    private activatedRoute:ActivatedRoute
+    private activatedRoute:ActivatedRoute,
+    public shepherdService: ShepherdService
   ) { }
 
+  ngAfterViewInit() {
 
+    this.shepherdService.defaultStepOptions =  {
+      classes: 'guided-tour-dialog',
+      scrollTo: false,
+      cancelIcon: {
+        enabled: true,
+        
+      }
+    };
+    this.shepherdService.modal = true;
+    this.shepherdService.confirmCancel = false;
+  
+  }
 
   ngOnInit() {
+
+
 
     let today = new Date();
     this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
@@ -373,6 +516,54 @@ export class MainPage implements OnInit {
       
 
     });
+    this.translate.get(_('buttons.next')).subscribe((text: string) => {
+
+
+        this.guideSteps[0]['buttons'][0]['text'] = text;
+        this.guideSteps[1]['buttons'][0]['text'] = text;
+
+        this.translate.get(_('buttons.finish')).subscribe((text: string) => {
+          this.guideSteps[2]['buttons'][0]['text'] = text;
+
+          this.translate.get(_('titles.modules.tour.step-1.title')).subscribe((text: string) => {
+            this.guideSteps[0]['title'] = text;
+
+            this.translate.get(_('titles.modules.tour.step-1.description')).subscribe((text: string) => {
+            this.guideSteps[0]['text'] = text;
+
+              this.translate.get(_('titles.modules.tour.step-3.title')).subscribe((text: string) => {
+              this.guideSteps[1]['title'] = text;
+
+                this.translate.get(_('titles.modules.tour.step-3.description')).subscribe((text: string) => {
+                this.guideSteps[1]['text'] = text;
+
+                  this.translate.get(_('titles.modules.tour.step-4.title')).subscribe((text: string) => {
+                  this.guideSteps[2]['title'] = text;
+
+                    this.translate.get(_('titles.modules.tour.step-4.description')).subscribe((text: string) => {
+                    this.guideSteps[2]['text'] = text;
+                      this.shepherdService.addSteps(this.guideSteps);
+                      if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
+                        this.shepherdService.start();
+                       
+                  
+                      }
+                    })
+                  })
+                })
+              })
+            })
+
+          })
+
+
+        })
+        
+        
+
+
+    });
+
   }
   hidrate(){
 
@@ -381,7 +572,7 @@ export class MainPage implements OnInit {
       this.userSession = JSON.parse(localStorage.getItem('userSession'));
 
       this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
-        //console.log('processes',res);
+        console.log('processes',res);
         this.travels = res['body'];
         console.log('trip', this.activatedRoute.snapshot.queryParamMap.get('trip'));
         let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
@@ -414,7 +605,7 @@ export class MainPage implements OnInit {
       if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
 
         this.travels = JSON.parse(sessionStorage.getItem('travels'));
-
+        console.log('processes',this.travels);
       }else{
         this.travels = [];
       }
@@ -486,10 +677,10 @@ export class MainPage implements OnInit {
     }
 
     this.changeDetector.detectChanges();
+    if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
+      this.shepherdService.show('tour-step-3');
 
-
-
-
+    }
     
   }
   calcular(fecha, operacion='sumar', dias=1) {
@@ -542,6 +733,7 @@ export class MainPage implements OnInit {
     }, 500);
   }
   showModalPicker(modaTitle, type){
+    this.shepherdService.hide();
     this.pickerTitle = modaTitle;
     this.showPicker = true;
     this.pickerType = type;
@@ -549,10 +741,11 @@ export class MainPage implements OnInit {
   }
   pickerDismissed(){
     this.showPicker = false;
-    
 
-    
+    if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
+      this.shepherdService.show('tour-step-2');
 
+    }
 
   }
   validateCountriesLimitations(){
@@ -822,11 +1015,10 @@ export class MainPage implements OnInit {
 
     let req = {
       process_lead: this.userSession ? this.userSession._id : undefined,
-      process_start_date :this.startDateTrip,
-      process_end_date: this.endDateTrip,
       process_country: this.currencyBlockSelected,
       process_step:1,
-      process_settings:processSettings
+      process_settings:processSettings,
+      process_source: localStorage.getItem('clientSource')
     };
     this.api.create('processes',req).subscribe(res=>{
       if(res['status'] == 201){
@@ -1904,7 +2096,9 @@ export class MainPage implements OnInit {
                     bill.file == res['body']['document_result']['fileName']
                   ){
                     this.extracts.bills[index]['bill'][indexBill]['status']=status;
+
                     if(status == 1){
+     
                       this.extracts.bills[index]['bill'][indexBill]['date']=res['body']['document_result']['date'];
                       this.extracts.bills[index]['bill'][indexBill]['hour']=res['body']['document_result']['hour'];
                       this.extracts.bills[index]['bill'][indexBill]['vendor']=res['body']['document_result']['vendor'];
@@ -1936,6 +2130,25 @@ export class MainPage implements OnInit {
                 };
  
               };
+              let receiptDates = [];
+
+              for (let [index, element] of this.extracts.bills.entries()) {
+
+
+                for (let [indexBill, bill] of element.bill.entries()) {
+                  
+                  if( this.extracts.bills[index]['bill'][indexBill]['date'] &&  this.extracts.bills[index]['bill'][indexBill]['date'] != ''){
+                    receiptDates.push(this.extracts.bills[index]['bill'][indexBill]['date']);
+                  }
+                };
+              };
+
+
+              receiptDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+              
+              this.travelSelected.process_start_date = receiptDates[0];
+              this.travelSelected.process_end_date = receiptDates[receiptDates.length-1];
+              this.updateTravel();
 
             })
 

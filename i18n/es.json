@@ -466,6 +466,17 @@
 	"titles.modules.memberships.plans.gold.content.2": "Guarda tu infomación por 2 meses",
 	"titles.modules.memberships.plans.gold.content.3": "Exporta tus resultados en formato Excel y PDF",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "Métodos de pago"
+	"titles.modules.payments.payment-methods": "Métodos de pago",
+	"titles.modules.tour.step-1.title": "Guía de inicio rápido",
+	"titles.modules.tour.step-1.description": "Para crear tu primer reporte de viaticos, selecciona un país",
+	"titles.modules.tour.step-2.title": "Fechas de tu viaje",
+	"titles.modules.tour.step-2.description": "Selecciona una fecha de inicio y final de tu viaje",
+	"titles.modules.tour.step-3.title": "Crea tu viaje",
+	"titles.modules.tour.step-3.description": "Haz click en este boton para crear y guardar tu viaje",
+	"titles.modules.tour.step-4.title": "Tu historial de viajes",
+	"titles.modules.tour.step-4.description": "Cada vez que crees un viaje nuevo, estará guardado en tu historial"
+
+
+
 
 }

@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "情報を 2 か月間保存します",
 	"titles.modules.memberships.plans.gold.content.3": "結果を Excel および PDF 形式でエクスポートします",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "支払い方法"
+	"titles.modules.payments.payment-methods": "支払い方法",
+	"titles.modules.tour.step-1.title": "クイックスタートガイド",
+	"titles.modules.tour.step-1.description": "初めての旅行レポートを作成するには、国を選択してください",
+	"titles.modules.tour.step-2.title": "旅行の日程",
+	"titles.modules.tour.step-2.description": "旅行の開始日と終了日を選択してください",
+	"titles.modules.tour.step-3.title": "旅行を作成する",
+	"titles.modules.tour.step-3.description": "旅行を作成して保存するには、このボタンをクリックしてください",
+	"titles.modules.tour.step-4.title": "あなたの旅行履歴",
+	"titles.modules.tour.step-4.description": "新しい旅行を作成するたびに、履歴に保存されます"
 }

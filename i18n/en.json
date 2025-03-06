@@ -410,7 +410,7 @@
 	"titles.modules.process.send-results-not-logged.title": "Sign in to get the report in your email",
 	"titles.modules.process.step1.content": "Select a country",
 	"titles.modules.process.step1.subtitle": "Step #1",
-	"titles.modules.process.step1.title": "Select the country where the expenses originate",
+	"titles.modules.process.step1.title": "Select country where expenses are originated",
 	"titles.modules.process.step2.file-input.take-picture": "Take Photo",
 	"titles.modules.process.step2.file-input.take-picture-note": "Photos must be clear and cannot be cut off.",
 	"titles.modules.process.step2.file-input.upload-file": "Upload Files",
@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "Save your information for 2 months",
 	"titles.modules.memberships.plans.gold.content.3": "Export your results in Excel and PDF format",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "Payment Methods"
+	"titles.modules.payments.payment-methods": "Payment Methods",
+	"titles.modules.tour.step-1.title": "Quick start guide",
+	"titles.modules.tour.step-1.description": "To create your first travel expenses report, select a country",
+	"titles.modules.tour.step-2.title": "Dates of your trip",
+	"titles.modules.tour.step-2.description": "Select a start and end date for your trip",
+	"titles.modules.tour.step-3.title": "Create your trip",
+	"titles.modules.tour.step-3.description": "Click here to create and save your trip",
+	"titles.modules.tour.step-4.title": "Your trip history",
+	"titles.modules.tour.step-4.description": "Every time you create a new trip, it will be saved in your history"
 }

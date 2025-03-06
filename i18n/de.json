@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "Speichern Sie Ihre Daten 2 Monate lang",
 	"titles.modules.memberships.plans.gold.content.3": "Exportieren Sie Ihre Ergebnisse im Excel- und PDF-Format",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "Zahlungsmethoden"
+	"titles.modules.payments.payment-methods": "Zahlungsmethoden",
+	"titles.modules.tour.step-1.title": "Kurzanleitung",
+	"titles.modules.tour.step-1.description": "Um Ihren ersten Reisebericht zu erstellen, wählen Sie ein Land aus",
+	"titles.modules.tour.step-2.title": "Daten Ihrer Reise",
+	"titles.modules.tour.step-2.description": "Wählen Sie ein Start- und Enddatum für Ihre Reise",
+	"titles.modules.tour.step-3.title": "Erstellen Sie Ihre Reise",
+	"titles.modules.tour.step-3.description": "Klicken Sie auf diese Schaltfläche, um Ihre Reise zu erstellen und zu speichern",
+	"titles.modules.tour.step-4.title": "Ihr Reiseverlauf",
+	"titles.modules.tour.step-4.description": "Jedes Mal, wenn Sie eine neue Reise erstellen, wird diese in Ihrem Verlauf gespeichert"
 }

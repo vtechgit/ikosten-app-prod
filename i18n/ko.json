@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "2개월 동안 정보를 저장하세요",
 	"titles.modules.memberships.plans.gold.content.3": "결과를 Excel 및 PDF 형식으로 내보내기",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "결제 방법"
+	"titles.modules.payments.payment-methods": "결제 방법",
+	"titles.modules.tour.step-1.title": "빠른 시작 가이드",
+	"titles.modules.tour.step-1.description": "첫 번째 여행 보고서를 작성하려면 국가를 선택하세요.",
+	"titles.modules.tour.step-2.title": "여행 날짜",
+	"titles.modules.tour.step-2.description": "여행 시작일과 종료일을 선택하세요.",
+	"titles.modules.tour.step-3.title": "여행 만들기",
+	"titles.modules.tour.step-3.description": "여행을 생성하고 저장하려면 이 버튼을 클릭하세요.",
+	"titles.modules.tour.step-4.title": "여행 기록",
+	"titles.modules.tour.step-4.description": "새로운 여행을 만들 때마다 기록에 저장됩니다."
 }

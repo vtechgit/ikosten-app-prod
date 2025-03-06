@@ -466,5 +466,13 @@
 	"titles.modules.memberships.plans.gold.content.2": "احفظ معلوماتك لمدة شهرين",
 	"titles.modules.memberships.plans.gold.content.3": "قم بتصدير نتائجك بتنسيق Excel وPDF",
 	"titles.modules.memberships.plans.gold.content.4": "",
-	"titles.modules.payments.payment-methods": "طرق الدفع"
+	"titles.modules.payments.payment-methods": "طرق الدفع",
+	"titles.modules.tour.step-1.title": "دليل البدء السريع",
+	"titles.modules.tour.step-1.description": "لإنشاء تقرير سفرك الأول، حدد البلد",
+	"titles.modules.tour.step-2.title": "مواعيد رحلتك",
+	"titles.modules.tour.step-2.description": "حدد تاريخ البدء والانتهاء لرحلتك",
+	"titles.modules.tour.step-3.title": "أنشئ رحلتك",
+	"titles.modules.tour.step-3.description": "انقر فوق هذا الزر لإنشاء رحلتك وحفظها",
+	"titles.modules.tour.step-4.title": "تاريخ سفرك",
+	"titles.modules.tour.step-4.description": "في كل مرة تقوم فيها بإنشاء رحلة جديدة، سيتم حفظها في سجلك"
 }

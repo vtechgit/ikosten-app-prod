@@ -23,6 +23,7 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgxPayPalModule } from 'ngx-paypal';
 
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
