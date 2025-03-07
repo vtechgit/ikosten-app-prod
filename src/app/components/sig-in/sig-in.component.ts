@@ -43,13 +43,17 @@ export class SigInComponent  implements OnInit {
   ngOnInit() {
     const auth = getAuth();
     this.recaptchaVerifier= new RecaptchaVerifier(auth, 'captcha-container', {
-      'size': 'invisible',
+      'size': 'normal',
+      'callback': (response) => {
+        console.log('captcha response',response);
+      },
       'expired-callback': async () => {
         await FirebaseAuthentication.removeAllListeners();
         this.isLoading=false;
         this.isValidatingCode = false;
         
-      } 
+      },
+
     });
     this.getAvailableCountries();
   }
@@ -68,7 +72,10 @@ export class SigInComponent  implements OnInit {
 
       const result = await FirebaseAuthentication.signInWithGoogle();
       this.isLoading=true;
+      console.log('result',result)
       if(result.user){
+        console.log('user',result.user)
+
         let user = result.user;
 
         //create lead and load profile data
@@ -291,6 +298,7 @@ export class SigInComponent  implements OnInit {
   startLoginApple(){
     this.isLoginApple=true;
   }
+  
   async doLoginPhone(){
     this.isLoading = true;
       return new Promise(async resolve => {
@@ -322,6 +330,8 @@ export class SigInComponent  implements OnInit {
       });
 
   }
+      
+
 
   async validateCode(){
           this.isLoadingCode =true;
