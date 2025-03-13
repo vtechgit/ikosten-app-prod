@@ -30,6 +30,7 @@
     "@capacitor/haptics": "6.0.2",
     "@capacitor/ios": "6.2.0",
     "@capacitor/keyboard": "6.0.3",
+    "@capacitor/push-notifications": "^6.0.0",
     "@capacitor/status-bar": "6.0.2",
     "@colsen1991/ngx-translate-extract-marker": "^3.0.1",
     "@ionic/angular": "^8.4.3",
