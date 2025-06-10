@@ -10,11 +10,7 @@ import { AppComponent } from './app.component';
 import {ComponentsModule} from './components/components.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer'; // <- import PdfViewerModule
 
-//pages
 
-import {MainPageModule} from './pages/main/main.module';
-import {LoginPageModule} from './pages/login/login.module';
-import {ProfilePageModule} from './pages/profile/profile.module';
 
 
 // import ngx-translate and the http loader
@@ -22,6 +18,8 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgxPayPalModule } from 'ngx-paypal';
+import {SharedModule} from './shared/shared.module';
+import { PagesModule } from './pages/pages.module';
 
 
 @NgModule({
@@ -35,9 +33,8 @@ import { NgxPayPalModule } from 'ngx-paypal';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MainPageModule,
-    LoginPageModule,
-    ProfilePageModule,
+    SharedModule,
+    PagesModule,
     TranslateModule.forRoot({
       loader: {
           provide: TranslateLoader,

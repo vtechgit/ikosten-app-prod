@@ -4,6 +4,7 @@ import {ApiService} from '../../services/api.service';
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { ActivatedRoute } from '@angular/router';
 import { Platform } from '@ionic/angular';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-sig-in',
@@ -17,6 +18,8 @@ export class SigInComponent  implements OnInit {
   @Input() mainTitle: string;
   @Input() backParams: any;
   @Output() onClosed = new EventEmitter<string>();
+
+  loginForm:FormGroup;
 
   userPhone:string;
   selectedCountry:any;
@@ -37,25 +40,28 @@ export class SigInComponent  implements OnInit {
 
   showAppleAlertLogin:boolean=false;
   showAppleAlertAccount:boolean=false;
+  utm_lead:string;
+
+  showAlertNotFound:boolean=false;
+  showAlertInvalidCreeds:boolean=false;
 
   constructor(private api:ApiService, private activatedRoute: ActivatedRoute, public platform: Platform) { }
 
   ngOnInit() {
-    const auth = getAuth();
-    this.recaptchaVerifier= new RecaptchaVerifier(auth, 'captcha-container', {
-      'size': 'normal',
-      'callback': (response) => {
-        console.log('captcha response',response);
-      },
-      'expired-callback': async () => {
-        await FirebaseAuthentication.removeAllListeners();
-        this.isLoading=false;
-        this.isValidatingCode = false;
-        
-      },
+
+    this.loginForm = new FormGroup({
+      loginEmail:new FormControl('', [
+        Validators.required,
+        Validators.email,
+      ]),
+      loginPass:new FormControl('', [
+        Validators.required,
+      ]),
 
     });
+    this.utm_lead = localStorage.getItem('utm_lead');
     this.getAvailableCountries();
+
   }
   getAvailableCountries(){
     this.api.read('availableCountries').subscribe(res=>{
@@ -81,18 +87,34 @@ export class SigInComponent  implements OnInit {
         //create lead and load profile data
         let country = this.selectedCountry._id;
 
-        let obj ={
-          lead_type: 'google',
-          lead_email: user.email,
-          lead_token: user.uid,
-          lead_name: user.displayName,
-          lead_phone: user.phoneNumber,
-          lead_country: country,
-          lead_role:0,
-          lead_source: localStorage.getItem('clientSource')
+        var obj = {};
+        if(this.utm_lead && this.utm_lead != ''){
+          obj ={
+            lead_type: 'google',
+            lead_email: user.email,
+            lead_token: user.uid,
+            lead_name: user.displayName,
+            lead_phone: user.phoneNumber,
+            lead_country: country,
+            lead_role:0,
+            lead_id: this.utm_lead,
+            lead_invitation_status: 'active',
+            lead_source: localStorage.getItem('clientSource')
+          }
+        }else{
+          obj ={
+            lead_type: 'google',
+            lead_email: user.email,
+            lead_token: user.uid,
+            lead_name: user.displayName,
+            lead_phone: user.phoneNumber,
+            lead_country: country,
+            lead_role:0,
+            lead_source: localStorage.getItem('clientSource')
+          }
         }
-        this.api.create('leads/auth', obj).subscribe(res=>{
 
+        this.api.create('leads/auth', obj).subscribe(res=>{
           if(res['body']['data'].length > 0){
 
             localStorage.setItem('userSession', JSON.stringify(res['body']['data'][0]));
@@ -199,17 +221,33 @@ export class SigInComponent  implements OnInit {
         let token = user.uid;
 
         let country = this.selectedCountry._id;
-
-        let obj ={
-          lead_type: 'apple',
-          lead_email: email,
-          lead_token: token,
-          lead_name: full_name,
-          lead_phone: user.phoneNumber,
-          lead_role:0,
-          lead_country: country,
-          lead_source: localStorage.getItem('clientSource')
+        var obj = {};
+        if(this.utm_lead && this.utm_lead != ''){
+          obj ={
+            lead_type: 'apple',
+            lead_email: email,
+            lead_token: token,
+            lead_name: full_name,
+            lead_phone: user.phoneNumber,
+            lead_role:0,
+            lead_country: country,
+            lead_id: this.utm_lead,
+            lead_invitation_status: 'active',
+            lead_source: localStorage.getItem('clientSource')
+          }
+        }else{
+          obj ={
+            lead_type: 'apple',
+            lead_email: email,
+            lead_token: token,
+            lead_name: full_name,
+            lead_phone: user.phoneNumber,
+            lead_role:0,
+            lead_country: country,
+            lead_source: localStorage.getItem('clientSource')
+          }
         }
+
         this.api.create('leads/auth', obj).subscribe(res=>{
           console.log('auth response',res);
   
@@ -292,6 +330,57 @@ export class SigInComponent  implements OnInit {
     });
 
   }
+  async doLoginEmail(){
+    this.isLoading=true;
+    this.loginForm.markAllAsTouched();
+
+      if (this.loginForm.valid){
+          var obj ={
+            lead_type: 'email',
+            lead_email: this.email.value.toLowerCase(),
+            lead_password: this.password.value,
+          }
+        this.api.create('leads/auth', obj).subscribe(res=>{
+          console.log('auth response',res);
+  
+          if(res['body']['status']==true){
+
+            let sessionObj = {
+                _id:res['body']['data'][0]['_id'],
+                lead_name:res['body']['data'][0]['lead_name'],
+                lead_email:res['body']['data'][0]['lead_email'],
+                lead_phone:res['body']['data'][0]['lead_phone'],
+                lead_country:res['body']['data'][0]['lead_country'],
+                lead_role:res['body']['data'][0]['lead_role'],
+                lead_paypal_customer_id:res['body']['data'][0]['lead_paypal_customer_id'],
+                lead_company_id:res['body']['data'][0]['lead_company_id'],
+                lead_invitation_status:res['body']['data'][0]['lead_invitation_status'],
+            }
+  
+            localStorage.setItem('userSession', JSON.stringify(sessionObj));
+            this.isLoginApple=false;
+            this.isLoading=false;
+            window.location.href = '/customer/trips';
+
+          }else if(res['body']['code'] == 'NOTFOUND'){
+
+            this.showAlertNotFound=true;
+            this.isLoading=false;
+
+          }else if(res['body']['code'] == 'INVALID'){
+
+            this.showAlertInvalidCreeds=true;
+            this.isLoading=false;
+
+          }else{
+            this.showAppleAlertLogin=true;
+            this.isLoading=false;
+          }
+        })
+      }
+          
+
+  }
   startLoginGoogle(){
     this.isLoginGoogle=true;
   }
@@ -351,17 +440,33 @@ export class SigInComponent  implements OnInit {
               this.phoneToSend = undefined;
   
               let country = this.selectedCountry._id;
-  
-              let obj ={
-                lead_type: 'phone',
-                lead_email: user.email,
-                lead_token: user.uid,
-                lead_name: user.displayName,
-                lead_phone: this.userPhone,
-                lead_country: country,
-                lead_role:0,
-                lead_source: localStorage.getItem('clientSource')
+              var obj = {};
+              if(this.utm_lead && this.utm_lead != ''){
+                obj ={
+                  lead_type: 'phone',
+                  lead_email: user.email,
+                  lead_token: user.uid,
+                  lead_name: user.displayName,
+                  lead_phone: this.userPhone,
+                  lead_country: country,
+                  lead_role:0,
+                  lead_id: this.utm_lead,
+                  lead_invitation_status: 'active',
+                  lead_source: localStorage.getItem('clientSource')
+                }
+              }else{
+                obj ={
+                  lead_type: 'phone',
+                  lead_email: user.email,
+                  lead_token: user.uid,
+                  lead_name: user.displayName,
+                  lead_phone: this.userPhone,
+                  lead_country: country,
+                  lead_role:0,
+                  lead_source: localStorage.getItem('clientSource')
+                }
               }
+
               this.api.create('leads/auth', obj).subscribe(res=>{
   
                 if(res['body']['data'].length > 0){
@@ -473,5 +578,11 @@ export class SigInComponent  implements OnInit {
     string = string.replace(/\./g, "");
     string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return 'countries.'+string;
+  }
+  get email() {
+    return this.loginForm.get('loginEmail');
+  }
+  get password() {
+    return this.loginForm.get('loginPass');
   }
 }

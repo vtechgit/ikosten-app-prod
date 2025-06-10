@@ -1,0 +1,28 @@
+
+<ion-menu contentId="main-content" type="push">
+  <div class="menu-image-container">
+    <ion-img class="full-logo-img" src="/assets/images/Identificador[Fondo Blanco].png"></ion-img>
+
+  </div>
+  <ion-content>
+    <ion-list id="inbox-list">
+      @for (p of appPages; track p; let i = $index) {
+        @if (p.status) {
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerDirection="root" [routerLink]="[p.route]" lines="none" detail="false" routerLinkActive="selected">
+              <ion-icon aria-hidden="true" slot="start" [name]="p.icon" ></ion-icon>
+              <ion-label>{{p.title | translate}}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>  
+        }
+
+      }
+    </ion-list>
+    <ion-list >
+      <ion-button class="ion-margin" (click)="closeSession()" color="light" expand="block">{{'buttons.close-session' | translate}}</ion-button>
+      
+    </ion-list>
+    
+
+  </ion-content>
+</ion-menu>

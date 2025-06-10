@@ -1,31 +1,40 @@
 <div class="responsive_container-s " >
   <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
-    <ion-list-header>
+    <ion-list-header class="no-padding">
+      <ion-label class="text-center">
       {{mainTitle | translate}}
+      </ion-label>
     </ion-list-header>
   </ion-list>
-  <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle">
-    <ion-list>
-      <ion-button (click)="startLoginGoogle()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
-        <div class="gsi-material-button-icon">
-          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block; width: 20px;height: 20px;margin: auto;">
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-              <path fill="none" d="M0 0h48v48H0z"></path>
-          </svg>
-        </div>
-        {{'buttons.sing-in-with-google' | translate}}</ion-button>
-        <ion-button  *ngIf="platform.is('ios') && !this.platform.is('mobileweb')" (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
-          <div class="gsi-material-button-icon">
-            <img src="assets/images/apple_black_2x.png" alt="">
-          </div>
-          {{'buttons.sing-in-with-apple' | translate}}</ion-button>
-    </ion-list>
-  </div>
   <ion-grid *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
-    <ion-row>
+    <div class="emailAndPass">
+      <form [formGroup]="loginForm">
+        <ion-item [lines]="email.hasError('required')|| email.hasError('email') ? 'none' : ''">
+          <ion-input label="{{'inputs.email.title' | translate}}" type="email" 
+          labelPlacement="floating" placeholder="{{'inputs.email.placeholder' | translate}}"
+          name="loginEmail" formControlName="loginEmail"
+          [errorText]="email.hasError('required') || email.hasError('email') ? ('inputs.email.title' | translate)+' '+('errors.inputs.invalid' | translate) :''"></ion-input>
+
+        </ion-item>
+        <ion-item [lines]="password.hasError('required') ? 'none' : ''">
+          <ion-input label="{{'inputs.password.title' | translate}}" type="password" 
+          labelPlacement="floating" placeholder="{{'inputs.password.placeholder' | translate}}"
+          name="loginPass" formControlName="loginPass"
+          [errorText]="password.hasError('required') ? ('inputs.password.title' | translate)+' '+('errors.inputs.is-required.f' | translate) : ''" ></ion-input>
+
+        </ion-item>
+        <ion-button  [disabled]="isLoading" expand="block" (click)="doLoginEmail()" color="primary" class="button-controll ion-margin">
+          {{isLoading ? '' : 'buttons.sign-in' | translate}}
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        <a routerLink="/auth/restore-password" style="width: 100%;display: block;text-align: center;">{{'titles.modules.login.forgot-password' | translate}}</a>
+
+      </form>
+
+
+    </div>
+    <ion-row class="ion-margin-top">
         <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
         </ion-col>
         <ion-col size="4" class="color-white">
@@ -37,10 +46,32 @@
         <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
         </ion-col>
     </ion-row>
-    
-    
+    <ion-button  expand="block" routerLink="/auth/register" class="btn-google login-google-button ion-margin-horizontal">
+      {{'buttons.register-login-button' | translate}}
+    </ion-button>
+    <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle">
+      <ion-list>
+        <ion-button (click)="startLoginGoogle()"  expand="block" type="submit" class="btn-google login-google-button ion-margin-horizontal" >
+          <div class="gsi-material-button-icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block; width: 20px;height: 20px;margin: auto;">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
+            </svg>
+          </div>
+          {{'buttons.sing-in-with-google' | translate}}</ion-button>
+          <ion-button  *ngIf="platform.is('ios') && !this.platform.is('mobileweb')" (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
+            <div class="gsi-material-button-icon">
+              <img src="assets/images/apple_black_2x.png" alt="">
+            </div>
+            {{'buttons.sing-in-with-apple' | translate}}</ion-button>
+      </ion-list>
+    </div>
   </ion-grid>
-  <div class="phoneSignin ion-margin-top">
+  <!--
+    <div class="phoneSignin ion-margin-top">
     <ion-list *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
       <ion-list-header>
         {{'titles.modules.login.continue-with-phone-number' | translate}}
@@ -70,6 +101,8 @@
 
 
   </div>
+  -->
+
 
 </div>
 <div class="responsive_container" *ngIf="isLoginGoogle || isLoginApple">
@@ -117,8 +150,24 @@
   subHeader="{{'alerts.invalid-code.subtitle' | translate}}"
   [buttons]="alertButtons"
   [isOpen]="showAlertCodeError"
+  (didDismiss)="showAlertCodeError=false"
 ></ion-alert>
 
+<ion-alert
+  header="{{'alerts.register.error.user-not-found.title' | translate}}"
+  subHeader="{{'alerts.register.error.user-not-found.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertNotFound"
+  (didDismiss)="showAlertNotFound=false"
+
+></ion-alert>
+<ion-alert
+  header="{{'alerts.register.error.invalid-creeds.title' | translate}}"
+  subHeader="{{'alerts.register.error.invalid-creeds.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertInvalidCreeds"
+  (didDismiss)="showAlertInvalidCreeds=false"
+></ion-alert>
 
 <!-- apple alerts -->
 <ion-alert
@@ -126,4 +175,6 @@
   subHeader="{{'alerts.general.try-again-later' | translate}}"
   [buttons]="alertButtons"
   [isOpen]="showAppleAlertLogin"
+  (didDismiss)="showAppleAlertLogin=false"
+
 ></ion-alert>

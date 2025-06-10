@@ -1,0 +1,26 @@
+<ion-header [translucent]="true">
+
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="start" *ngIf="!platform.is('ios') || platform.is('ios') && this.platform.is('mobileweb')">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+
+    </ion-buttons>
+
+  </ion-toolbar>
+
+
+</ion-header>
+<ion-content >
+  <ion-grid class="h-100 no-padding">
+    <ion-row class="h-100">
+      <ion-col size="12" size-sm="6" class="d-flex flex-center">
+          <app-sig-in class="form-login" mainTitle = "titles.modules.login.main" [backParams]="backParams"></app-sig-in>
+
+      </ion-col>
+      <ion-col size="12" size-sm="6" class="col-background ion-hide-sm-down" style="background-image: url(assets/images/login-placeholder.jpg);">
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

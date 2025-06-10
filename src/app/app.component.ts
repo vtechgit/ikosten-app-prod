@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { initializeApp } from 'firebase/app';
 import { environment } from '../environments/environment';
@@ -13,9 +13,10 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-export class AppComponent {
+export class AppComponent implements OnInit  {
 
   availableLanguage:any;
+  isLogged:boolean=false;
 
   constructor(
     public platform: Platform,
@@ -88,6 +89,15 @@ export class AppComponent {
       //await FacebookLogin.initialize({ appId: '1482658515672892' });
     })
   }
+
+    ngOnInit() {
+      if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+        this.isLogged=true;
+      }else{
+        this.isLogged=false;
+
+      }
+    }
 
 
 }

@@ -1,0 +1,86 @@
+<ion-header [translucent]="true">
+
+  <ion-toolbar color="primary">
+
+    <ion-buttons slot="start" *ngIf="!platform.is('ios') || platform.is('ios') && this.platform.is('mobileweb')">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content >
+  <ion-grid class="h-100 no-padding">
+    <ion-row class="h-100">
+      <ion-col size="12" size-sm="6" class="d-flex flex-center">
+        <div class="form-restore">
+          <ion-list *ngIf="validating">
+            <ion-list-header class="no-padding">
+              <ion-label class="text-center no-margin">
+              {{'titles.modules.validate-token.loading' | translate}}
+              <ion-progress-bar type="indeterminate" class="ion-margin-top"></ion-progress-bar>
+              </ion-label>
+            </ion-list-header>
+          </ion-list>
+          <ion-list *ngIf="!validating && error">
+            <ion-list-header class="no-padding">
+              <ion-label class="text-center no-margin">
+                {{'titles.modules.validate-token.error' | translate}}
+              </ion-label>
+            </ion-list-header>
+            <ion-button  expand="block" color="light" routerLink="/auth/login" routerDirection="back" class="button-controll ion-margin">
+              {{isLoading ? '' : 'buttons.back' | translate}}
+              <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+            </ion-button>
+          </ion-list>
+          <ion-list *ngIf="!validating && success">
+            <ion-list-header class="no-padding">
+              <ion-label class="text-center no-margin">
+              {{'titles.modules.validate-token.success' | translate}}
+              </ion-label>
+            </ion-list-header>
+          </ion-list>
+          <div class="emailAndPass" *ngIf="!validating && success">
+            <form [formGroup]="validateForm">
+              <ion-item [lines]="password.hasError('required') ? 'none' : ''">
+                <ion-input label="{{'inputs.password.title' | translate}}" type="password" 
+                labelPlacement="floating" placeholder="{{'inputs.password.placeholder' | translate}}"
+                name="validatePassword" formControlName="validatePassword"
+                [errorText]="password.hasError('required') ? ('inputs.password.title' | translate)+' '+('errors.inputs.is-required.f' | translate) : ''" ></ion-input>
+              </ion-item>
+              <ion-item [lines]="confirmPassword.hasError('required') ? 'none' : ''">
+                <ion-input label="{{'inputs.confirmPassword.title' | translate}}" type="password" 
+                labelPlacement="floating" placeholder="{{'inputs.confirmPassword.placeholder' | translate}}"
+                name="validateConfirmPassword" formControlName="validateConfirmPassword"
+                [errorText]="confirmPassword.hasError('required') ? ('inputs.confirmPassword.title' | translate)+' '+('errors.inputs.is-required' | translate) : ''" ></ion-input>
+              </ion-item>
+              <ion-button  [disabled]="isLoading" expand="block" (click)="doChangePassword()" color="primary" class="button-controll ion-margin">
+                {{isLoading ? '' : 'buttons.change-password' | translate}}
+                <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+                <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+              </ion-button>
+            </form>
+          </div>
+        </div>
+      </ion-col>
+      <ion-col size="12" size-sm="6" class="col-background ion-hide-sm-down" style="background-image: url(assets/images/login-placeholder.jpg);">
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-alert
+  header="{{'alerts.create-password.success.header' | translate}}"
+  subHeader="{{'alerts.create-password.success.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertSubmit"
+  (didDismiss)="backToLogin()"
+></ion-alert>
+
+<ion-alert
+  header="{{'alerts.general.header' | translate}}"
+  subHeader="{{'alerts.general.try-again-later' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAppleAlertLogin"
+  (didDismiss)="showAppleAlertLogin=false"
+></ion-alert>
+

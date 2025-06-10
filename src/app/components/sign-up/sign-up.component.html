@@ -1,0 +1,102 @@
+<div class="responsive_container-s " >
+  <ion-list>
+    <ion-list-header class="no-padding">
+      <ion-label class="text-center">
+      {{mainTitle | translate}}
+      </ion-label>
+    </ion-list-header>
+  </ion-list>
+
+
+  <ion-grid>
+    <div class="emailAndPass">
+      <form [formGroup]="registerForm">
+        <ion-item [lines]="name.hasError('required') ? 'none' : ''">
+          <ion-input label="{{'inputs.user-name.title' | translate}}" type="text" 
+          name="registerName" formControlName="registerName" labelPlacement="floating"
+          placeholder="{{'inputs.user-name.place-holder' | translate}}"
+          [errorText]="name.hasError('required')  ? ('inputs.user-name.title' | translate)+' '+('errors.inputs.is-required' | translate) :''"></ion-input>
+
+        </ion-item>
+        <ion-item [lines]="email.hasError('required')|| email.hasError('email') ? 'none' : ''">
+          <ion-input label="{{'inputs.email.title' | translate}}" type="email" 
+          name="registerEmail" formControlName="registerEmail" labelPlacement="floating"
+          placeholder="{{'inputs.email.placeholder' | translate}}"
+          [errorText]="email.hasError('required') || email.hasError('email') ? ('inputs.email.title' | translate)+' '+('errors.inputs.invalid' | translate) :''"></ion-input>
+
+        </ion-item>
+        <ion-grid class="no-padding">
+          <ion-row>
+            <ion-col size="12" size-sm="5" class="no-padding">
+              <ion-item style="max-width: 96% !important;"> 
+                <ion-select 
+                label="{{'global.words.country' | translate}}"
+                name="registerCountry" formControlName="registerCountry"
+                label-placement="floating" >
+                  <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
+                </ion-select>   
+              </ion-item>
+              <ion-note class="errorNote ion-margin-start" *ngIf="countrySelect.hasError('required') && countrySelect.touched">{{'global.words.country' | translate}} {{'errors.inputs.is-required' | translate}}</ion-note>
+
+            </ion-col>
+            <ion-col size="12" size-sm="7" class="no-padding">
+              <ion-item [lines]="phone.hasError('required') ? 'none' : ''" >
+                <ion-input label="{{'inputs.phone-number.title' | translate}}" type="number" 
+                labelPlacement="floating" placeholder="{{'inputs.phone-number.placeholder' | translate}}"
+                name="registerPhone" formControlName="registerPhone" 
+                [errorText]="phone.hasError('required') ? ('inputs.phone-number.title' | translate)+' '+('errors.inputs.is-required' | translate) :''"
+                ></ion-input>
+
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+
+
+        <ion-item [lines]="password.hasError('required') ? 'none' : ''">
+          <ion-input label="{{'inputs.password.title' | translate}}" type="password" 
+          labelPlacement="floating" 
+          name="registerPass" formControlName="registerPass" 
+          placeholder="{{'inputs.password.placeholder' | translate}}"
+          [errorText]="password.hasError('required') ? ('inputs.password.title' | translate)+' '+('errors.inputs.is-required.f' | translate) : password.hasError('minlenght') ? 'Password must be at least 6 characters':''">
+              <ion-input-password-toggle slot="end" *ngIf="password.value && password.value.length > 0"></ion-input-password-toggle>
+          </ion-input>
+
+        </ion-item>
+        <ion-button  [disabled]="isLoading" expand="block" (click)="onSubmit()" color="primary" class="button-controll ion-margin">
+          {{isLoading ? '' : 'buttons.finish' | translate}}
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        <ion-button  expand="block" routerLink="/auth/login" routerDirection="back"  class="btn-google login-google-button ion-margin-horizontal">
+          {{isLoading ? '' : 'buttons.login-register-button' | translate}}
+        </ion-button>
+      </form>
+
+
+    </div>
+
+    
+  </ion-grid>
+
+
+</div>
+
+<ion-alert
+  header="{{'alerts.general.header' | translate}}"
+  subHeader="{{'alerts.general.try-again-later' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertCodeError"
+  (didDismiss)="showAlertCodeError=false"
+  
+></ion-alert>
+
+<ion-alert
+  header="{{'alerts.register.error.user-already-exist.title' | translate}}"
+  subHeader="{{'alerts.register.error.user-already-exist.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertAlreadyExist"
+  (didDismiss)="showAlertAlreadyExist=false"
+  
+></ion-alert>

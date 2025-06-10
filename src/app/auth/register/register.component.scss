@@ -1,0 +1,45 @@
+.btn-google{
+
+    --background: #ffffff;
+    --background-activated: #e1e1e1;
+    --background-focused: #e1e1e1;
+    --background-hover: #e1e1e1;
+    color: #1f1f1f;
+    border: 1px solid #acacac;
+    border-radius: 13px;
+}
+.gsi-material-button-icon{
+    height: 46px;
+    margin-right: 12px;
+    min-width: 20px;
+    width: 46px;
+    display: flex;
+    position: absolute;
+    left: 0;
+}
+.captcha-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+.col-background{
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.form-login{
+    width: 450px;
+    display: block;
+    margin: auto;
+    border: 1px solid #d1d1d1;
+    border-radius: 40px;
+    padding: 13px;
+
+}
+
+@media screen and (max-width: 934px) {
+    .form-login{
+        width: 100%;
+        border:none !important;
+    }
+}
