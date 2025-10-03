@@ -1,24 +1,54 @@
 <app-header></app-header>
 
-<ion-content class="content-background">
-
-  <div class="responsive_container">
-
-    <ion-list class="ion-margin-top">
-      <ion-list-header>
-        {{'titles.modules.profile.language-title' | translate}}
-      </ion-list-header>
-      <ion-item >
-        <ion-select label="{{'inputs.app-language.title' | translate}}" [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage()" label-placement="floating">
-          <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">{{language.title}}</ion-select-option>
-        </ion-select>
-      </ion-item>
-  
-    </ion-list>
-
-  
+<ion-content class="language-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <ion-icon name="language-outline" class="welcome-icon"></ion-icon>
+      <h1 class="welcome-title">{{'titles.modules.profile.language-title' | translate}}</h1>
+      <p class="welcome-subtitle">Personaliza tu experiencia seleccionando tu idioma preferido</p>
+    </div>
   </div>
 
+  <!-- Language Selection Section -->
+  <div class="language-selection-section">
+    <div class="selection-card">
+      <div class="card-header">
+        <ion-icon name="globe-outline" class="card-icon"></ion-icon>
+        <h2 class="card-title">Seleccionar Idioma</h2>
+        <p class="card-subtitle">Elige el idioma en el que quieres usar iKosten</p>
+      </div>
+      
+      <div class="language-input">
+        <ion-item class="custom-input">
+          <ion-select 
+            label="{{'inputs.app-language.title' | translate}}" 
+            [(ngModel)]="selectedLanguage" 
+            (ionChange)="changeLanguage()" 
+            labelPlacement="floating"
+            interface="popover">
+            <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">
+              {{language.title}}
+            </ion-select-option>
+          </ion-select>
+          <ion-icon name="language-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+      </div>
 
-
+      <div class="language-info">
+        <div class="info-item">
+          <ion-icon name="checkmark-circle-outline" class="info-icon"></ion-icon>
+          <span>Los cambios se aplicarán inmediatamente</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="globe-outline" class="info-icon"></ion-icon>
+          <span>Interfaz completamente traducida</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="refresh-outline" class="info-icon"></ion-icon>
+          <span>Puedes cambiarlo en cualquier momento</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>

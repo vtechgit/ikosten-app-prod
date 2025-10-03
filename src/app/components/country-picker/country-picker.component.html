@@ -13,22 +13,28 @@
       </ion-toolbar>
     </ion-header>
     <ion-content >
-      <ion-list *ngIf="type == 'country'">
-        <ion-item *ngFor="let option of options" (click)="selectOption(option)">
-          <ion-checkbox slot="start" class="check-item" [checked]="selectedOption && selectedOption.country == option.country"></ion-checkbox>
-          {{ convertKey(option.country) | translate}} ({{option.code}})
+      <ion-list *ngIf="type == 'country' ">
+        <ion-item *ngFor="let option of options | filterBy: ['country', 'code', 'country_code', 'currency_name']: this.searchText" (click)="selectOption(option)">
+          <ion-checkbox slot="start" class="check-item" [checked]="selected && selected.country == option.country"></ion-checkbox>
+          {{option.country}} ({{option.code}})
+        </ion-item>
+      </ion-list>
+      <ion-list *ngIf=" type == 'add_country'">
+        <ion-item *ngFor="let option of options | filterBy: ['country', 'code', 'country_code', 'currency_name']: this.searchText" (click)="selectOption(option)">
+          <ion-checkbox slot="start" class="check-item" [checked]="selected && selected.country == option.country"></ion-checkbox>
+          {{option.country}} ({{option.code}})
         </ion-item>
       </ion-list>
       <ion-list *ngIf="type == 'currency'">
         <ion-item *ngFor="let option of options | filterBy: ['country', 'code', 'country_code', 'currency_name']: this.searchText" (click)="selectOption(option)">
-          <ion-checkbox slot="start" class="check-item" [checked]="selectedOption && selectedOption == option.code"></ion-checkbox>
-          {{option.code}} ({{convertKey(option.country) | translate }})
+          <ion-checkbox slot="start" class="check-item" [checked]="selected && selected == option.code"></ion-checkbox>
+          {{option.code}} ({{option.country}})
         </ion-item>
       </ion-list>
       
 
     </ion-content>
-    <ion-footer  color="light" style="padding: 10px 5px 20px 5px;" class="d-flex flex-end"  *ngIf="this.selectedOption">
+    <ion-footer  color="light" style="padding: 10px 5px 20px 5px;" class="d-flex flex-end"  *ngIf="this.selected">
 
       <ion-button color="primary" class="button-controll" (click)="confirmOptionSelected()" >
         {{'buttons.confirm' | translate}}

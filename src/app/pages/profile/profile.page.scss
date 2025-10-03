@@ -1,0 +1,520 @@
+.profile-container {
+  --background: #ffffff;
+  
+  .welcome-section {
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 2rem;
+    
+    .welcome-content {
+      text-align: center;
+      padding: 3rem 2rem 2.5rem 2rem;
+      color: white;
+      
+      .welcome-icon {
+        font-size: 4rem;
+        color: white;
+        margin-bottom: 1rem;
+      }
+      
+      .welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: white;
+      }
+      
+      .welcome-subtitle {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.5;
+        margin: 0;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  }
+  
+  .profile-content {
+    padding: 0 1rem 2rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    .section-card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
+      border: 2px solid var(--ion-color-light);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      animation: slideInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(30, 150, 252, 0.12);
+        border-color: var(--ion-color-secondary);
+      }
+      
+      &:nth-child(1) { animation-delay: 0.1s; }
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.3s; }
+      &:nth-child(4) { animation-delay: 0.4s; }
+      &:nth-child(5) { animation-delay: 0.5s; }
+      
+      .card-header {
+        padding: 2rem 2rem 1rem 2rem;
+        border-bottom: 1px solid rgba(30, 150, 252, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .section-title {
+          color: var(--ion-color-dark);
+          font-size: 1.3rem;
+          font-weight: 700;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .see-more-button {
+          --border-radius: 12px;
+          height: 40px;
+          font-weight: 600;
+          margin: 0;
+        }
+        
+        .danger-title {
+          color: var(--ion-color-danger);
+        }
+      }
+    }
+    
+    // Plan Section Styles
+    .plan-section {
+      .plan-card {
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: linear-gradient(135deg, rgba(30, 150, 252, 0.02) 0%, rgba(187, 223, 249, 0.05) 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(30, 150, 252, 0.1);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: linear-gradient(135deg, rgba(30, 150, 252, 0.05) 0%, rgba(187, 223, 249, 0.08) 100%);
+          border-color: var(--ion-color-primary);
+          transform: translateY(-2px);
+        }
+        
+        &.premium-plan {
+          background: linear-gradient(135deg, rgba(40, 167, 69, 0.02) 0%, rgba(40, 167, 69, 0.05) 100%);
+          border-color: rgba(40, 167, 69, 0.2);
+          
+          &:hover {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.08) 100%);
+            border-color: var(--ion-color-success);
+          }
+        }
+        
+        .plan-info {
+          flex: 1;
+          
+          .plan-details {
+            .plan-title {
+              color: var(--ion-color-dark);
+              font-size: 1.2rem;
+              font-weight: 700;
+              margin: 0 0 0.5rem 0;
+            }
+            
+            .plan-status {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              color: var(--ion-color-success);
+              font-size: 0.95rem;
+              font-weight: 600;
+              
+              ion-icon {
+                font-size: 0.8rem;
+              }
+            }
+          }
+        }
+        
+        .upgrade-button {
+          --border-radius: 16px;
+          --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
+          height: 48px;
+          font-weight: 600;
+          margin-left: 1rem;
+          
+          &:hover {
+            transform: translateY(-2px);
+            --box-shadow: 0 6px 25px rgba(30, 150, 252, 0.4);
+          }
+        }
+      }
+    }
+    
+    // Transactions Section Styles
+    .transactions-section {
+      .transactions-list {
+        padding: 0 2rem 2rem 2rem;
+        
+        .transaction-item {
+          padding: 1.5rem;
+          border-radius: 12px;
+          background: rgba(30, 150, 252, 0.03);
+          border-left: 4px solid var(--ion-color-primary);
+          margin-bottom: 1rem;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: rgba(30, 150, 252, 0.08);
+            transform: translateX(4px);
+          }
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .transaction-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            
+            .transaction-date {
+              color: var(--ion-color-dark);
+              font-size: 1rem;
+              font-weight: 600;
+            }
+            
+            .transaction-status {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              
+              .status-text {
+                font-size: 0.9rem;
+                font-weight: 600;
+                text-transform: capitalize;
+              }
+            }
+          }
+          
+          .transaction-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .transaction-description {
+              color: var(--ion-color-medium);
+              font-size: 0.95rem;
+            }
+            
+            .transaction-amount {
+              color: var(--ion-color-dark);
+              font-size: 1rem;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+    
+    // Profile Info Section Styles
+    .profile-info-section {
+      .profile-form {
+        padding: 0 2rem 2rem 2rem;
+        
+        .form-group {
+          margin-bottom: 1.5rem;
+          
+          .modern-input,
+          .modern-select {
+            --border-radius: 16px;
+            --border-width: 2px;
+            --border-color: var(--ion-color-light);
+            --highlight-color-focused: var(--ion-color-primary);
+            --background: rgba(30, 150, 252, 0.02);
+            --padding-start: 16px;
+            --padding-end: 16px;
+            --padding-top: 16px;
+            --padding-bottom: 16px;
+            
+            &:hover {
+              --border-color: var(--ion-color-secondary);
+              --background: rgba(30, 150, 252, 0.05);
+            }
+          }
+        }
+        
+        .save-button {
+          --border-radius: 16px;
+          --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
+          height: 56px;
+          font-weight: 600;
+          font-size: 1.1rem;
+          --background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+          margin: 1rem 0 0 0;
+          
+          &:hover:not([disabled]) {
+            transform: translateY(-2px);
+            --box-shadow: 0 6px 25px rgba(30, 150, 252, 0.4);
+          }
+          
+          &[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+    
+    // Actions Section Styles
+    .actions-section {
+      .actions-list {
+        padding: 0 2rem 2rem 2rem;
+        
+        .action-button {
+          --border-radius: 16px;
+          height: 52px;
+          font-weight: 600;
+          font-size: 1rem;
+          margin: 0;
+          
+          &.logout-button {
+            --border-width: 2px;
+            --border-color: var(--ion-color-medium);
+            
+            &:hover {
+              --border-color: var(--ion-color-dark);
+              transform: translateY(-2px);
+            }
+          }
+        }
+      }
+    }
+    
+    // Danger Section Styles
+    .danger-section {
+      border-color: rgba(220, 53, 69, 0.2);
+      
+      &:hover {
+        border-color: rgba(220, 53, 69, 0.4);
+        box-shadow: 0 8px 30px rgba(220, 53, 69, 0.12);
+      }
+      
+      .danger-actions {
+        padding: 0 2rem 2rem 2rem;
+        
+        .danger-button {
+          --border-radius: 16px;
+          --border-width: 2px;
+          height: 52px;
+          font-weight: 600;
+          font-size: 1rem;
+          margin: 0;
+          
+          &:hover {
+            transform: translateY(-2px);
+            --border-color: var(--ion-color-danger);
+            --color: var(--ion-color-danger);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal Styles
+.modal-content {
+  --background: #ffffff;
+}
+
+.modal-padding {
+  padding: 1rem;
+}
+
+.transactions-modal-list {
+  .transaction-item-modal {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: rgba(30, 150, 252, 0.03);
+    border-left: 4px solid var(--ion-color-primary);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(30, 150, 252, 0.08);
+      transform: translateX(4px);
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .transaction-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      
+      .transaction-date {
+        color: var(--ion-color-dark);
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      
+      .transaction-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        .status-text {
+          font-size: 0.9rem;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+      }
+    }
+    
+    .transaction-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      .transaction-description {
+        color: var(--ion-color-medium);
+        font-size: 0.95rem;
+      }
+      
+      .transaction-amount {
+        color: var(--ion-color-dark);
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+  
+  .loading-text {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+// Mobile Responsiveness
+@media (max-width: 480px) {
+  .profile-container {
+    .welcome-section {
+      .welcome-content {
+        padding: 2rem 1rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.7rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .profile-content {
+      padding: 0 0.5rem 2rem 0.5rem;
+      
+      .section-card {
+        margin-bottom: 1.5rem;
+        
+        .card-header {
+          padding: 1.5rem 1.5rem 1rem 1.5rem;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+          
+          .section-title {
+            font-size: 1.2rem;
+          }
+        }
+        
+        .plan-card {
+          padding: 1.5rem;
+          flex-direction: column;
+          gap: 1rem;
+          
+          .upgrade-button {
+            margin-left: 0;
+            width: 100%;
+          }
+        }
+        
+        .transactions-list,
+        .profile-form,
+        .actions-list,
+        .danger-actions {
+          padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+        
+        .transaction-item {
+          padding: 1rem;
+          
+          .transaction-main {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+          }
+          
+          .transaction-details {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+          }
+        }
+        
+        .save-button,
+        .action-button,
+        .danger-button {
+          height: 48px;
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Focus states for accessibility
+.save-button:focus-visible,
+.action-button:focus-visible,
+.danger-button:focus-visible,
+.upgrade-button:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}

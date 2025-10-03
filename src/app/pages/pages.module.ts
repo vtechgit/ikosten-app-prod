@@ -5,6 +5,7 @@ import { LanguagePage } from './language/language.page';
 import { MainPage } from './main/main.page';
 import { MembershipsPage } from './memberships/memberships.page';
 import { ProfilePage } from './profile/profile.page';
+import { OnboardingComponent } from './onboarding/onboarding.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -16,7 +17,8 @@ import { ComponentsModule } from '../components/components.module';
     LanguagePage,
     MainPage,
     MembershipsPage,
-    ProfilePage
+    ProfilePage,
+    OnboardingComponent
   ],
   imports: [
     CommonModule,

@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {ApiService} from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -45,10 +46,17 @@ export class SigInComponent  implements OnInit {
   showAlertNotFound:boolean=false;
   showAlertInvalidCreeds:boolean=false;
 
-  constructor(private api:ApiService, private activatedRoute: ActivatedRoute, public platform: Platform) { }
+  constructor(
+    private api: ApiService, 
+    private authService: AuthService,
+    private activatedRoute: ActivatedRoute, 
+    private router: Router, 
+    public platform: Platform
+  ) { }
 
   ngOnInit() {
-
+    console.log('🔧 SigInComponent: ngOnInit iniciado');
+    
     this.loginForm = new FormGroup({
       loginEmail:new FormControl('', [
         Validators.required,
@@ -57,16 +65,35 @@ export class SigInComponent  implements OnInit {
       loginPass:new FormControl('', [
         Validators.required,
       ]),
-
     });
+    
+    console.log('📋 Formulario de login inicializado:', this.loginForm);
+    console.log('✅ SigInComponent: ngOnInit completado');
+    
     this.utm_lead = localStorage.getItem('utm_lead');
     this.getAvailableCountries();
 
   }
   getAvailableCountries(){
-    this.api.read('availableCountries').subscribe(res=>{
-      this.availableCountries= res['body'];
-    })
+    this.api.read('availableCountries').subscribe({
+      next: (response) => {
+        this.availableCountries = response.body || response;
+        
+        // Establecer un país por defecto si no hay ninguno seleccionado
+        if (this.availableCountries.length > 0 && !this.selectedCountry) {
+          // Buscar un país por defecto (ej. España o el primer país)
+          const defaultCountry = this.availableCountries.find((country: any) => 
+            country.title?.toLowerCase().includes('españa') || 
+            country.title?.toLowerCase().includes('spain')
+          ) || this.availableCountries[0];
+          
+          this.selectedCountry = defaultCountry;
+        }
+      },
+      error: (error) => {
+        console.error('Error obteniendo países:', error);
+      }
+    });
   }
 
   closeModal(){
@@ -74,6 +101,30 @@ export class SigInComponent  implements OnInit {
     this.onClosed.emit();
   }
 
+  goBackToLogin(){
+    this.isLoginGoogle = false;
+    this.isLoginApple = false;
+    this.selectedCountry = null;
+  }
+
+  async doLoginGoogleV2(){
+    
+      try {
+      // Iniciar el proceso de login con Google usando Firebase Authentication
+      const result = await FirebaseAuthentication.signInWithGoogle({
+        scopes: ['profile', 'email'],
+      });
+
+      if (result && result.user) {
+        await this.handleGoogleLoginSuccess(result.user);
+      } else {
+        this.handleLoginError('No se pudo obtener información del usuario de Google');
+      }
+    } catch (error) {
+      console.error('Error en login con Google:', error);
+      this.handleLoginError('Error al iniciar sesión con Google');
+    }
+  }
   async doLoginGoogle(){
 
       const result = await FirebaseAuthentication.signInWithGoogle();
@@ -114,7 +165,7 @@ export class SigInComponent  implements OnInit {
           }
         }
 
-        this.api.create('leads/auth', obj).subscribe(res=>{
+        this.api.create('leads/auth/social', obj).subscribe(res=>{
           if(res['body']['data'].length > 0){
 
             localStorage.setItem('userSession', JSON.stringify(res['body']['data'][0]));
@@ -248,7 +299,7 @@ export class SigInComponent  implements OnInit {
           }
         }
 
-        this.api.create('leads/auth', obj).subscribe(res=>{
+        this.api.create('leads/auth/social', obj).subscribe(res=>{
           console.log('auth response',res);
   
           if(res['body']['data'].length > 0){
@@ -330,62 +381,404 @@ export class SigInComponent  implements OnInit {
     });
 
   }
-  async doLoginEmail(){
-    this.isLoading=true;
+  doLoginEmail() {
+    console.log('🎯 doLoginEmail: Método llamado - INICIO');
+    console.log('🔍 Estado del loading:', this.isLoading);
+    console.log('🔍 Formulario válido:', this.loginForm.valid);
+    console.log('🔍 Errores del formulario:', this.loginForm.errors);
+    console.log('🔍 Estado del email:', this.email?.value, 'Errores:', this.email?.errors);
+    console.log('🔍 Estado del password:', this.password?.value ? '[PRESENT]' : '[MISSING]', 'Errores:', this.password?.errors);
+    
+    this.isLoading = true;
     this.loginForm.markAllAsTouched();
+    console.log('🔄 Formulario marcado como tocado, validez:', this.loginForm.valid);
 
-      if (this.loginForm.valid){
-          var obj ={
-            lead_type: 'email',
-            lead_email: this.email.value.toLowerCase(),
-            lead_password: this.password.value,
-          }
-        this.api.create('leads/auth', obj).subscribe(res=>{
-          console.log('auth response',res);
-  
-          if(res['body']['status']==true){
-
-            let sessionObj = {
-                _id:res['body']['data'][0]['_id'],
-                lead_name:res['body']['data'][0]['lead_name'],
-                lead_email:res['body']['data'][0]['lead_email'],
-                lead_phone:res['body']['data'][0]['lead_phone'],
-                lead_country:res['body']['data'][0]['lead_country'],
-                lead_role:res['body']['data'][0]['lead_role'],
-                lead_paypal_customer_id:res['body']['data'][0]['lead_paypal_customer_id'],
-                lead_company_id:res['body']['data'][0]['lead_company_id'],
-                lead_invitation_status:res['body']['data'][0]['lead_invitation_status'],
-            }
-  
-            localStorage.setItem('userSession', JSON.stringify(sessionObj));
-            this.isLoginApple=false;
-            this.isLoading=false;
-            window.location.href = '/customer/trips';
-
-          }else if(res['body']['code'] == 'NOTFOUND'){
-
-            this.showAlertNotFound=true;
-            this.isLoading=false;
-
-          }else if(res['body']['code'] == 'INVALID'){
-
-            this.showAlertInvalidCreeds=true;
-            this.isLoading=false;
-
-          }else{
-            this.showAppleAlertLogin=true;
-            this.isLoading=false;
-          }
-        })
-      }
+    if (this.loginForm.valid) {
+      console.log('🔑 doLoginEmail: Iniciando login con email - FORMULARIO VÁLIDO');
+      console.log('📧 Email:', this.email.value);
+      
+      this.authService.login(this.email.value, this.password.value).subscribe({
+        next: (success) => {
+          console.log('📥 doLoginEmail: Resultado de autenticación:', success);
+          this.isLoading = false;
           
+          if (success) {
+            console.log('✅ doLoginEmail: Login exitoso');
+            
+            const currentUser = this.authService.getCurrentUser();
+            console.log('👤 Usuario autenticado:', currentUser);
+            
+            if (currentUser) {
+              this.handleTravelsInSession(currentUser.id);
+            } else {
+              this.navigateAfterLogin();
+            }
+          } else {
+            console.log('❌ doLoginEmail: Login falló');
+            this.showAlertInvalidCreeds = true;
+          }
+        },
+        error: (error) => {
+          console.error('💥 doLoginEmail: Error en login:', error);
+          this.isLoading = false;
+          if (error.status === 401) {
+            this.showAlertInvalidCreeds = true;
+          } else {
+            this.showAppleAlertLogin = true;
+          }
+        }
+      });
+    } else {
+      console.log('❌ doLoginEmail: Formulario inválido - NO EJECUTANDO LOGIN');
+      console.log('❌ Errores específicos del formulario:');
+      console.log('  - Email válido:', !this.email?.errors, 'Valor:', this.email?.value);
+      console.log('  - Password válido:', !this.password?.errors, 'Valor presente:', !!this.password?.value);
+      console.log('  - Errores completos:', this.loginForm.errors);
+      
+      // Mostrar errores de cada campo
+      Object.keys(this.loginForm.controls).forEach(key => {
+        const control = this.loginForm.get(key);
+        if (control?.errors) {
+          console.log(`  - ${key} errores:`, control.errors);
+        }
+      });
+      
+      this.isLoading = false;
+    }
+  }
+
+  private handleEmailLoginError(response: any) {
+    this.isLoading = false;
+    
+    if (response && response.message) {
+      if (response.message.includes('no encontrado') || response.message.includes('not found')) {
+        this.showAlertNotFound = true;
+      } else if (response.message.includes('credenciales') || response.message.includes('invalid')) {
+        this.showAlertInvalidCreeds = true;
+      } else {
+        this.showAppleAlertLogin = true;
+      }
+    } else {
+      this.showAppleAlertLogin = true;
+    }
+  }
+  async startLoginGoogle(){
+    console.log('🚀 startLoginGoogle() llamado');
+    this.isLoginGoogle = true;
 
   }
-  startLoginGoogle(){
-    this.isLoginGoogle=true;
+  async loginGooglev2(){
+    
+    try {
+      console.log('🔍 Verificando país seleccionado:', this.selectedCountry);
+      
+      // Verificar que tenemos el país seleccionado
+      if (!this.selectedCountry) {
+        console.error('❌ No hay país seleccionado');
+        this.handleLoginError('Por favor selecciona un país');
+        return;
+      }
+
+      console.log('🔑 Iniciando autenticación con Google Firebase...');
+      
+      // Iniciar el proceso de login con Google usando Firebase Authentication
+      const result = await FirebaseAuthentication.signInWithGoogle({
+        scopes: ['profile', 'email'],
+      });
+
+      console.log('📝 Resultado de Firebase Auth:', result);
+
+      if (result && result.user) {
+        console.log('✅ Usuario obtenido de Firebase:', result.user);
+        await this.handleGoogleLoginSuccess(result.user);
+      } else {
+        console.error('❌ Firebase no devolvió usuario');
+        this.handleLoginError('No se pudo obtener información del usuario de Google');
+      }
+    } catch (error) {
+      console.error('💥 Error en Firebase Authentication:', error);
+      this.handleLoginError(`Error al iniciar sesión con Google: ${error.message || error}`);
+    }
   }
-  startLoginApple(){
-    this.isLoginApple=true;
+
+  private async handleGoogleLoginSuccess(user: any) {
+    console.log('🎯 handleGoogleLoginSuccess iniciado con usuario:', user);
+    
+    try {
+      // Verificar que tenemos el país seleccionado
+      if (!this.selectedCountry) {
+        console.error('❌ No hay país seleccionado en handleGoogleLoginSuccess');
+        this.handleLoginError('Por favor selecciona un país');
+        return;
+      }
+
+      console.log('🌍 País seleccionado:', this.selectedCountry);
+      const country = this.selectedCountry._id;
+      
+      let authData: any = {
+        lead_type: 'google',
+        lead_email: user.email,
+        lead_token: user.uid,
+        lead_name: user.displayName,
+        lead_phone: user.phoneNumber,
+        lead_country: country,
+        lead_role: 0,
+        lead_source: localStorage.getItem('clientSource')
+      };
+
+      // Si hay un lead de invitación, agregarlo
+      if (this.utm_lead && this.utm_lead !== '') {
+        console.log('📧 Agregando datos de invitación:', this.utm_lead);
+        authData.lead_id = this.utm_lead;
+        authData.lead_invitation_status = 'active';
+      }
+
+      console.log('📤 Datos a enviar al backend:', authData);
+
+      // Hacer la llamada de autenticación usando AuthService
+      console.log('🌐 Llamando a this.authService.loginSocial...');
+      this.authService.loginSocial(authData).subscribe({
+        next: (success) => {
+          console.log('📥 Resultado de autenticación social:', success);
+          
+          if (success) {
+            console.log('✅ Autenticación Google exitosa, usuario autenticado');
+            
+            // Obtener el usuario actual del AuthService
+            const currentUser = this.authService.getCurrentUser();
+            if (currentUser) {
+              console.log('👤 Usuario Google actual:', currentUser);
+              // Manejar viajes en sesión y navegar
+              this.handleTravelsInSession(currentUser.id);
+            } else {
+              console.error('❌ No se pudo obtener el usuario actual Google');
+              this.handleLoginError('Error obteniendo datos del usuario');
+            }
+          } else {
+            console.error('❌ Autenticación social Google falló');
+            this.handleLoginError('No se pudo autenticar con Google');
+          }
+        },
+        error: (error) => {
+          console.error('💥 Error en la llamada al backend Google:', error);
+          console.error('📋 Detalles del error:', {
+            status: error.status,
+            statusText: error.statusText,
+            message: error.message,
+            error: error.error
+          });
+          
+          let errorMessage = 'Error al autenticar con Google';
+          if (error.error && error.error.message) {
+            errorMessage += `: ${error.error.message}`;
+          } else if (error.message) {
+            errorMessage += `: ${error.message}`;
+          } else if (error.status) {
+            errorMessage += ` (Error ${error.status})`;
+          }
+          
+          this.handleLoginError(errorMessage);
+        }
+      });
+
+    } catch (error) {
+      console.error('💥 Error en handleGoogleLoginSuccess:', error);
+      this.handleLoginError(`Error procesando la autenticación: ${error.message || error}`);
+    }
+  }
+
+  private handleTravelsInSession(leadId: string) {
+    const travels = sessionStorage.getItem('travels');
+    
+    if (travels && travels !== '' && travels !== null) {
+      const travelsArray = JSON.parse(travels);
+      
+      travelsArray.forEach((travel: any, index: number) => {
+        travelsArray[index]['process_lead'] = leadId;
+      });
+
+      this.api.update('processes/update/bulk', travelsArray).subscribe({
+        next: () => {
+          sessionStorage.removeItem('travels');
+          this.navigateAfterLogin();
+        },
+        error: (error) => {
+          console.error('Error actualizando viajes:', error);
+          this.navigateAfterLogin();
+        }
+      });
+    } else {
+      this.navigateAfterLogin();
+    }
+  }
+
+  private navigateAfterLogin() {
+    this.isLoginGoogle = false;
+    this.isLoading = false;
+
+    // Verificar si el usuario ha completado el onboarding
+    const currentUser = this.authService.getCurrentUser();
+    console.log('🔍 Verificando onboarding para usuario:', currentUser);
+    
+    if (currentUser && !currentUser.onboarding_completed) {
+      console.log('🎯 Usuario no ha completado onboarding, redirigiendo...');
+      window.location.href = '/onboarding';
+      return;
+    }
+
+    // Si tiene backParams, navegar según los parámetros
+    if (this.backParams && this.backParams.back && this.backParams.back !== '') {
+      let url = `/customer/${this.backParams.back}`;
+      
+      if (this.backParams.membership && this.backParams.membership !== '') {
+        url += `/?membership=${this.backParams.membership}`;
+      } else if (this.backParams.trip && this.backParams.trip !== '') {
+        url += `/?trip=${this.backParams.trip}`;
+        if (this.backParams.step && this.backParams.step) {
+          url += `&step=${this.backParams.step}`;
+        }
+      }
+      
+      console.log('🔄 Navegando con backParams a:', url);
+      window.location.href = url;
+    } else {
+      console.log('🔄 Navegando a trips por defecto');
+      window.location.href = '/customer/trips';
+    }
+  }
+
+  private handleLoginError(message: string) {
+    console.error('Login error:', message);
+    this.isLoginGoogle = false;
+    this.isLoading = false;
+    this.showAppleAlertLogin = true; // Reutilizar el alert existente
+  }
+  async startLoginApple(){
+    console.log('🍎 startLoginApple() llamado');
+    this.isLoginApple = true;
+    this.isLoading = true;
+
+    try {
+      console.log('🔍 Verificando país seleccionado:', this.selectedCountry);
+      
+      // Verificar que tenemos el país seleccionado
+      if (!this.selectedCountry) {
+        console.error('❌ No hay país seleccionado');
+        this.handleAppleLoginError('Por favor selecciona un país');
+        return;
+      }
+
+      console.log('🔑 Iniciando autenticación con Apple Firebase...');
+      
+      // Iniciar el proceso de login con Apple usando Firebase Authentication
+      const result = await FirebaseAuthentication.signInWithApple();
+
+      console.log('📝 Resultado de Firebase Auth Apple:', result);
+
+      if (result && result.user) {
+        console.log('✅ Usuario obtenido de Firebase Apple:', result.user);
+        await this.handleAppleLoginSuccess(result.user);
+      } else {
+        console.error('❌ Apple Firebase no devolvió usuario');
+        this.handleAppleLoginError('No se pudo obtener información del usuario de Apple');
+      }
+    } catch (error) {
+      console.error('💥 Error en Firebase Apple Authentication:', error);
+      this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
+    }
+  }
+
+  private async handleAppleLoginSuccess(user: any) {
+    console.log('🎯 handleAppleLoginSuccess iniciado con usuario:', user);
+    
+    try {
+      // Verificar que tenemos el país seleccionado
+      if (!this.selectedCountry) {
+        console.error('❌ No hay país seleccionado en handleAppleLoginSuccess');
+        this.handleAppleLoginError('Por favor selecciona un país');
+        return;
+      }
+
+      console.log('🌍 País seleccionado:', this.selectedCountry);
+      const country = this.selectedCountry._id;
+      
+      let authData: any = {
+        lead_type: 'apple',
+        lead_email: user.email && user.email != 'null' ? user.email : '',
+        lead_token: user.uid,
+        lead_name: user.displayName || '',
+        lead_phone: user.phoneNumber,
+        lead_country: country,
+        lead_role: 0,
+        lead_source: localStorage.getItem('clientSource')
+      };
+
+      // Si hay un lead de invitación, agregarlo
+      if (this.utm_lead && this.utm_lead !== '') {
+        console.log('📧 Agregando datos de invitación:', this.utm_lead);
+        authData.lead_id = this.utm_lead;
+        authData.lead_invitation_status = 'active';
+      }
+
+      console.log('📤 Datos a enviar al backend:', authData);
+
+      // Hacer la llamada de autenticación usando AuthService
+      console.log('🌐 Llamando a this.authService.loginSocial...');
+      this.authService.loginSocial(authData).subscribe({
+        next: (success) => {
+          console.log('📥 Resultado de autenticación social Apple:', success);
+          
+          if (success) {
+            console.log('✅ Autenticación Apple exitosa, usuario autenticado');
+            
+            // Obtener el usuario actual del AuthService
+            const currentUser = this.authService.getCurrentUser();
+            if (currentUser) {
+              console.log('👤 Usuario Apple actual:', currentUser);
+              // Manejar viajes en sesión y navegar
+              this.handleTravelsInSession(currentUser.id);
+            } else {
+              console.error('❌ No se pudo obtener el usuario actual Apple');
+              this.handleAppleLoginError('Error obteniendo datos del usuario');
+            }
+          } else {
+            console.error('❌ Autenticación social Apple falló');
+            this.handleAppleLoginError('No se pudo autenticar con Apple');
+          }
+        },
+        error: (error) => {
+          console.error('💥 Error en la llamada al backend Apple:', error);
+          console.error('📋 Detalles del error Apple:', {
+            status: error.status,
+            statusText: error.statusText,
+            message: error.message,
+            error: error.error
+          });
+          
+          let errorMessage = 'Error al autenticar con Apple';
+          if (error.error && error.error.message) {
+            errorMessage += `: ${error.error.message}`;
+          } else if (error.message) {
+            errorMessage += `: ${error.message}`;
+          } else if (error.status) {
+            errorMessage += ` (Error ${error.status})`;
+          }
+          
+          this.handleAppleLoginError(errorMessage);
+        }
+      });
+
+    } catch (error) {
+      console.error('💥 Error en handleAppleLoginSuccess:', error);
+      this.handleAppleLoginError(`Error procesando la autenticación Apple: ${error.message || error}`);
+    }
+  }
+
+  private handleAppleLoginError(message: string) {
+    console.error('Apple login error:', message);
+    this.isLoginApple = false;
+    this.isLoading = false;
+    this.showAppleAlertLogin = true; // Reutilizar el alert existente
   }
   
   async doLoginPhone(){
@@ -467,7 +860,7 @@ export class SigInComponent  implements OnInit {
                 }
               }
 
-              this.api.create('leads/auth', obj).subscribe(res=>{
+              this.api.create('leads/auth/social', obj).subscribe(res=>{
   
                 if(res['body']['data'].length > 0){
   
@@ -584,5 +977,26 @@ export class SigInComponent  implements OnInit {
   }
   get password() {
     return this.loginForm.get('loginPass');
+  }
+
+  // Método de testing - para llamar desde consola del navegador
+  testLogin(email: string = 'test@example.com', password: string = 'test123') {
+    console.log('🧪 TEST LOGIN iniciado');
+    console.log('📧 Email de prueba:', email);
+    console.log('🔒 Password presente:', !!password);
+    
+    // Configurar valores del formulario
+    this.loginForm.patchValue({
+      loginEmail: email,
+      loginPass: password
+    });
+    
+    console.log('📋 Formulario después de patchValue:');
+    console.log('  - Válido:', this.loginForm.valid);
+    console.log('  - Email:', this.email?.value, 'Errores:', this.email?.errors);
+    console.log('  - Password:', this.password?.value ? '[PRESENT]' : '[MISSING]', 'Errores:', this.password?.errors);
+    
+    // Llamar al método de login
+    this.doLoginEmail();
   }
 }

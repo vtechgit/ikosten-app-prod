@@ -1,0 +1,382 @@
+.onboarding-container {
+  min-height: 100vh;
+  background: #ffffff;
+  
+  ion-content {
+    --background: #ffffff;
+  }
+  
+  ion-header {
+    ion-toolbar {
+      --background: #ffffff;
+      --color: var(--ion-color-primary);
+      --border-color: var(--ion-color-light);
+      border-bottom: 1px solid var(--ion-color-light);
+      
+      ion-title {
+        font-weight: 600;
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+  
+  ion-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    
+    ion-toolbar {
+      --background: #ffffff;
+      --border-color: var(--ion-color-light);
+      border-top: 1px solid var(--ion-color-light);
+      padding: 0;
+      min-height: auto;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+      
+      .footer-content {
+        padding: 1rem 1.5rem;
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
+        
+        .continue-button {
+          --border-radius: 20px;
+          --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
+          height: 50px;
+          font-weight: 600;
+          font-size: 1rem;
+          --background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+          margin: 0;
+          
+          &.button-disabled {
+            --background: var(--ion-color-medium);
+            --box-shadow: none;
+          }
+          
+          ion-spinner {
+            margin-right: 8px;
+          }
+        }
+        
+        .continue-hint {
+          color: var(--ion-color-medium);
+          font-size: 0.85rem;
+          margin: 0 0 0.8rem 0;
+          font-style: italic;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  // Ajustar el contenido para que no se oculte detrás del footer
+  ion-content {
+    --padding-bottom: 120px;
+  }
+}
+
+.welcome-section {
+  padding: 3rem 1rem 2rem 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 2rem;
+  color: white;
+  
+  ion-icon {
+    font-size: 4rem;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem 0;
+    color: white;
+  }
+  
+  .welcome-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.category-section {
+  padding: 0 1rem;
+  
+  .section-title {
+    color: var(--ion-color-dark);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+}
+
+.category-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+
+.category-card {
+  position: relative;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(30, 150, 252, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: #ffffff;
+  border: 2px solid var(--ion-color-light);
+  overflow: hidden;
+  margin: 0px;
+  
+  @media (min-width: 768px) {
+    flex: 1;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(30, 150, 252, 0.15);
+    border-color: var(--ion-color-secondary);
+  }
+  
+  &.selected {
+    border-color: var(--ion-color-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(30, 150, 252, 0.2);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
+    }
+  }
+  
+  ion-card-content {
+    padding: 2.5rem 2rem;
+    text-align: center;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    .card-icon {
+      margin-bottom: 1.5rem;
+      
+      ion-icon {
+        font-size: 4rem;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+      margin: 0 0 1rem 0;
+      line-height: 1.3;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+    
+    .card-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      
+      ion-chip {
+        font-size: 0.85rem;
+        --border-radius: 15px;
+        --background: var(--ion-color-light);
+        --color: var(--ion-color-primary);
+        border: 1px solid var(--ion-color-secondary);
+        
+        ion-icon {
+          font-size: 1rem;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+    
+    .selection-indicator {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: var(--ion-color-success);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ion-icon {
+        font-size: 1.2rem;
+        color: white;
+        animation: scaleIn 0.3s ease;
+      }
+    }
+  }
+}
+
+// Estilos específicos para la card de viajes
+.category-card:first-child {
+  .card-icon ion-icon {
+    color: var(--ion-color-primary);
+  }
+  
+  .card-features ion-chip {
+    --background: rgba(30, 150, 252, 0.1);
+    --color: var(--ion-color-primary);
+  }
+}
+
+// Estilos específicos para la card de finanzas  
+.category-card:last-child {
+  .card-icon ion-icon {
+    color: var(--ion-color-tertiary);
+  }
+  
+  .card-features ion-chip {
+    --background: rgba(96, 48, 255, 0.1);
+    --color: var(--ion-color-tertiary);
+    border-color: rgba(96, 48, 255, 0.3);
+    
+    ion-icon {
+      color: var(--ion-color-tertiary);
+    }
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive improvements
+@media (max-width: 480px) {
+  .onboarding-container {
+    ion-content {
+      --padding-bottom: 140px;
+    }
+    
+    ion-footer {
+      .footer-content {
+        padding: 0.8rem 1rem;
+        padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+        
+        .continue-button {
+          height: 48px;
+          font-size: 0.95rem;
+          --border-radius: 16px;
+        }
+        
+        .continue-hint {
+          font-size: 0.8rem;
+          margin: 0 0 0.6rem 0;
+        }
+      }
+    }
+  }
+
+  .welcome-section {
+    padding: 2rem 1rem;
+    
+    .welcome-title {
+      font-size: 1.7rem;
+    }
+    
+    .welcome-subtitle {
+      font-size: 1rem;
+    }
+  }
+  
+  .category-card {
+    ion-card-content {
+      padding: 2rem 1.5rem;
+      min-height: 280px;
+      
+      .card-icon ion-icon {
+        font-size: 3.5rem;
+      }
+      
+      h3 {
+        font-size: 1.3rem;
+      }
+      
+      p {
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+// Estilos adicionales para pantallas muy pequeñas
+@media (max-width: 360px) {
+  .onboarding-container {
+    ion-footer {
+      .footer-content {
+        padding: 0.6rem 0.8rem;
+        padding-bottom: max(env(safe-area-inset-bottom), 0.8rem);
+        
+        .continue-button {
+          height: 44px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Focus states para accesibilidad
+.category-card:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+.continue-button:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+// Estados de hover mejorados
+@media (hover: hover) {
+  .category-card:hover {
+    .card-icon ion-icon {
+      transform: scale(1.05);
+    }
+    
+    .card-features ion-chip {
+      --background: var(--ion-color-secondary);
+    }
+  }
+}

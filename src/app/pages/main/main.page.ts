@@ -100,6 +100,23 @@ export class MainPage implements OnInit {
       },
     },
   ];
+  
+  public deleteTravelAlertButtons =[
+    {
+      text: 'buttons.cancel',
+      role: 'cancel',
+      handler: () => {
+        
+      },
+    },
+    {
+      text: 'buttons.delete',
+      role: 'confirm',
+      handler: () => {
+        this.confirmDeleteTravel()
+      },
+    },
+  ];
   public deleteBillAlertButtons =[
     {
       text: 'buttons.cancel',
@@ -150,6 +167,10 @@ export class MainPage implements OnInit {
   ];
   currentStep=0;
   loadingButtons:boolean=false;
+  dataLoaded:boolean=false; // Flag para evitar doble carga
+  shouldAnimateHistory:boolean=true; // Flag para controlar animaciones de history
+  languagesLoaded:boolean=false; // Flag para evitar cargar idiomas múltiples veces
+  processesLoaded:boolean=false; // Flag para evitar cargar procesos múltiples veces
   extracts:any;
   notUploaded:any = [];
   uploadedBill:string;
@@ -204,7 +225,7 @@ export class MainPage implements OnInit {
 
   uploadLineResultId:number;
   uploadLineExtractId:number;
-  currencyBlockSelected:string;
+  currencyBlockSelected:any;
 
 
   matchedBills:any;
@@ -246,6 +267,10 @@ export class MainPage implements OnInit {
   userSession:any;
   travels:any;
   openModalAddTravel:boolean=false;
+  
+  // Variables para eliminación de travel
+  travelToDelete:any;
+  showAlertDeleteTravel:boolean=false;
 
   todayDate:string;
   startDateTrip:any;
@@ -299,10 +324,8 @@ export class MainPage implements OnInit {
       text: ['Para crear tu primer reporte de viaticos, selecciona un país'],
       when: {
         show: () => {
-          console.log('show step');
         },
         hide: () => {
-          console.log('hide step');
         }
       }
     },
@@ -339,10 +362,8 @@ export class MainPage implements OnInit {
       text: ['Haz click en este boton para crear y guardar tu viaje'],
       when: {
         show: () => {
-          console.log('show step');
         },
         hide: () => {
-          console.log('hide step');
         }
       }
     },   
@@ -380,16 +401,14 @@ export class MainPage implements OnInit {
       text: ['Cada vez que crees un viaje nuevo, estára guardado en tu historial'],
       when: {
         show: () => {
-          console.log('show step');
         },
         hide: () => {
-          console.log('hide step');
         }
       }
     },
 
-  ];
-
+  ];  
+  billPos:number=0;
   constructor(
     private api:ApiService,
     private http: HttpClient,
@@ -429,25 +448,40 @@ export class MainPage implements OnInit {
     
     this.dateRangeSelected = [this.startDateTrip];
     this.hidrate();
-    this.getCurrencies();
 
 
     
   }
 
   getLanguages(){
-    this.api.read('languages').subscribe(res=>{
+    // Evitar múltiples llamadas simultáneas
+    if(this.languagesLoaded) return;
+    
+    this.api.read('languages').subscribe({
+      next: (res) => {
+        this.availableLanguages = res['body'];
 
-      this.availableLanguages= res['body'];
+        if(this.api.isLoggedIn() && this.userSession){
+          if(this.userSession.lead_preferred_language && this.userSession.lead_preferred_language != ''){
+            this.selectedLanguage = this.userSession.lead_preferred_language;
+            this.translate.use(this.selectedLanguage);  
+            this.translateWords();
 
-      if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' && localStorage.getItem('userSession') != null){
-        let userSession = JSON.parse(localStorage.getItem('userSession'));
-        console.log('get languages - user logged')
-        if(userSession.lead_preferred_language && userSession.lead_preferred_language != ''){
-          this.selectedLanguage = userSession.lead_preferred_language;
-          this.translate.use(this.selectedLanguage);  
-          this.translateWords();
+          }else{
+            if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
+              this.selectedLanguage = localStorage.getItem('lang');
+              this.translate.use(this.selectedLanguage);  
+              this.translateWords();
+            }else{
+              Device.getLanguageCode().then(lang=>{
+                this.selectedLanguage = lang.value;
+                this.translate.use(this.selectedLanguage);  
+                this.translateWords();
+      
+              });
+            }
 
+          }
         }else{
           if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
             this.selectedLanguage = localStorage.getItem('lang');
@@ -458,38 +492,24 @@ export class MainPage implements OnInit {
               this.selectedLanguage = lang.value;
               this.translate.use(this.selectedLanguage);  
               this.translateWords();
-  
+
             });
           }
-
         }
-      }else{
-        console.log('get languages - user not logged')
-
-        if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-          this.selectedLanguage = localStorage.getItem('lang');
-          this.translate.use(this.selectedLanguage);  
-          console.log(this.selectedLanguage);
-          this.translateWords();
-        }else{
-          Device.getLanguageCode().then(lang=>{
-            this.selectedLanguage = lang.value;
-          console.log(this.selectedLanguage);
-
-            this.translate.use(this.selectedLanguage);  
-            this.translateWords();
-
-          });
-        }
+      },
+      error: (error) => {
+        console.error('Error loading languages:', error);
+        // Usar idioma por defecto si hay error
+        this.selectedLanguage = 'en';
+        this.translate.use(this.selectedLanguage);
       }
-    })
+    });
   }
   translateWords(){
+    this.getCurrencies();
     
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
       this.alertButtons[0]=text;
-
-      console.log(this.alertButtons)
     });
     this.translate.get(_('buttons.delete')).subscribe((text: string) => {
       this.deleteExtractAlertButtons[1].text =text;
@@ -566,53 +586,94 @@ export class MainPage implements OnInit {
 
   }
   hidrate(){
+    
+    // Prevenir llamadas duplicadas de processes
+    if (this.processesLoaded) {
+      console.log('Processes already loaded, skipping API call in hidrate()');
+      return;
+    }
 
-    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+    if(this.api.isLoggedIn()){
+      console.log('is logged')
+      this.userSession = this.api.getUserData();
+      console.log('user session', this.userSession);
 
-      this.userSession = JSON.parse(localStorage.getItem('userSession'));
+      if(this.userSession && this.userSession.id) {
+        console.log('entra user session id');
 
-      this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
-        console.log('processes',res);
-        this.travels = res['body'];
-        console.log('trip', this.activatedRoute.snapshot.queryParamMap.get('trip'));
-        let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
-        
-        if(trip && trip != ''){
-          this.travels.forEach(element => {
-            if(element._id == trip){
-              this.openTravel(element);
+        this.api.read('processes/list/'+this.userSession.id).subscribe({
+          next: (res) => {
+            console.log('respueta list processes', res);
+            this.travels = res['body'];
+            this.dataLoaded = true; // Marcar que los datos fueron cargados
+            this.processesLoaded = true; // Marcar que los procesos fueron cargados
+            
+            // Desactivar animaciones después de que se muestren por primera vez
+            if (this.shouldAnimateHistory && this.travels && this.travels.length > 0) {
+              // Dar tiempo para que se ejecuten las animaciones y luego desactivarlas
+              setTimeout(() => {
+                this.shouldAnimateHistory = false;
+              }, 1500); // Tiempo suficiente para que terminen todas las animaciones
             }
-          });
-        }
+            
+            let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
+            
+            if(trip && trip != ''){
+              this.travels.forEach(element => {
+                if(element._id == trip){
+                  this.openTravel(element);
+                }
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error loading processes in hidrate():', error);
+            // En caso de error, permitir reintentos
+            this.processesLoaded = false;
+          }
+        });
+        
+        this.api.read('leads/'+this.userSession.id).subscribe(res=>{
 
-      })
-      this.api.read('leads/'+this.userSession._id).subscribe(res=>{
+          if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
 
-        if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
+            this.userEmail = res['body']['lead_email'];
 
-          this.userEmail = res['body']['lead_email'];
+          }
+          if(res['body']['lead_name'] && res['body']['lead_name'] != ''){
 
-        }
-        if(res['body']['lead_name'] && res['body']['lead_name'] != ''){
+            this.userName = res['body']['lead_name'];
 
-          this.userName = res['body']['lead_name'];
+          }
+        })
+      }else{
 
-        }
-      })
+      }
 
     }else{
-
+            console.log('is not logged')
+      // Usuario no autenticado - manejar modo offline si es necesario
       if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
 
         this.travels = JSON.parse(sessionStorage.getItem('travels'));
-        console.log('processes',this.travels);
+        this.dataLoaded = true; // Marcar que los datos fueron cargados
+        this.processesLoaded = true; // También marcar como cargado para modo offline
+        
+        // Desactivar animaciones después de que se muestren por primera vez
+        if (this.shouldAnimateHistory && this.travels && this.travels.length > 0) {
+          setTimeout(() => {
+            this.shouldAnimateHistory = false;
+          }, 1500);
+        }
       }else{
         this.travels = [];
+        this.dataLoaded = true; // Marcar que se intentó cargar (aunque esté vacío)
+        this.processesLoaded = true; // También marcar como cargado
       }
 
     }
 
-    //console.log(this.travels);
+
 
     if(this.countBills() > 0){
       this.isUploadingOther=false;
@@ -620,11 +681,16 @@ export class MainPage implements OnInit {
       this.isUploadingOther=true;
 
     }
-    //console.log('extracts',this.extracts)
   }
   ionViewWillEnter(){
-    this.hidrate();
-    this.getLanguages();
+    // Solo cargar datos si no se han cargado previamente o si venimos de otra página
+    if(!this.dataLoaded || this.currentStep > 0) {
+      this.hidrate();
+    }
+    // Solo cargar idiomas una vez para evitar rate limiting
+    if(!this.languagesLoaded) {
+      this.getLanguages();
+    }
     if(localStorage.getItem('langIntl') && localStorage.getItem('langIntl') != '' && localStorage.getItem('langIntl') != null){
       
       this.dateLocale=localStorage.getItem('langIntl');
@@ -664,7 +730,6 @@ export class MainPage implements OnInit {
       let start = new Date(this.startDateTrip);
       let end = new Date(this.endDateTrip);
       let days = (end.getTime()- start.getTime()) /86400000;
-      console.log(days);
 
       for (let index =1 ; index < days; index++) {
         
@@ -701,10 +766,25 @@ export class MainPage implements OnInit {
     }, 500);
   }
   listProcesses(){
-    if(this.userSession){
-      this.api.read('processes/list/'+this.userSession._id).subscribe(res=>{
-        this.travels = res['body'];
-      })
+    
+    // Prevenir llamadas duplicadas de processes
+    if (this.processesLoaded) {
+      console.log('Processes already loaded, skipping API call in listProcesses()');
+      return;
+    }
+    
+    if(this.api.isLoggedIn() && this.userSession){
+      this.api.read('processes/list/'+this.userSession.id).subscribe({
+        next: (res) => {
+          this.travels = res['body'];
+          this.processesLoaded = true; // Marcar como cargado
+        },
+        error: (error) => {
+          console.error('Error loading processes in listProcesses():', error);
+          // En caso de error, permitir reintentos
+          this.processesLoaded = false;
+        }
+      });
     }else{
       if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
 
@@ -713,6 +793,7 @@ export class MainPage implements OnInit {
       }else{
         this.travels = [];
       }
+      this.processesLoaded = true; // Marcar como cargado para modo offline
     }
 
   }
@@ -727,8 +808,6 @@ export class MainPage implements OnInit {
         });
       }
 
-
-   // console.log('scrolling');
       
     }, 500);
   }
@@ -752,9 +831,8 @@ export class MainPage implements OnInit {
     return new Promise ((resolve,rejected)=>{
 
     
-      if(this.userSession){
-        console.log(this.userSession._id);
-        this.api.read('limitations/validateCountries/'+this.userSession._id).subscribe(res=>{
+      if(this.api.isLoggedIn() && this.userSession){
+        this.api.read('limitations/validateCountries/'+this.userSession.id).subscribe(res=>{
           if(res['body']['result']){
             resolve(true);
           }else{
@@ -825,6 +903,29 @@ export class MainPage implements OnInit {
 
       
     }
+    if(this.pickerType == 'add_country'){
+      
+      var found = 0;
+      var code = event.code;
+      var country = event.country;
+
+      this.extracts.bills.forEach(bill => {
+        if(bill.currency == event.code && bill.country == event.country){
+          found = 1;
+        }
+      });
+
+      if(found == 0){
+
+        let newcountry = {
+          currency:code,
+          country: country,
+          bill:[]
+        }
+        this.extracts.bills.push(newcountry);
+        this.updateTravel();
+      }
+    }
     if(this.pickerType == 'currency'){
       this.extracts['extract']['currency'] = event;
       this.scrollToTarget('card-step-4');
@@ -847,28 +948,13 @@ export class MainPage implements OnInit {
 
   }
   getCurrencies(){
-    this.api.read('countries').subscribe(res=>{
+    
+    this.api.read('countries/'+this.selectedLanguage).subscribe(res=>{
       if(res['status'] == 200){
         this.currencies=res['body'];
-        /*
-        console.log('currencies', this.currencies);
-
-        var jsonObj="";
-
-        this.currencies.forEach(element => {
-          let string = element.country.replace(/ /g, '-').toLowerCase();
-          string = string.replace(/,/g, '');
-          string = string.replace(/\./g, "");
-          string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          
-          let objString = '"countries.'+string+'":"'+element.country+'",';
-          jsonObj = jsonObj +objString;
-
-        });
-        console.log(jsonObj);
-        */
       }
     })
+      
   }
   convertKey(input){
     let string = input.replace(/ /g, '-').toLowerCase();
@@ -878,67 +964,51 @@ export class MainPage implements OnInit {
     return 'countries.'+string;
   }
   openTravel(travel){
-    this.travelSelected = travel;
-
-    this.currentStep = this.travelSelected['process_step'];
-    this.extracts={bills:[],extract:{ type:'', currency:''}};
-    this.currencyBlockSelected = travel.process_country;
-
-    if(this.travelSelected['process_data']){
-
-      this.extracts = this.travelSelected['process_data'];
-
-    }else{
-
-      this.extracts={bills:[],extract:{ type:'', currency:''}};
-      
-    }
-    if(this.travelSelected['process_result']){
-
-      this.results = this.travelSelected['process_result'];
+    console.log('🚀 openTravel called with:', travel);
+    console.log('🔗 Navigating to:', ['/customer/process', travel._id]);
+    
+    // Verificar que el router esté disponible
+    if (!this.router) {
+      console.error('❌ Router is not available!');
+      return;
     }
 
-    if(this.travelSelected['process_settings']){
+    // Verificar que el travel tenga ID
+    if (!travel || !travel._id) {
+      console.error('❌ Travel or travel._id is missing:', travel);
+      return;
+    }
 
-      if(this.travelSelected['process_settings']['sendPdf']){
-
-        this.sendPdf = this.travelSelected['process_settings']['sendPdf'];
-
+    // Navegar a la página de proceso con el ID del viaje
+    const routePath = ['/customer/process', travel._id];
+    console.log('🎯 Final route path:', routePath);
+    
+    this.router.navigate(routePath).then(success => {
+      console.log('✅ Navigation result:', success);
+      if (!success) {
+        console.error('❌ Navigation failed - route may not exist or guards prevented navigation');
       }
-      if(this.travelSelected['process_settings']['sendExcel']){
+    }).catch(error => {
+      console.error('💥 Navigation error:', error);
+    });
+  }
 
-        this.sendExcel = this.travelSelected['process_settings']['sendExcel'];
-
-      }
-    }
-
-    if(this.extracts.bills.length > 0){
-      this.isUploadingOther=false;
-    }else{
-      this.isUploadingOther = true;
-
-    }
-
-    let date = new Date(this.travelSelected['last_uploaded_bill_date']);
-    let today = new Date();
-    var diff = Math.abs(today.getTime() - date.getTime()) / 3600000;
-    if(diff > 24){
-      this.showAlert24Hours=true;
-    }
-
-
-
+  // Método de prueba para verificar navegación
+  testNavigation() {
+    console.log('🧪 Testing navigation...');
+    this.router.navigate(['/customer/process', '64f7a8b8e1234567890abcde']).then(success => {
+      console.log('🧪 Test navigation result:', success);
+    }).catch(error => {
+      console.error('🧪 Test navigation error:', error);
+    });
   }
   updateTravel(){
 
     this.travelSelected['process_data']= this.extracts;
 
     if(this.results){
-     // console.log('yes results')
-
       this.travelSelected['process_result'] = this.results;
     }else{
-      //console.log('no results')
       this.travelSelected['process_result'] = undefined;
     }
     
@@ -951,10 +1021,8 @@ export class MainPage implements OnInit {
       }
 
     });
-   // console.log(this.travelSelected);
-    if(this.userSession){
+    if(this.api.isLoggedIn()){
       this.api.update('processes/'+this.travelSelected._id,this.travelSelected).subscribe(res=>{
-        //console.log('update process', res);
       })
     }else{
         sessionStorage.setItem('travels', JSON.stringify(this.travels));
@@ -965,7 +1033,7 @@ export class MainPage implements OnInit {
   validateTravelLimitations(){
     return new Promise ((resolve,rejected)=>{
 
-      this.api.read('limitations/validateTravel/'+this.userSession._id).subscribe(res=>{
+      this.api.read('limitations/validateTravel/'+this.userSession.id).subscribe(res=>{
         if(res['body']['result']){
           resolve(true);
         }else{
@@ -1007,26 +1075,55 @@ export class MainPage implements OnInit {
   }
   createProcess(){
     this.loadingButtons=true;
+    
+    // Verificar que el usuario esté autenticado
+    if (!this.api.isLoggedIn()) {
+      this.loadingButtons = false;
+      this.router.navigate(['/login']);
+      return;
+    }
+    
+    this.executeProcessCreation();
+  }
+
+
+
+  executeProcessCreation(){
     let processSettings = {
       sendPdf:false,
       sendExcel:false
     }
-
+    let processData = {
+      bills:[
+        {
+          bill:[],
+          country:this.currencyBlockSelected['country'],
+          currency:this.currencyBlockSelected['code']
+        }
+      ],
+      extract:{
+        currency:"",
+        type:""
+      }
+    }
 
     let req = {
-      process_lead: this.userSession ? this.userSession._id : undefined,
+      // process_lead ya no se envía, se obtiene del JWT token
       process_country: this.currencyBlockSelected,
       process_step:1,
       process_settings:processSettings,
-      process_source: localStorage.getItem('clientSource')
+      process_source: localStorage.getItem('clientSource'),
+      process_data:processData
     };
+
     this.api.create('processes',req).subscribe(res=>{
       if(res['status'] == 201){
 
         this.openModalAddTravel = false;
         this.listProcesses();
 
-        if(!this.userSession){
+        // Solo usar sessionStorage si no está autenticado (modo offline)
+        if(!this.api.isLoggedIn()){
           if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
 
             this.travels = JSON.parse(sessionStorage.getItem('travels'));
@@ -1069,7 +1166,6 @@ export class MainPage implements OnInit {
     }
   }
   nextStep(){
-    //console.log(this.results);
     if(this.currentStep == 1 ){
       this.currentStep ++;
       this.travelSelected['process_step']= this.currentStep;
@@ -1123,6 +1219,7 @@ export class MainPage implements OnInit {
         this.sendExcel=undefined;
         this.checkResults=false;
         this.currentStep = 0;
+        this.shouldAnimateHistory = true; // Reiniciar animaciones al volver al dashboard
       })
 
     })
@@ -1186,7 +1283,6 @@ export class MainPage implements OnInit {
         })
   
       }else{
-        console.log('entra a else')
         this.results = this.travelSelected['process_result'];
         resolve(true);
       }
@@ -1210,7 +1306,7 @@ export class MainPage implements OnInit {
 
     if(this.currentStep == 1){
       this.isUploadingOther=false;
-
+      this.currencyBlockSelected = undefined;
     }
     this.currentStep--;
     if(this.currentStep == 3){
@@ -1269,8 +1365,6 @@ export class MainPage implements OnInit {
       
 
      }, (err) => {
-      // Handle error
-        //console.log(err)
      });
   }
   deleteBillFromResult(docId){
@@ -1278,15 +1372,12 @@ export class MainPage implements OnInit {
   }
   updateOrCreateLead(obj){
     return new Promise ((resolve,reject)=>{
-      if(this.userSession){
-        this.api.update('leads/'+this.userSession._id,obj).subscribe(res=>{
-          //console.log('update lead', res);
+      if(this.api.isLoggedIn() && this.userSession){
+        this.api.update('leads/'+this.userSession.id,obj).subscribe(res=>{
           resolve(res);
         })
       }else{
         this.api.create('leads', obj).subscribe(res=>{
-          //console.log('create lead', res);
-
           resolve(res);
         });
       }
@@ -1349,6 +1440,7 @@ export class MainPage implements OnInit {
 
         this.showAlertResend = true;
         this.currentStep = 0;
+        this.shouldAnimateHistory = true; // Reiniciar animaciones al volver al dashboard
         this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
 
       }
@@ -1415,7 +1507,6 @@ export class MainPage implements OnInit {
         userEmail : this.userEmail,
         lang: lang
       }
-      //console.log(objSendResult);
       this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
         if(res['body'] == 202){
           this.currentStep ++;
@@ -1497,7 +1588,6 @@ export class MainPage implements OnInit {
     this.openModalAddBill=true;
     this.currentBill = this.extracts[this.currentExtract]['bills'].length;
     this.uploadedBill='';
-    //console.log(this.currentBill);
   }
   onWillDismissAddBill(){
     this.openModalAddBill=false;
@@ -1514,8 +1604,6 @@ export class MainPage implements OnInit {
     this.isAlertDeleteExtract=true;
     this.idToDelete = id;
     this.documentIdToDelete = document_id;
-    //console.log(this.extracts['extract']);
-    //console.log('delete document id', this.documentIdToDelete);
 
 
   }
@@ -1526,7 +1614,6 @@ export class MainPage implements OnInit {
     this.idToDeleteBill =id;
     this.documentIdToDelete = document_id;
     this.idToDeleteBillContainer =iBill;
-    //console.log('delete document id', this.documentIdToDelete);
 
   }
   deleteAllReceiptsAlert(){
@@ -1577,7 +1664,6 @@ export class MainPage implements OnInit {
 
     this.updateTravel();
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
-     // console.log(res);
     })
     this.isAlertDeleteExtract=false;
 
@@ -1596,7 +1682,6 @@ export class MainPage implements OnInit {
     this.updateTravel();
 
     this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
-     // console.log(res);
     })
     
     this.isAlertDeleteBill=false;
@@ -1607,33 +1692,26 @@ export class MainPage implements OnInit {
 
     let extractsToDelete = this.extracts;
 
-    extractsToDelete['bills'].forEach( (group,groupIndex) => {
+    extractsToDelete['bills'][this.billPos]['bill'].forEach( (bill,groupIndex) => {
       
-      group['bill'].forEach( (bill, billIndex) => {
-
-    
         this.api.update('documents/'+ bill.document_id,{deleted:true}).subscribe(res=>{
-          //console.log(res);
         })
-        
-      });
 
     });
-    this.extracts['bills'] = [];
+    this.extracts['bills'].splice(this.billPos,1);
+
+    this.billPos=0;
+    //this.extracts['bills'][this.billPos]['bill'] = [];
     this.updateTravel();
 
-
-
-
   }
+
 
   changeExtractType(){
     this.updateTravel();
 
   }
   nextConfirmData(){
-
-    //console.log('extracts', this.extracts);
     this.currentStep =2;
     this.travelSelected['process_step']= this.currentStep;
 
@@ -1673,14 +1751,10 @@ export class MainPage implements OnInit {
 
         setTimeout(() => {
           if(this.extracts['extract']['status'] == 0){
-
-            //console.log('jobid',this.extracts['extract']['jobId']);
-  
             let form = new FormData();
             form.append('jobId', this.extracts['extract']['jobId']); 
     
             this.api.sendForm('aws/getExpenseAnalysis',form).subscribe(res=>{
-              //console.log('getExpenseAnalysis', res);
               if(res['status']){
                 let data = res['result'];
  
@@ -1720,8 +1794,6 @@ export class MainPage implements OnInit {
   }
 
   changeDateExtractLine(i){
-    console.log(this.extracts.extract.lines[i].date);
-
   }
   editLine(line){
     let startDate = new Date(line.date+"T"+line.hour);
@@ -1749,7 +1821,6 @@ export class MainPage implements OnInit {
 
       this.editLineReceipt = res['body'];
       this.changeDetector.detectChanges();
-      //console.log(this.editLineReceipt);
       
 
     })
@@ -1763,8 +1834,6 @@ export class MainPage implements OnInit {
 
       this.editLineExtract = res['body'];
       this.changeDetector.detectChanges();
-
-      //console.log(this.editLineExtract);
 
       
 
@@ -1813,9 +1882,6 @@ export class MainPage implements OnInit {
     this.isDeletingAllNotMatched = true;
   }
   deleteNotMatched(group,line, lineObj){
-
-    //console.log(lineObj);
-
     this.selectedDeleteLine=[group,line];
     this.docToDelete = lineObj.document_id;
 
@@ -1875,7 +1941,6 @@ export class MainPage implements OnInit {
   }
   checkMatchStatus(){
     let found = 0;
-   // console.log(this.results)
     this.results.forEach(element => {
       element.lines.forEach(line => {
           if(!line.match){
@@ -2005,11 +2070,13 @@ export class MainPage implements OnInit {
 
             if(this.extracts && this.extracts.bills){
 
+              this.extracts.bills[this.billPos]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
+
+              /*
               let founds = 0;
 
               this.extracts.bills.forEach( (element,index) => {
-                if(element.currency == this.currencyBlockSelected['code']){
-                  
+                if(element.currency == this.currencyBlockSelected['code'] && element.country == this.currencyBlockSelected['country']){
                   founds ++;
                   this.extracts.bills[index]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
                   this.billAccOpened = index;
@@ -2019,11 +2086,8 @@ export class MainPage implements OnInit {
                 this.extracts.bills.push({currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{original_name:fileElement.name,file:this.sanitizeFileName(fileElement.name), status: 0}]});
 
               }
+                */
 
-
-            }else{
-              this.extracts={bills :[{currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{original_name:fileElement.name,file:this.sanitizeFileName(fileElement.name), status: 0}]}]};
-              
 
             }
             this.updateTravel();
@@ -2045,8 +2109,6 @@ export class MainPage implements OnInit {
             form.append('model_id', 'custom-ikosten-extracts-v2'); 
 
             this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
-              //console.log('extract',res);
-
               let status =500;
               if(!res['error'] && !res['body']['error']){
                status =1;
@@ -2079,7 +2141,6 @@ export class MainPage implements OnInit {
             form.append('model_id', 'prebuilt-receipt'); 
 
             this.api.sendForm('uploads/uploadReceipt',form).subscribe(res=>{
-              //console.log(res);
               
               let status =500;
               if(!res['body']['error']){
@@ -2165,9 +2226,24 @@ export class MainPage implements OnInit {
     }
   
   }
+  selectCountry(index:number){
+      
+    this.billPos=index;
+    var code = this.extracts.bills[index].currency;
+    var country = this.extracts.bills[index].country;
+
+    this.currencyBlockSelected = {country:country, currency:code};
+
+    if(this.extracts.bills[this.billPos].bill.length > 0){
+      this.isUploadingOther=false;
+    }else{
+      this.isUploadingOther = true;
+
+    }
+
+  }
   openUploading(){
 
-    this.currencyBlockSelected=undefined;
     this.isUploadingOther = true
     /*
     if(this.extracts['bills'].length >= this.limitations.limitations_country_x_travel){
@@ -2237,9 +2313,49 @@ export class MainPage implements OnInit {
     sessionStorage.clear();
     this.isUploadingOther=true;
   }
+
   fileBrowseHandler(files, type){
-    //console.log('file handler')
     this.uploadFile(files.target.files, type);
 
+  }
+
+  // Métodos para eliminar travel
+  confirmDeleteTravelDialog(travel: any, event: Event) {
+    event.stopPropagation(); // Evitar que se abra el travel
+    this.travelToDelete = travel;
+    this.showAlertDeleteTravel = true;
+  }
+
+  confirmDeleteTravel() {
+    if (!this.travelToDelete) return;
+    
+    const travelId = this.travelToDelete._id;
+    
+    if (this.api.isLoggedIn() && this.userSession) {
+      // Usuario autenticado - llamar al backend
+      this.api.delete('processes/' + travelId).subscribe({
+        next: (res) => {
+          // Eliminar de la lista local
+          this.travels = this.travels.filter(travel => travel._id !== travelId);
+          this.showAlertDeleteTravel = false;
+          this.travelToDelete = null;
+          
+          // Actualizar sessionStorage si existe
+          if (sessionStorage.getItem('travels')) {
+            sessionStorage.setItem('travels', JSON.stringify(this.travels));
+          }
+        },
+        error: (error) => {
+          console.error('Error eliminando travel:', error);
+          this.showAlertDeleteTravel = false;
+        }
+      });
+    } else {
+      // Usuario no autenticado - eliminar del sessionStorage
+      this.travels = this.travels.filter(travel => travel._id !== travelId);
+      sessionStorage.setItem('travels', JSON.stringify(this.travels));
+      this.showAlertDeleteTravel = false;
+      this.travelToDelete = null;
+    }
   }
 }

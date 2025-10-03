@@ -1,0 +1,119 @@
+<div class="onboarding-container">
+
+  <ion-content [fullscreen]="true" class="ion-padding">
+    
+    <!-- Header Section -->
+    <div class="welcome-section ion-text-center ion-margin-bottom">
+      <ion-icon name="sparkles" size="large"></ion-icon>
+      <h1 class="welcome-title">¡Hola {{currentUser?.name?.split(' ')[0] || 'Usuario'}}!</h1>
+      <p class="welcome-subtitle">
+        Cuéntanos cómo quieres usar iKosten para personalizar tu experiencia
+      </p>
+    </div>
+
+    <!-- Category Selection Cards -->
+    <div class="category-section">
+      <h2 class="section-title ion-text-center">¿Cómo planeas usar iKosten?</h2>
+      
+      <div class="category-cards">
+        <!-- Travel Card -->
+        <ion-card 
+          class="category-card" 
+          [class.selected]="selectedCategory === 'travel'"
+          (click)="selectCategory('travel')"
+          button="true">
+          
+          <ion-card-content class="ion-text-center">
+            <div class="card-icon">
+              <ion-icon name="airplane" size="large" color="primary"></ion-icon>
+            </div>
+            
+            <h3>Quiero usarlo para viajar</h3>
+            <p>
+              Gestiona tus gastos de viaje, planifica presupuestos para tus aventuras 
+              y mantén control de todos tus gastos mientras exploras el mundo.
+            </p>
+            
+            <div class="card-features">
+              <ion-chip color="primary" outline="true">
+                <ion-icon name="map"></ion-icon>
+                <ion-label>Viajes organizados</ion-label>
+              </ion-chip>
+              <ion-chip color="primary" outline="true">
+                <ion-icon name="card"></ion-icon>
+                <ion-label>Control de gastos</ion-label>
+              </ion-chip>
+              <ion-chip color="primary" outline="true">
+                <ion-icon name="analytics"></ion-icon>
+                <ion-label>Presentar mis viáticos</ion-label>
+              </ion-chip>
+            </div>
+            
+            <div class="selection-indicator" *ngIf="selectedCategory === 'travel'">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Finance Card -->
+        <ion-card 
+          class="category-card" 
+          [class.selected]="selectedCategory === 'finance'"
+          (click)="selectCategory('finance')"
+          button="true">
+          
+          <ion-card-content class="ion-text-center">
+            <div class="card-icon">
+              <ion-icon name="wallet" size="large" color="secondary"></ion-icon>
+            </div>
+            
+            <h3>Quiero usarlo para mis finanzas</h3>
+            <p>
+              Controla tus finanzas personales, registra ingresos y gastos, 
+              y mantén un seguimiento completo de tu situación económica.
+            </p>
+            
+            <div class="card-features">
+              <ion-chip color="secondary" outline="true">
+                <ion-icon name="trending-up"></ion-icon>
+                <ion-label>Finanzas personales</ion-label>
+              </ion-chip>
+              <ion-chip color="secondary" outline="true">
+                <ion-icon name="receipt"></ion-icon>
+                <ion-label>Registro de gastos</ion-label>
+              </ion-chip>
+            </div>
+            
+            <div class="selection-indicator" *ngIf="selectedCategory === 'finance'">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+  </ion-content>
+
+  <!-- Footer with Continue Button -->
+  <ion-footer>
+    <ion-toolbar>
+      <div class="footer-content">
+        <p class="continue-hint ion-text-center" *ngIf="!selectedCategory">
+          Selecciona una opción para continuar
+        </p>
+        
+        <ion-button 
+          expand="block" 
+          size="large"
+          [disabled]="!selectedCategory || isLoading"
+          (click)="continueOnboarding()"
+          class="continue-button">
+          
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">Continuar</span>
+          <ion-icon name="arrow-forward" slot="end" *ngIf="!isLoading"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+</div>

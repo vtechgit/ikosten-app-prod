@@ -89,10 +89,7 @@
   float: right;
 }
 
-ion-button{
-    color: white;
-    --color: white;
-}
+
 .button-controll{
     min-width: 150px;
 }
@@ -222,9 +219,19 @@ ion-list-header, ion-list-header ion-label{
   font-size: 19px;
 
 }
+ion-card{
+  border-radius: 23px;
+}
 ion-card-title{
   font-size: 19px;
   font-weight: 500;
+  display: inline-flex;
+}
+ion-badge{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    position: relative;
+    top: 4px;
 }
   @media screen and (max-width: 700px) {
     .guided-tour-dialog{

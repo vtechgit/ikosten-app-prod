@@ -1,70 +1,66 @@
-<app-header></app-header>
 
-<ion-content  class="content-background">
+<ion-content class="main-container">
 
-  <div class="responsive_container">
+  <div class="main-content">
 
+    <!--
     <ion-button color="primary" class="ion-margin-start" fill="outline" *ngIf="currentStep>=1" (click)="currentStep=0">
       <ion-icon slot="start" name="close-outline"></ion-icon>
       {{'buttons.exit' | translate}}
     </ion-button>
+    -->
 
-    <div *ngIf="currentStep == 0" @fadeIn>
-      <ion-list class="ion-margin-bottom">
-        <!--
-        <ion-list-header>
-          {{'titles.modules.travels.main' | translate}}
-        </ion-list-header>
-        -->
+    <!-- Step 0: Main Dashboard -->
+    <div *ngIf="currentStep == 0" @fadeIn class="dashboard-section">
+      
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <ion-icon name="airplane" class="welcome-icon"></ion-icon>
+          <h1 class="welcome-title">{{'titles.modules.travels.main' | translate}}</h1>
+          <p class="welcome-subtitle">{{'titles.modules.travels.welcome-subtitle' | translate}}</p>
+        </div>
+      </div>
 
-        <ion-card>
+      <!-- Travel Creation Section -->
+      <div class="creation-section">
+        <div class="creation-card">
           <div class="tour-step-1">
-            <ion-card-header>
-              <ion-card-title>{{'titles.modules.travels.create.complement' | translate}}</ion-card-title>
-            </ion-card-header>
+            <div class="card-header">
+              <div class="header-content">
+                <h2 class="card-title">{{'titles.modules.travels.create.complement' | translate}}</h2>
+                <p class="card-subtitle">{{'titles.modules.travels.create.subtitle' | translate}}</p>
+              </div>
+            </div>
           
-            <ion-card-content>
-              
-              <ion-item [disabled]="this.shepherdService.isActive"  button (click)="showModalPicker('inputs.select-country.title','country')">
-                <ion-label *ngIf="currencyBlockSelected">{{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
-                <ion-label *ngIf="!currencyBlockSelected">{{'inputs.select-country.title' | translate}}</ion-label>
-              </ion-item>
-            </ion-card-content>
+            <div class="card-content">
+              <div class="country-selector" [disabled]="this.shepherdService.isActive" (click)="showModalPicker('inputs.select-country.title','country')">
+                <ion-icon name="location" class="selector-icon"></ion-icon>
+                <div class="selector-content">
+                  <div class="selector-label">{{'global.words.country' | translate}}</div>
+                  <div class="selector-value" *ngIf="currencyBlockSelected">
+                    {{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})
+                  </div>
+                  <div class="selector-placeholder" *ngIf="!currencyBlockSelected">
+                    {{'inputs.select-country.placeholder' | translate}}
+                  </div>
+                </div>
+                <ion-icon name="chevron-forward" class="selector-chevron"></ion-icon>
+              </div>
+            </div>
+
+            <ion-button 
+              [disabled]="!this.currencyBlockSelected || this.shepherdService.isActive" 
+              color="primary" 
+              class="create-button tour-step-3" 
+              expand="block"
+              (click)="createProcess()">
+              <ion-icon name="rocket" slot="start"></ion-icon>
+              {{'buttons.create-travel' | translate}}
+            </ion-button>
           </div>
-          <!--
-                    <div class="tour-step-2">
-            <ion-card-header>
-              <ion-card-title>{{'titles.modules.travels.create.date-travel-complement' | translate}}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;scrollToTarget('dateLine');this.shepherdService.hide();">
-                <ion-label>{{'global.words.date' | translate}}:</ion-label>
-                  <ion-chip class="chip-date" >
-                    {{startDateTrip | date: 'dd/MM/yyyy'}}
-                  <ion-ripple-effect></ion-ripple-effect>
-    
-                </ion-chip>
-                -
-                <ion-chip class="chip-date" >
-                  {{endDateTrip | date: 'dd/MM/yyyy'}}
-                <ion-ripple-effect></ion-ripple-effect>
-
-              </ion-chip>
-    
-              </ion-item>    
-              <ion-item *ngIf="toggleDate">
-                <ion-datetime [multiple]="true" style="width: 100%; margin: auto;" (ionChange)="changeStartDatePicker($event)"  id="dateLine" [locale]="dateLocale"  [value]="dateRangeSelected" presentation="date"></ion-datetime>
-
-              </ion-item>
-            </ion-card-content>
-          </div>
-          -->
-
-          <ion-button [disabled]="!this.currencyBlockSelected || this.shepherdService.isActive" color="primary" class="button-controll button-card tour-step-3" (click)="createProcess()" >
-            {{'buttons.create-travel' | translate}}
-            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-          </ion-button>
-        </ion-card>
+        </div>
+      </div>
 
         <!--
         <ion-card *ngIf="travels && travels.length <= 0 ">
@@ -91,98 +87,113 @@
         </ion-card>
         -->
 
-        <div class="tour-step-4">
-          <ion-list-header >{{'titles.modules.profile.history' | translate}}</ion-list-header>
-
-          <ion-list *ngIf="!travels">
-            <ion-item>
-              <ion-label>
-                <h2>
-                  <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
-    
-                </h2>
-                <p>
-                  <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
-                </p>
-              </ion-label>
-  
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <h2>
-                  <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
-    
-                </h2>
-                <p>
-                  <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
-                </p>
-              </ion-label>
-  
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <h2>
-                  <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
-    
-                </h2>
-                <p>
-                  <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
-                </p>
-              </ion-label>
-  
-            </ion-item>
-          </ion-list>
-          <ion-item *ngIf="travels && travels.length <=0">
-            <ion-label>
-              <h2>{{'titles.modules.travels.history.no-trips-yet' | translate}}...</h2>
-            </ion-label>
-          </ion-item>
-          <ion-item *ngFor="let travel of travels" button (click)="openTravel(travel)">
-            <ion-label>
-              <h2>{{convertKey(travel.process_country.country) | translate}}</h2>
-              <p *ngIf="travel.process_start_date"><span *ngIf="travel.process_start_date && travel.process_start_date != ''">{{'titles.modules.travels.list-start-date' | translate}} {{travel.process_start_date | date: 'dd/MM/yyyy'}}</span> <span *ngIf="travel.process_end_date && travel.process_end_date != ''"> {{'titles.modules.travels.list-end-date' | translate}} {{travel.process_end_date | date: 'dd/MM/yyyy'}}</span></p>
-              
-            </ion-label>
-            <ion-badge slot="end" color="primary" *ngIf="travel.process_status == 0">{{'titles.modules.travels.status.new' | translate}}</ion-badge>
-            <ion-badge slot="end" color="success" *ngIf="travel.process_status == 1">{{'titles.modules.travels.status.in-progress' | translate}}</ion-badge>
-            <ion-badge slot="end" color="light" *ngIf="travel.process_status == 2">{{'titles.modules.travels.status.finished' | translate}}</ion-badge>
-  
-          </ion-item>
-          <ion-item lines="none"></ion-item>
+      <!-- Travel History Section -->
+      <div class="history-section" style="margin-bottom: 100px;">
+        <div class="section-header tour-step-4">
+          <h2 class="section-title">
+            <ion-icon name="time" class="section-icon"></ion-icon>
+            {{'titles.modules.profile.history' | translate}}
+          </h2>
         </div>
 
+        <!-- Loading State -->
+        <div class="history-list" *ngIf="!travels">
+          <div class="history-item skeleton" *ngFor="let item of [1,2,3]">
+            <div class="skeleton-content">
+              <ion-skeleton-text animated style="width: 70%; height: 20px; margin-bottom: 8px;"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 50%; height: 16px;"></ion-skeleton-text>
+            </div>
+            <ion-skeleton-text animated style="width: 80px; height: 24px; border-radius: 12px;"></ion-skeleton-text>
+          </div>
+        </div>
 
-        
-      </ion-list>
-      <!--
-      <div class="ion-padding">
-        <h1 class="text-center">¡Bienvenido!</h1>
-        <h3 class="text-center">Cruza tus extractos con tus gastos y ahorrate horas con ikosten
-        </h3>
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="travels && travels.length <= 0">
+          <ion-icon name="airplane-outline" class="empty-icon"></ion-icon>
+          <h3 class="empty-title">{{'titles.modules.travels.history.no-trips-yet' | translate}}</h3>
+          <p class="empty-subtitle">{{'titles.modules.travels.history.start-first-trip' | translate}}</p>
+        </div>
+
+        <!-- Travel List -->
+        <div class="history-list" *ngIf="travels && travels.length > 0">
+          <div class="history-item" 
+               [class.no-animate]="!shouldAnimateHistory"
+               *ngFor="let travel of travels">
+            
+            <!-- Botón de eliminación flotante -->
+            <ion-button 
+              fill="clear" 
+              color="danger" 
+              size="small" 
+              class="delete-travel-btn"
+              (click)="confirmDeleteTravelDialog(travel, $event)">
+              <ion-icon name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+
+            <div class="travel-content" (click)="openTravel(travel)">
+              <div class="travel-info">
+                <div class="travel-country">
+                  <ion-icon name="location" class="country-icon"></ion-icon>
+                  {{convertKey(travel.process_country.country) | translate}}
+                  <!-- Status dot sutil -->
+                  <div class="status-dot new" *ngIf="travel.process_status == 0" title="{{'titles.modules.travels.status.new' | translate}}"></div>
+                  <div class="status-dot progress" *ngIf="travel.process_status == 1" title="{{'titles.modules.travels.status.in-progress' | translate}}"></div>
+                  <div class="status-dot finished" *ngIf="travel.process_status == 2" title="{{'titles.modules.travels.status.finished' | translate}}"></div>
+                </div>
+                <div class="travel-dates" *ngIf="travel.process_start_date">
+                  <span *ngIf="travel.process_start_date && travel.process_start_date != ''">
+                    <ion-icon name="calendar-outline" class="date-icon"></ion-icon>
+                    {{travel.process_start_date | date: 'dd/MM/yyyy'}}
+                  </span>
+                  <span *ngIf="travel.process_end_date && travel.process_end_date != ''" class="date-separator">
+                    <ion-icon name="arrow-forward" class="arrow-icon"></ion-icon>
+                    {{travel.process_end_date | date: 'dd/MM/yyyy'}}
+                  </span>
+                  <!-- Status text sutil como parte de las fechas -->
+                  <span class="status-text new" *ngIf="travel.process_status == 0">
+                    <ion-icon name="add-circle" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.new' | translate}}
+                  </span>
+                  <span class="status-text progress" *ngIf="travel.process_status == 1">
+                    <ion-icon name="time" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.in-progress' | translate}}
+                  </span>
+                  <span class="status-text finished" *ngIf="travel.process_status == 2">
+                    <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.finished' | translate}}
+                  </span>
+                </div>
+              </div>
+              <div class="travel-status">
+                <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <ion-img class="welcome-image" src="../../../assets/images/ikosten_elemento_alcancia_azul.png" > </ion-img>
 
+    </div>
+    <!-- End Step 0 -->
+    <div *ngIf="currentStep == 1">
+
+      <!--
+        <ion-card *ngIf="isUploadingOther" @fadeIn>
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.process.step1.title' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.process.step1.subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item button (click)="showModalPicker('inputs.select-country.title','country')">
+              <ion-label *ngIf="currencyBlockSelected">{{convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
+              <ion-label *ngIf="!currencyBlockSelected">{{'titles.modules.process.step1.content' | translate}}</ion-label>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
       -->
 
 
-
-    </div>
-    <div *ngIf="currentStep == 1">
-
-      <ion-card *ngIf="isUploadingOther" @fadeIn>
-        <ion-card-header>
-          <ion-card-title>{{'titles.modules.process.step1.title' | translate}}</ion-card-title>
-          <ion-card-subtitle>{{'titles.modules.process.step1.subtitle' | translate}}</ion-card-subtitle>
-        </ion-card-header>
-      
-        <ion-card-content>
-          <ion-item button (click)="showModalPicker('inputs.select-country.title','country')">
-            <ion-label *ngIf="currencyBlockSelected">{{convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
-            <ion-label *ngIf="!currencyBlockSelected">{{'titles.modules.process.step1.content' | translate}}</ion-label>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
-
+      <!--
       <ion-card id="card-step-2" *ngIf="isUploadingOther && currencyBlockSelected && currencyBlockSelected != ''" @fadeIn>
         <ion-card-header>
           <ion-card-title>{{'titles.modules.process.step2.title' | translate}}</ion-card-title>
@@ -259,105 +270,181 @@
             </ion-row>
             
   
-            <!--
-            <ion-col class="d-flex flex-justify-space-between" size="12" *ngIf="imageToUpload">
-              <ion-button  color="danger" class="button-controll" style="float:right" (click)="this.imageToUpload = undefined" >
-                Eliminar
-                <ion-icon name="trash-outline" slot="end"></ion-icon>
-              </ion-button>
-              <ion-button [disabled]="isUploading" color="primary" class="button-controll" style="float:right" (click)="uploadBillPhoto()" >
-                Confirmar
-                <ion-icon name="checkmark-outline" slot="end"></ion-icon>
-              </ion-button>
-            </ion-col>
-            -->
   
           </ion-grid>
         </ion-card-content>
       </ion-card>
-      <!--
-      <div class="ion-padding" >
-
-        <ion-list>
-          <ion-list-header *ngIf="isUploadingOther">
-            Paso #1 
-          </ion-list-header>
-
-          <h3 class="text-center" *ngIf="!isUploadingOther">Sube uno o varios recibos / facturas por país donde se originaron tus gastos
-          </h3>
-          <h3 class="text-center">Para mejorar el resultado, sube sólo un recibo por imagen o archivo pdf</h3>
-
-        </ion-list>
-
-      </div>
       -->
 
 
-      <ion-card *ngIf="!isUploadingOther" @fadeIn>
-        <ion-card-header>
-          <ion-card-title>{{'titles.modules.process.step2.file-input.upload-file-note' | translate}}</ion-card-title>
-        </ion-card-header>
-      
-        <ion-card-content>
-          <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
-    
-            <ion-accordion-group class="ion-margin-top" [value]="billAccOpened">
-              <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
-                <ion-item slot="header" color="light">
-                  <ion-label>{{'global.words.country' | translate}}: {{convertKey(bill.country) | translate}}</ion-label>
-                </ion-item>
-                <div slot="content">
-                  <ion-list >
-                    <ion-item *ngFor="let billElement of bill.bill; index as i">
-                    
-                      <ion-label>
-                        <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
-                        <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{'errors.file-uploads.cannot-read-vendor' | translate}}</h3>
 
-                        <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
-                        <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
-                        <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
-                        <p style="color:red;" *ngIf="billElement.status == 500">{{'errors.file-uploads.try-again' | translate}}</p>
-                      <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
-                      <ion-note *ngIf="billElement.status == 0">{{'loadings.analysing' | translate}}...</ion-note>
-            
-                      </ion-label>
-                      <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
-                        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                      </ion-button>
-            
-            
-                    </ion-item>
-                  </ion-list>
+    <ion-card  @fadeIn>
+      <ion-card-header>
+        <ion-card-title>{{'titles.modules.process.step1.title' | translate}}</ion-card-title>
+          <ion-card-subtitle>{{'titles.modules.process.step1.subtitle' | translate}}</ion-card-subtitle>
+
+      </ion-card-header>
+    
+
+      <ion-card-content>
+        <div class="badgesCountries " *ngIf="currentStep == 1 && extracts && extracts['bills'] && extracts['bills'].length > 0"  @fadeIn>
+          <ion-button size="small" (click)="selectCountry(iBill)"  [fill]="this.billPos == iBill ? 'solid':'outline'" *ngFor="let bill of extracts['bills']; index as iBill">{{convertKey(bill.country) | translate}}</ion-button>
+          <ion-button (click)="showModalPicker('inputs.select-country.title','add_country')" shape="round" class="ion-margin-start"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+          
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-card @fadeIn>
+      <ion-card-header>
+
+        <ion-card-title style="display: block !important;">{{'titles.modules.process.step1.content' | translate}} <ion-button style=" margin: 0;position: relative;top: -6px;" size="small" >{{ convertKey(currencyBlockSelected['country']) | translate}}</ion-button>             
+        </ion-card-title>
+        <ion-card-subtitle>{{'titles.modules.process.step2.subtitle' | translate}}</ion-card-subtitle>
+
+      </ion-card-header>
+    
+      <ion-card-content>
+        <ion-list *ngIf="!isUploadingOther" @fadeIn>
+          <ion-item *ngFor="let billElement of extracts['bills'][billPos].bill; index as i">
+          
+            <ion-label>
+              <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
+              <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{'errors.file-uploads.cannot-read-vendor' | translate}}</h3>
+
+              <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
+              <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
+              <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{extracts['bills'][billPos].currency}}</p>
+              <p style="color:red;" *ngIf="billElement.status == 500">{{'errors.file-uploads.try-again' | translate}}</p>
+            <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
+            <ion-note *ngIf="billElement.status == 0">{{'loadings.analysing' | translate}}...</ion-note>
+  
+            </ion-label>
+            <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+  
+  
+          </ion-item>
+        </ion-list>
+        <!--
+        <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+  
+          <ion-accordion-group class="ion-margin-top" [value]="billAccOpened">
+            <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
+              <ion-item slot="header" color="light">
+                <ion-label>{{'global.words.country' | translate}}: {{convertKey(bill.country) | translate}}</ion-label>
+              </ion-item>
+              <div slot="content">
+                <ion-list >
+                  <ion-item *ngFor="let billElement of bill.bill; index as i">
+                  
+                    <ion-label>
+                      <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
+                      <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{'errors.file-uploads.cannot-read-vendor' | translate}}</h3>
+
+                      <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
+                      <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
+                      <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
+                      <p style="color:red;" *ngIf="billElement.status == 500">{{'errors.file-uploads.try-again' | translate}}</p>
+                    <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
+                    <ion-note *ngIf="billElement.status == 0">{{'loadings.analysing' | translate}}...</ion-note>
+          
+                    </ion-label>
+                    <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+          
+          
+                  </ion-item>
+                </ion-list>
+              </div>
+            </ion-accordion>
+  
+          </ion-accordion-group>
+
+
+  
+        </div>
+        -->
+
+
+        <ion-grid *ngIf="isUploadingOther" @fadeIn>
+          <ion-row *ngIf="!imagesToUpload || imagesToUpload.length == 0">
+
+            <ion-col size="12" class="ion-hide-lg-up" >
+  
+              <h3 class="text-center">{{'titles.modules.process.step2.file-input.take-picture' | translate}}</h3>
+
+              <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
+                <div class="image-place-holder">
+                  <ion-icon name="camera-outline" style="width: 50px;
+                  height: 50px;" ></ion-icon>
+      
+              </div>
+              </div>
+              <ion-note>{{'titles.modules.process.step2.file-input.take-picture-note' | translate}}
+              </ion-note>
+
+
+            </ion-col>
+    
+
+            <ion-col size="12" >
+              <h3  class="text-center">{{'titles.modules.process.step2.file-input.upload-file' | translate}}</h3>
+              <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
+                <input type="file" accept="image/jpeg,image/png,application/pdf" multiple="true" multiple="true" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
+          
+                <div class="image-place-holder">
+                    <ion-icon name="cloud-upload-outline" style="width: 50px;
+                    height: 50px;" ></ion-icon>
+        
                 </div>
-              </ion-accordion>
-    
-            </ion-accordion-group>
+          
+              </div>
+              <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+
+              <ion-note>{{'titles.modules.process.step2.file-input.upload-file-note' | translate}}
+              </ion-note>
+            </ion-col>
+
+          </ion-row>
+          <ion-button *ngIf="extracts && extracts['bills'] && extracts['bills'][billPos].bill.length >0" color="light" expand="block" (click)="isUploadingOther=false">
+            {{'buttons.cancel' | translate}}
+            <ion-icon name="close-circle-outline" slot="end"></ion-icon>
+          </ion-button>
+
+          <ion-row class="ion-margin-top" *ngIf="imagesToUpload && imagesToUpload.length > 0">
+
+            <ion-col size="4" *ngFor="let image of imagesToUpload; index as i">
+
+              <ion-button shape="round" color="danger" class="delete-image-button" (click)="deleteImageToUpload(i)">
+                <ion-icon slot="icon-only" size="default" name="trash-outline"></ion-icon>
+              </ion-button>
+
+              <ion-img class="image-to-upload" [src]="image.dataUrl"> </ion-img>
   
-  
-    
-          </div>
-          <div class="ion-padding" >
-            <ion-grid>
-              <ion-row class="ion-justify-content-center">
-                <ion-col size="12" size-sm="6" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
-                  <ion-button color="danger" expand="block" (click)="deleteAllReceiptsAlert()">
-                    {{'buttons.delete-all' | translate}}
-                    <ion-icon name="trash-outline" slot="end"></ion-icon>
-                  </ion-button>
-                </ion-col>
-                <ion-col size="12" size-sm="6">
-                  <ion-button color="secondary" expand="block" [disabled]="checkBillsErrors()" (click)="openUploading()">
-                    {{'buttons.upload-receipt' | translate}}
-                    <ion-icon name="add-outline" slot="end"></ion-icon>
-                  </ion-button>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-  
-          </div>
-        </ion-card-content>
-      </ion-card>
+            </ion-col>
+            <ion-col size="4" style="display: flex; justify-content: center; align-items: center;">
+              <ion-button shape="round" class="add-image-button" (click)="takePhoto()">
+                <ion-icon slot="icon-only" size="large" name="add-outline"></ion-icon>
+              </ion-button>
+            </ion-col>
+
+          </ion-row>
+        </ion-grid>
+        <div class="ion-padding-top d-flex"  @fadeIn>
+          <ion-button size="small" color="secondary" [disabled]="checkBillsErrors()" (click)="openUploading()" *ngIf="extracts && extracts['bills'] && extracts['bills'][billPos].bill.length >0 && !isUploadingOther">
+            {{'buttons.receipt' | translate}}
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+          </ion-button>
+          <ion-button size="small" color="danger" (click)="deleteAllReceiptsAlert()" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+            {{'buttons.delete-country' | translate}}
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+          </ion-button>
+
+        </div>
+      </ion-card-content>
+    </ion-card>
     </div>
 
     <div *ngIf="currentStep == 2" @fadeIn>
@@ -1028,183 +1115,6 @@
       </ion-content>
     </ng-template>
   </ion-modal>
-  <ion-modal [isOpen]="openModalAddBill" (willDismiss)="onWillDismiss()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-buttons slot="start">
-            <ion-button (click)="onWillDismissAddBill()">Cancelar</ion-button>
-          </ion-buttons>
-          <ion-title>Subir Recibo</ion-title>
- 
-        </ion-toolbar>
-      </ion-header>
-      <ion-content >
-        <div class="ion-padding" *ngIf="isSettingBill == false">
-    
-          <ion-list>
-            <ion-list-header *ngIf="!imageToUpload">
-              Toma fotos a tus recibos o cargalos en PDF para cruzarlos con tu extracto
-            </ion-list-header>
-            <ion-list-header *ngIf="imageToUpload">
-              Confirma que la información no salga cortada o borrosa
-            </ion-list-header>
-          </ion-list>
-    
-        </div>
-        <div class="ion-padding" *ngIf="!extracts[currentExtract]['bills'] || !extracts[currentExtract]['bills'][currentBill] ">
-
-          <ion-grid>
-            <ion-row>
-              <!-- uncomment
-              <ion-col size="12" *ngIf="!imageToUpload">
-                <h3 class="text-center">Tomar Foto</h3>
-    
-                <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
-                  <div class="image-place-holder">
-                    <ion-icon name="camera-outline" style="width: 50px;
-                    height: 50px;" ></ion-icon>
-        
-                </div>
-                </div>
-                <ion-note>Las fotos deben ser claras y no pueden quedar cortadas
-                </ion-note>
-    
-    
-              </ion-col>
-              -->
-
-              <ion-col size="12" *ngIf="!imageToUpload">
-                <h3  class="text-center">Subir Archivo</h3>
-                <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
-                  <input type="file" accept="image/jpeg,image/png,application/pdf" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
-            
-                  <div class="image-place-holder">
-                      <ion-icon name="cloud-upload-outline" style="width: 50px;
-                      height: 50px;" ></ion-icon>
-          
-                  </div>
-            
-            
-                  <ion-note *ngIf="extracts[currentExtract]['bills'] && extracts[currentExtract]['bills'].length>0 && extracts[currentExtract]['bills'][currentBill]">{{extracts[currentExtract]['bills'][currentBill].name}}</ion-note>
-                  <ion-progress-bar type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
-                </div>
-                <ion-note>Solo puedes subir archivos en PDF
-                </ion-note>
-              </ion-col>
-              <ion-col size="12" *ngIf="imageToUpload">
-                <ion-img [src]="imageToUpload" *ngIf="imageToUpload"> </ion-img>
-
-              </ion-col>
-              <ion-col class="d-flex flex-justify-space-between" size="12" *ngIf="imageToUpload">
-                <ion-button  color="danger" class="button-controll" style="float:right" (click)="this.imageToUpload = undefined" >
-                  Eliminar
-                  <ion-icon name="trash-outline" slot="end"></ion-icon>
-                </ion-button>
-                <ion-button [disabled]="isUploading" color="primary" class="button-controll" style="float:right" (click)="uploadBillPhoto()" >
-                  Confirmar
-                  <ion-icon name="checkmark-outline" slot="end"></ion-icon>
-                </ion-button>
-              </ion-col>
-            </ion-row>
-    
-          </ion-grid>
-    
-        </div>
-
-        <ion-list class="ion-padding" *ngIf="extracts[currentExtract]['bills'] && extracts[currentExtract]['bills'][currentBill] && isSettingBill == false" @fadeIn>
-          <ion-list-header>
-            Factura cargada
-          </ion-list-header>
-    
-          <ion-item >
-            
-            <ion-label>{{extracts[currentExtract]['bills'][currentBill]['vendor']}}
-            <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="extracts[currentExtract]['bills'][currentBill]['status'] == 0"></ion-progress-bar>
-            <ion-note *ngIf="extracts[currentExtract]['bills'][currentBill]['status'] == 0">Analizando...</ion-note>
-    
-            </ion-label>
-            <ion-button color="danger" (click)="deleteBill(i)">
-              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-    
-    
-          </ion-item>
-    
-    
-        </ion-list>
-    
-        <div class="" *ngIf="extracts[currentExtract]['bills'] && extracts[currentExtract]['bills'][currentBill] && isSettingBill == true">
-    
-          <ion-list>
-            <ion-list-header>
-              Confirma la Información de tu recibo
-            </ion-list-header>
-          </ion-list>
-    
-        </div>
-    
-        <div class="ion-padding " *ngIf="extracts[currentExtract]['bills'] && extracts[currentExtract]['bills'][currentBill] && isSettingBill == true">
-          <ion-item>
-            <ion-input label="Titulo del Recibo" labelPlacement="floating" placeholder="Ingresa titulo" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].vendor"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label style="margin-left: 3px;">Fecha</ion-label>
-            <ion-datetime-button  datetime="datetime"></ion-datetime-button>
-    
-          </ion-item>
-          <ion-modal [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime  [showDefaultButtons]="true" [locale]="dateLocale" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].date" presentation="date" id="datetime"></ion-datetime>
-            </ng-template>
-          </ion-modal>
-          <ion-item>
-            <ion-input label="Neto" labelPlacement="floating" placeholder="Ingresa neto" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].net"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-input label="IVA" labelPlacement="floating" placeholder="Ingresa IVA" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].tax"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-input label="Propina" labelPlacement="floating" placeholder="Ingresa propina" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].tip"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-input label="Total" labelPlacement="floating" placeholder="Ingresa total" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].total"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-select label="Moneda" placeholder="Seleccione una" [(ngModel)]="extracts[currentExtract]['bills'][currentBill].currency">
-              <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">({{currency.code}}) {{convertKey(currency.country) | translate}}</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
-
-        
-
-      </ion-content>
-      <ion-footer class="d-flex flex-end " style="padding: 5px;">
-        <ion-button color="light" class="button-controll" (click)="isSettingBill = false" *ngIf="currentStep == 1 && isSettingBill ==true">
-          Atrás
-          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
-        </ion-button>
-
-        <ion-button [disabled]="!this.extracts[this.currentExtract]['bills'] || !this.extracts[this.currentExtract]['bills'][currentBill] || this.extracts[this.currentExtract]['bills'][currentBill]['status'] == 0" color="primary" class="button-controll" style="float:right" (click)="nextConfirmData()" *ngIf="isSettingBill ==false && !imageToUpload">
-          Siguiente
-          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-  
-        <ion-button [disabled]="!this.extracts[this.currentExtract]['bills'] || !this.extracts[this.currentExtract]['bills'][currentBill] || this.extracts[this.currentExtract]['bills'][currentBill]['status'] == 0 || this.extracts[this.currentExtract]['bills'][currentBill]['currency'] == ''" color="primary" class="button-controll" style="float:right" (click)="finishSettingBill()" *ngIf="isSettingBill ==true">
-          Confirmar
-          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-        <!--
-        <ion-button color="primary" class="button-controll" style="float:right" (click)="finishSettingBill()" >
-          Finalizar
-          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-        -->
-
-      </ion-footer>
-    </ng-template>
-  </ion-modal>
   <ion-modal [isOpen]="isEdditingLine" (willDismiss)="onWillDismissEditLine()">
     <ng-template>
       <ion-header>
@@ -1611,7 +1521,7 @@
     </ng-template>
   </ion-modal>
 
-  <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions"></app-country-picker>
+  <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions" [temp]="pickerOptions"></app-country-picker>
 
 
   <!-- alerts -->
@@ -1716,6 +1626,15 @@
     (didDismiss)="isAlertGoBack=false"
     ></ion-alert>
 
+    <!-- Delete Travel Confirmation -->
+    <ion-alert 
+    [isOpen]="showAlertDeleteTravel"
+    header="{{'alerts.delete-travel.title' | translate}}"
+    subHeader="{{'alerts.delete-travel.subtitle' | translate}}"
+    [buttons]="deleteTravelAlertButtons"
+    (didDismiss)="showAlertDeleteTravel=false"
+    ></ion-alert>
+
   <!-- action buttons -->
    <!--
     <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
@@ -1748,7 +1667,7 @@
   </div>
   -->
 
-    <div class="ion-padding d-flex flex-justify-space-between" *ngIf="currentStep > 0 ">
+    <div class="ion-padding d-flex flex-justify-space-between" *ngIf="currentStep > 1 || currentStep == 1 && !isUploadingOther || currentStep == 1 && isUploadingOther && extracts && extracts['bills'] && extracts['bills'][billPos].bill.length <=0">
 
       
       <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf="currentStep == 1">
@@ -1789,7 +1708,7 @@
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
 
-      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills.length<=0 || checkBillsErrors() || isUploadingOther" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
+      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills[billPos] && this.extracts.bills[billPos].length<=0 || checkBillsErrors() " color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
         {{'buttons.next' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>

@@ -1,17 +1,28 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 export const notLoggedGuard: CanActivateFn = (route, state) => {
-  let session = localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' ? JSON.parse(localStorage.getItem('userSession')) : undefined;
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  if( session && session._id && session._id != ''){
+  console.log('🔒 notLoggedGuard: Verificando autenticación...');
+  console.log('🔍 Estado de autenticación:', authService.isLoggedIn());
+  console.log('👤 Usuario actual:', authService.getCurrentUser());
+
+  if (authService.isLoggedIn()) {
+    console.log('✅ notLoggedGuard: Usuario autenticado, permitiendo acceso');
     return true;
-    //console.log('logged')
-
-
-  }else{
-    location.href='/auth/login';
+  } else {
+    console.log('❌ notLoggedGuard: Usuario no autenticado, redirigiendo a login');
+    console.log('🔄 URL de retorno:', state.url);
+    
+    // Construir la ruta de login según la estructura de la app
+    const loginRoute = state.url.startsWith('/customer') ? '/auth/login' : '/auth/login';
+    
+    router.navigate([loginRoute], { 
+      queryParams: { returnUrl: state.url }
+    });
     return false;
-
   }
-  return true;
 };

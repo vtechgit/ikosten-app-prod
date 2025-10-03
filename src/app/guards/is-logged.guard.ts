@@ -1,17 +1,31 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 export const isLoggedGuard: CanActivateFn = (route, state) => {
-  let session = localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' ? JSON.parse(localStorage.getItem('userSession')) : undefined;
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  if( session && session._id && session._id != ''){
-    location.href='/';
+  console.log('🔓 isLoggedGuard: Verificando si usuario NO debe estar autenticado...');
+  console.log('🔍 Estado de autenticación:', authService.isLoggedIn());
+  console.log('👤 Usuario actual:', authService.getCurrentUser());
+
+  if (authService.isLoggedIn()) {
+    console.log('❌ isLoggedGuard: Usuario ya autenticado, redirigiendo a área principal');
+    
+    // Redirigir al área principal de la aplicación
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+
+        router.navigate(['/customer/trips']);
+      
+    } else {
+      router.navigate(['/customer/trips']);
+    }
+    
     return false;
-
-  }else{
-    console.log('true');
-
+  } else {
+    console.log('✅ isLoggedGuard: Usuario no autenticado, permitiendo acceso a página pública');
     return true;
-
-
   }
 };

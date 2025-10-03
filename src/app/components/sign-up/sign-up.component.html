@@ -1,86 +1,142 @@
-<div class="responsive_container-s " >
-  <ion-list>
-    <ion-list-header class="no-padding">
-      <ion-label class="text-center">
-      {{mainTitle | translate}}
-      </ion-label>
-    </ion-list-header>
-  </ion-list>
+<div class="register-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="back-button-container">
+      <ion-button 
+        fill="clear" 
+        (click)="goBack()" 
+        class="back-button">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        {{'buttons.back' | translate}}
+      </ion-button>
+    </div>
+    <div class="welcome-content">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+      <h1 class="welcome-title">{{mainTitle | translate}}</h1>
+      <p class="welcome-subtitle">Crea tu cuenta y comienza a gestionar tus gastos</p>
+    </div>
+  </div>
 
+  <!-- Registration Form -->
+  <div class="register-form-section">
+    <div class="form-card">
+      <form [formGroup]="registerForm" class="register-form">
+        <div class="form-fields">
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="name.hasError('required')">
+              <ion-input 
+                label="{{'inputs.user-name.title' | translate}}" 
+                type="text" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.user-name.place-holder' | translate}}"
+                name="registerName" 
+                formControlName="registerName">
+              </ion-input>
+              <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="name.hasError('required')">
+              {{'inputs.user-name.title' | translate}} {{'errors.inputs.is-required' | translate}}
+            </div>
+          </div>
 
-  <ion-grid>
-    <div class="emailAndPass">
-      <form [formGroup]="registerForm">
-        <ion-item [lines]="name.hasError('required') ? 'none' : ''">
-          <ion-input label="{{'inputs.user-name.title' | translate}}" type="text" 
-          name="registerName" formControlName="registerName" labelPlacement="floating"
-          placeholder="{{'inputs.user-name.place-holder' | translate}}"
-          [errorText]="name.hasError('required')  ? ('inputs.user-name.title' | translate)+' '+('errors.inputs.is-required' | translate) :''"></ion-input>
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="email.hasError('required') || email.hasError('email')">
+              <ion-input 
+                label="{{'inputs.email.title' | translate}}" 
+                type="email" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.email.placeholder' | translate}}"
+                name="registerEmail" 
+                formControlName="registerEmail">
+              </ion-input>
+              <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="email.hasError('required') || email.hasError('email')">
+              {{'inputs.email.title' | translate}} {{'errors.inputs.invalid' | translate}}
+            </div>
+          </div>
 
-        </ion-item>
-        <ion-item [lines]="email.hasError('required')|| email.hasError('email') ? 'none' : ''">
-          <ion-input label="{{'inputs.email.title' | translate}}" type="email" 
-          name="registerEmail" formControlName="registerEmail" labelPlacement="floating"
-          placeholder="{{'inputs.email.placeholder' | translate}}"
-          [errorText]="email.hasError('required') || email.hasError('email') ? ('inputs.email.title' | translate)+' '+('errors.inputs.invalid' | translate) :''"></ion-input>
-
-        </ion-item>
-        <ion-grid class="no-padding">
-          <ion-row>
-            <ion-col size="12" size-sm="5" class="no-padding">
-              <ion-item style="max-width: 96% !important;"> 
-                <ion-select 
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="countrySelect.hasError('required')">
+              <ion-select 
                 label="{{'global.words.country' | translate}}"
-                name="registerCountry" formControlName="registerCountry"
-                label-placement="floating" >
-                  <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
-                </ion-select>   
-              </ion-item>
-              <ion-note class="errorNote ion-margin-start" *ngIf="countrySelect.hasError('required') && countrySelect.touched">{{'global.words.country' | translate}} {{'errors.inputs.is-required' | translate}}</ion-note>
+                name="registerCountry" 
+                formControlName="registerCountry"
+                labelPlacement="floating">
+                <ion-select-option *ngFor="let country of availableCountries" [value]="country">
+                  {{convertKey(country.title) | translate}}
+                </ion-select-option>
+              </ion-select>
+              <ion-icon name="location-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="countrySelect.hasError('required') && countrySelect.touched">
+              {{'global.words.country' | translate}} {{'errors.inputs.is-required' | translate}}
+            </div>
+          </div>
 
-            </ion-col>
-            <ion-col size="12" size-sm="7" class="no-padding">
-              <ion-item [lines]="phone.hasError('required') ? 'none' : ''" >
-                <ion-input label="{{'inputs.phone-number.title' | translate}}" type="number" 
-                labelPlacement="floating" placeholder="{{'inputs.phone-number.placeholder' | translate}}"
-                name="registerPhone" formControlName="registerPhone" 
-                [errorText]="phone.hasError('required') ? ('inputs.phone-number.title' | translate)+' '+('errors.inputs.is-required' | translate) :''"
-                ></ion-input>
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="phone.hasError('required')">
+              <ion-input 
+                label="{{'inputs.phone-number.title' | translate}}" 
+                type="tel" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.phone-number.placeholder' | translate}}"
+                name="registerPhone" 
+                formControlName="registerPhone">
+              </ion-input>
+              <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="phone.hasError('required')">
+              {{'inputs.phone-number.title' | translate}} {{'errors.inputs.is-required' | translate}}
+            </div>
+          </div>
 
-              </ion-item>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="password.hasError('required')">
+              <ion-input 
+                label="{{'inputs.password.title' | translate}}" 
+                type="password" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.password.placeholder' | translate}}"
+                name="registerPass" 
+                formControlName="registerPass">
+                <ion-input-password-toggle slot="end" *ngIf="password.value && password.value.length > 0"></ion-input-password-toggle>
+              </ion-input>
+              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="password.hasError('required')">
+              {{'inputs.password.title' | translate}} {{'errors.inputs.is-required.f' | translate}}
+            </div>
+            <div class="error-message" *ngIf="password.hasError('minlength')">
+              La contraseña debe tener al menos 6 caracteres
+            </div>
+          </div>
+        </div>
 
-
-
-        <ion-item [lines]="password.hasError('required') ? 'none' : ''">
-          <ion-input label="{{'inputs.password.title' | translate}}" type="password" 
-          labelPlacement="floating" 
-          name="registerPass" formControlName="registerPass" 
-          placeholder="{{'inputs.password.placeholder' | translate}}"
-          [errorText]="password.hasError('required') ? ('inputs.password.title' | translate)+' '+('errors.inputs.is-required.f' | translate) : password.hasError('minlenght') ? 'Password must be at least 6 characters':''">
-              <ion-input-password-toggle slot="end" *ngIf="password.value && password.value.length > 0"></ion-input-password-toggle>
-          </ion-input>
-
-        </ion-item>
-        <ion-button  [disabled]="isLoading" expand="block" (click)="onSubmit()" color="primary" class="button-controll ion-margin">
-          {{isLoading ? '' : 'buttons.finish' | translate}}
+        <ion-button 
+          [disabled]="isLoading" 
+          expand="block" 
+          (click)="onSubmit()" 
+          color="primary" 
+          class="register-button">
           <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">{{'buttons.finish' | translate}}</span>
           <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
         </ion-button>
-        <ion-button  expand="block" routerLink="/auth/login" routerDirection="back"  class="btn-google login-google-button ion-margin-horizontal">
-          {{isLoading ? '' : 'buttons.login-register-button' | translate}}
-        </ion-button>
+
+        <div class="login-section">
+          <ion-button 
+            expand="block" 
+            routerLink="/auth/login" 
+            routerDirection="back" 
+            fill="clear" 
+            class="login-link-button">
+            {{'buttons.login-register-button' | translate}}
+          </ion-button>
+        </div>
       </form>
-
-
     </div>
-
-    
-  </ion-grid>
-
-
+  </div>
 </div>
 
 <ion-alert

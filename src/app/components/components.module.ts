@@ -8,6 +8,8 @@ import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { SignUpComponent } from './sign-up/sign-up.component';
+import {NgPipesModule} from 'ngx-pipes';
+
 @NgModule({
   declarations: [StarRatingComponent,CountryPickerComponent, SigInComponent, SignUpComponent],
   imports: [
@@ -15,6 +17,7 @@ import { SignUpComponent } from './sign-up/sign-up.component';
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,
+    NgPipesModule,
     RouterModule,
     IonicModule
   ],

@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import {notLoggedGuard} from "./guards/not-logged.guard";
+import { notLoggedGuard } from "./guards/not-logged.guard";
+import { isLoggedGuard } from "./guards/is-logged.guard";
 
 const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule),
-    canActivate:[notLoggedGuard]
+    canActivate: [notLoggedGuard] // Proteger rutas principales con autenticación requerida
   },
   {
     path: 'main',
@@ -14,11 +15,10 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: '',
-    loadChildren: () => import('./auth/auth.module').then( m => m.AuthPageModule)
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then(m => m.AuthPageModule),
+    canActivate: [isLoggedGuard] // Solo usuarios NO autenticados pueden acceder al login
   }
-
-
 ];
 @NgModule({
   imports: [

@@ -78,6 +78,10 @@ export class SignUpComponent  implements OnInit {
     return 'countries.'+string;
   }
 
+  goBack(){
+    this.router.navigate(['/auth/login']);
+  }
+
   onSubmit(){
     this.registerForm.markAllAsTouched();
 
