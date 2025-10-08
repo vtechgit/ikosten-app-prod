@@ -30,9 +30,8 @@ ion-grid {
           display: flex !important;
           align-items: center;
           justify-content: center;
-          padding: 1rem;
           
-          @media (max-width: 768px) {
+          @media (max-width: 992px) {
             padding: 0;
             min-height: 100vh;
             align-items: stretch;
@@ -65,7 +64,7 @@ ion-grid {
   width: 100%;
   max-width: 480px;
   
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     max-width: none;
     height: 100vh;
     display: flex;
@@ -73,7 +72,7 @@ ion-grid {
   }
 }
 
-@media screen and (max-width: 934px) {
+@media screen and (max-width: 992px) {
     .form-login{
         width: 100%;
         border: none !important;

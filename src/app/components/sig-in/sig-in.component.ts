@@ -91,7 +91,7 @@ export class SigInComponent  implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error obteniendo países:', error);
+        console.error('Error obteniendo países:', JSON.stringify(error));
       }
     });
   }
@@ -164,7 +164,7 @@ export class SigInComponent  implements OnInit {
         this.handleLoginError('No se pudo obtener información del usuario de Google');
       }
     } catch (error) {
-      console.error('Error en login con Google:', error);
+      console.error('Error en login con Google:', JSON.stringify(error));
       this.handleLoginError('Error al iniciar sesión con Google');
     }
   }
@@ -423,7 +423,7 @@ export class SigInComponent  implements OnInit {
 
       }
     }).catch((error) => {
-      console.log('catch', error['message']);
+      console.log('catch', JSON.stringify(error['message']));
       if( !error['message'].includes('error 1000') && !error['errorMessage'].includes('error 1001.')){
         this.showAppleAlertLogin = true;
         //this.alert.presentAlert('Ha ocurrido un error',error['message'],'','error');
@@ -472,7 +472,7 @@ export class SigInComponent  implements OnInit {
           }
         },
         error: (error) => {
-          console.error('💥 doLoginEmail: Error en login:', error);
+          console.error('💥 doLoginEmail: Error en login:', JSON.stringify(error));
           this.isLoading = false;
           if (error.status === 401) {
             this.showAlertInvalidCreeds = true;
@@ -549,7 +549,7 @@ export class SigInComponent  implements OnInit {
         this.handleLoginError('No se pudo obtener información del usuario de Google');
       }
     } catch (error) {
-      console.error('💥 Error en Firebase Authentication:', error);
+      console.error('💥 Error en Firebase Authentication:', JSON.stringify(error));
       this.handleLoginError(`Error al iniciar sesión con Google: ${error.message || error}`);
     }
   }
@@ -622,7 +622,7 @@ export class SigInComponent  implements OnInit {
           }
         },
         error: (error) => {
-          console.error('💥 Error en la llamada al backend Google:', error);
+          console.error('💥 Error en la llamada al backend Google:', JSON.stringify(error));
           console.error('📋 Detalles del error:', {
             status: error.status,
             statusText: error.statusText,

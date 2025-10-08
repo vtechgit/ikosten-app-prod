@@ -18,6 +18,18 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
+        // Ignore translation file loading errors (these are handled by ngx-translate)
+        if (request.url.includes('/i18n/') && request.url.endsWith('.json')) {
+          console.warn('⚠️ Translation file not found (this is normal during initialization):', request.url);
+          return throwError(() => error);
+        }
+
+        // Ignore countries/languages initialization errors (handled by components with fallback)
+        if (request.url.includes('/countries/') || request.url.includes('/languages')) {
+          console.warn('⚠️ Error loading countries/languages (fallback will be used):', request.url, error.status);
+          return throwError(() => error);
+        }
+
         let errorMessage = 'Ha ocurrido un error inesperado';
 
         if (error.error instanceof ErrorEvent) {

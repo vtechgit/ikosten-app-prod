@@ -371,13 +371,37 @@ export class ProcessPage implements OnInit {
     this.translate.use(this.selectedLanguage);
   }
   getCurrencies(){
+    // Asegurar que tengamos un idioma válido
+    const lang = this.selectedLanguage || this.translate.currentLang || this.translate.defaultLang || 'es';
     
-    this.api.read('countries/'+this.selectedLanguage).subscribe(res=>{
-      if(res['status'] == 200){
-        this.currencies=res['body'];
+    console.log('🌍 Loading currencies for language:', lang);
+    
+    this.api.read('countries/' + lang).subscribe({
+      next: (res) => {
+        if(res['status'] == 200){
+          this.currencies = res['body'];
+          console.log('✅ Currencies loaded:', this.currencies?.length, 'countries');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error loading currencies:', error);
+        // Si falla, intentar con idioma por defecto
+        if (lang !== 'es') {
+          console.log('🔄 Retrying with default language: es');
+          this.api.read('countries/es').subscribe({
+            next: (res) => {
+              if (res['status'] == 200) {
+                this.currencies = res['body'];
+                console.log('✅ Currencies loaded with fallback');
+              }
+            },
+            error: (err) => {
+              console.error('❌ Error loading currencies with fallback:', err);
+            }
+          });
+        }
       }
-    })
-      
+    });
   }
     getLanguages(){
     // Evitar múltiples llamadas simultáneas
@@ -627,10 +651,35 @@ export class ProcessPage implements OnInit {
   }
 
   loadCurrencies() {
-    this.api.read('countries/' + this.selectedLanguage).subscribe(res => {
-      if (res['status'] == 200) {
-        this.currencies = res['body'];
-        console.log(this.currencies)
+    // Asegurar que tengamos un idioma válido
+    const lang = this.selectedLanguage || this.translate.currentLang || this.translate.defaultLang || 'es';
+    
+    console.log('🌍 Loading currencies for language:', lang);
+    
+    this.api.read('countries/' + lang).subscribe({
+      next: (res) => {
+        if (res['status'] == 200) {
+          this.currencies = res['body'];
+          console.log('✅ Currencies loaded:', this.currencies?.length, 'countries');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error loading currencies:', error);
+        // Si falla, intentar con idioma por defecto
+        if (lang !== 'es') {
+          console.log('🔄 Retrying with default language: es');
+          this.api.read('countries/es').subscribe({
+            next: (res) => {
+              if (res['status'] == 200) {
+                this.currencies = res['body'];
+                console.log('✅ Currencies loaded with fallback');
+              }
+            },
+            error: (err) => {
+              console.error('❌ Error loading currencies with fallback:', err);
+            }
+          });
+        }
       }
     });
   }

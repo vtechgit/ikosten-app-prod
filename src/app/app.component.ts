@@ -37,11 +37,41 @@ export class AppComponent implements OnInit  {
   
     })
 
+    // Initialize language synchronously to prevent undefined language errors
+    this.initializeLanguage();
+  }
 
+  private async initializeLanguage() {
     var languages = [];
-    var languageToUse = 'en';
-    this.translate.setDefaultLang('en');
+    var languageToUse = 'es'; // Default to Spanish instead of English
+    
+    // Set default language immediately to prevent loading undefined.json
+    this.translate.setDefaultLang('es');
 
+    // Check if language is already stored
+    const storedLang = localStorage.getItem('lang');
+    if (storedLang && storedLang !== '' && storedLang !== null && storedLang !== 'undefined') {
+      languageToUse = storedLang;
+      this.translate.use(languageToUse);
+      console.log('🌍 Using stored language:', languageToUse);
+    } else {
+      // Get device language asynchronously
+      try {
+        const deviceLang = await Device.getLanguageCode();
+        if (deviceLang && deviceLang.value && deviceLang.value !== 'undefined') {
+          languageToUse = deviceLang.value;
+          console.log('📱 Using device language:', languageToUse);
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not get device language, using default:', error);
+      }
+      
+      // Set the language
+      this.translate.use(languageToUse);
+      localStorage.setItem('lang', languageToUse);
+    }
+
+    // Load available languages from API (non-blocking)
     this.api.read('languages').subscribe(res=>{
       this.availableLanguage = res['body'];
 
@@ -50,33 +80,17 @@ export class AppComponent implements OnInit  {
       });
 
       this.translate.addLangs(languages);
-      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-        languageToUse=localStorage.getItem('lang');
-  
-        this.translate.use(languageToUse);
-        console.log('main : entra a localstorage')
-        this.availableLanguage.forEach(lang => {
-          if(lang.code == languageToUse){
-            localStorage.setItem('langIntl', lang.intl);
-          }
-        });
-  
-      }else{
-  
-        Device.getLanguageCode().then(lang=>{
-          languageToUse = lang.value;
-          this.translate.use(languageToUse);  
-          
-            this.availableLanguage.forEach(lang => {
-              console.log(lang)
-            if(lang.code == languageToUse){
-              console.log('main : lang found', lang.code)
-              
-              localStorage.setItem('langIntl', lang.intl);
-            }
-          });
-        });
-      }
+      
+      // Update language international code
+      this.availableLanguage.forEach(lang => {
+        if(lang.code == languageToUse){
+          localStorage.setItem('langIntl', lang.intl);
+          console.log('✅ Language initialized:', lang.code, lang.intl);
+        }
+      });
+    }, error => {
+      console.error('❌ Error loading languages from API:', error);
+      // Continue with default language if API fails
     })
 
 

@@ -113,9 +113,7 @@ export class MainPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.initializeLanguage();
-    
-    // Obtener sesión de usuario
+    // Obtener sesión de usuario primero
     if (this.api.isLoggedIn()) {
       this.userSession = this.api.getUserData();
       console.log('✅ User session loaded:', this.userSession);
@@ -125,19 +123,29 @@ export class MainPage implements OnInit {
       return;
     }
 
-    this.loadCurrencies();
+    // Inicializar idioma antes de cualquier llamada al API
+    this.initializeLanguage();
+    
+    // Cargar datos solo después de tener el idioma
     this.setDateLocale();
     this.loadUserReceipts();
+    
+    // loadCurrencies() se llamará desde translateWords() después de cargar los idiomas
   }
 
   ionViewWillEnter() {
-    // Solo cargar idiomas una vez
-    if (!this.languagesLoaded) {
-      this.getLanguages();
-    }
-
     if (localStorage.getItem('langIntl')) {
       this.dateLocale = localStorage.getItem('langIntl') || 'es-MX';
+    }
+
+    // Cargar idiomas y currencies en el primer ingreso
+    if (!this.languagesLoaded) {
+      this.getLanguages();
+    } else {
+      // Si ya se cargaron los idiomas, solo cargar currencies si no están cargados
+      if (!this.currencies || this.currencies.length === 0) {
+        this.loadCurrencies();
+      }
     }
 
     // Recargar recibos cuando se vuelve a la página
@@ -180,7 +188,7 @@ export class MainPage implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading languages:', error);
+        console.error('Error loading languages:', JSON.stringify(error));
         this.selectedLanguage = 'en';
         this.translate.use(this.selectedLanguage);
       }
@@ -223,10 +231,36 @@ export class MainPage implements OnInit {
   }
 
   loadCurrencies() {
-    this.api.read('countries/' + this.selectedLanguage).subscribe(res => {
-      if (res['status'] == 200) {
-        this.currencies = res['body'];
-        console.log('✅ Currencies loaded:', this.currencies);
+    // Asegurar que tengamos un idioma válido
+    const lang = this.selectedLanguage || this.translate.currentLang || this.translate.defaultLang || 'es';
+    
+    console.log('🌍 Loading currencies for language:', lang);
+    
+    this.api.read('countries/' + lang).subscribe({
+      next: (res) => {
+        if (res['status'] == 200) {
+          this.currencies = res['body'];
+          console.log('✅ Currencies loaded:', this.currencies?.length, 'countries');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error loading currencies:', error);
+        // No mostrar toast, solo log en consola
+        // Si falla, intentar con idioma por defecto
+        if (lang !== 'es') {
+          console.log('🔄 Retrying with default language: es');
+          this.api.read('countries/es').subscribe({
+            next: (res) => {
+              if (res['status'] == 200) {
+                this.currencies = res['body'];
+                console.log('✅ Currencies loaded with fallback:', this.currencies?.length, 'countries');
+              }
+            },
+            error: (err) => {
+              console.error('❌ Error loading currencies with fallback:', err);
+            }
+          });
+        }
       }
     });
   }
@@ -322,7 +356,7 @@ export class MainPage implements OnInit {
         this.isLoadingMore = false;
       },
       error: (error) => {
-        console.error('❌ Error loading user receipts:', error);
+        console.error('❌ Error loading user receipts:', JSON.stringify(error));
         if (resetPagination) {
           this.userCountries = [];
           this.currentCountryData = null;
@@ -373,7 +407,7 @@ export class MainPage implements OnInit {
         event.target.complete();
       },
       error: (error) => {
-        console.error('❌ Error loading more receipts:', error);
+        console.error('❌ Error loading more receipts:', JSON.stringify(error));
         event.target.complete();
       }
     });
@@ -546,7 +580,7 @@ export class MainPage implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Error validando límite de subida:', error);
+        console.error('❌ Error validando límite de subida:', JSON.stringify(error));
         // En caso de error, permitir la subida (para no bloquear al usuario)
         this.proceedWithUpload(files);
       }
@@ -647,7 +681,7 @@ export class MainPage implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error(`❌ Error uploading receipt ${fileIndex + 1}:`, error);
+        console.error(`❌ Error uploading receipt ${fileIndex + 1}:`, JSON.stringify(error));
         
         // Actualizar status del archivo específico
         if (this.uploadingFiles[fileIndex]) {
@@ -775,7 +809,7 @@ export class MainPage implements OnInit {
         this.loadUserReceipts();
       },
       error: (error) => {
-        console.error('❌ Error deleting receipt:', error);
+        console.error('❌ Error deleting receipt:', JSON.stringify(error));
         this.isAlertDeleteReceipt = false;
         alert('Error al eliminar el recibo');
       }
@@ -820,7 +854,7 @@ export class MainPage implements OnInit {
         this.loadUserReceipts();
       })
       .catch((error) => {
-        console.error('❌ Error deleting receipts:', error);
+        console.error('❌ Error deleting receipts:', JSON.stringify(error));
         this.isAlertDeleteAllReceipts = false;
         alert(this.translate.instant('errors.delete-all-failed'));
       });
