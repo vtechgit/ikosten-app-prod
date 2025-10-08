@@ -32,6 +32,7 @@ export interface AuthResponse {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private tokenRefreshTimer: any = null;
 
   constructor(
     private apiService: ApiService,
@@ -43,6 +44,134 @@ export class AuthService {
     
     if (savedUser) {
       this.currentUserSubject.next(savedUser);
+      // Verificar si el token necesita ser renovado
+      this.checkAndRefreshToken();
+    }
+  }
+
+  /**
+   * Verifica si el token actual está próximo a expirar y lo renueva automáticamente
+   */
+  private async checkAndRefreshToken(): Promise<void> {
+    try {
+      const token = this.apiService.getToken();
+      const refreshToken = this.apiService.getRefreshToken();
+      
+      if (!token || !refreshToken) {
+        console.log('⚠️ No hay tokens disponibles');
+        return;
+      }
+
+      // Decodificar el token para ver su fecha de expiración
+      const tokenPayload = this.decodeToken(token);
+      
+      if (!tokenPayload || !tokenPayload.exp) {
+        console.log('⚠️ Token inválido o sin fecha de expiración');
+        return;
+      }
+
+      const expirationTime = tokenPayload.exp * 1000; // Convertir a milisegundos
+      const currentTime = Date.now();
+      const timeUntilExpiration = expirationTime - currentTime;
+      
+      console.log('🕐 Token expira en:', Math.floor(timeUntilExpiration / 1000 / 60), 'minutos');
+      
+      // Si el token ya expiró o está por expirar en menos de 5 minutos, renovarlo inmediatamente
+      if (timeUntilExpiration < 5 * 60 * 1000) {
+        console.log('🔄 Token expirado o próximo a expirar, renovando...');
+        await this.refreshAccessToken();
+      } else {
+        // Programar la renovación automática 5 minutos antes de que expire
+        this.scheduleTokenRefresh(timeUntilExpiration);
+      }
+    } catch (error) {
+      console.error('❌ Error al verificar token:', error);
+    }
+  }
+
+  /**
+   * Programa la renovación automática del token antes de que expire
+   */
+  private scheduleTokenRefresh(timeUntilExpiration: number): void {
+    // Limpiar cualquier timer anterior
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+    }
+
+    // Programar renovación 5 minutos antes de expirar (o inmediatamente si faltan menos de 5 minutos)
+    const refreshTime = Math.max(0, timeUntilExpiration - (5 * 60 * 1000));
+    
+    console.log('⏰ Renovación automática programada en:', Math.floor(refreshTime / 1000 / 60), 'minutos');
+    
+    this.tokenRefreshTimer = setTimeout(async () => {
+      console.log('⏰ Timer ejecutado - renovando token...');
+      await this.refreshAccessToken();
+    }, refreshTime);
+  }
+
+  /**
+   * Cancela la renovación automática programada
+   */
+  private cancelTokenRefresh(): void {
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
+    }
+  }
+
+  /**
+   * Decodifica un JWT token sin verificar la firma (solo para leer el payload)
+   */
+  private decodeToken(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Error al decodificar token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Renueva el access token usando el refresh token
+   */
+  private async refreshAccessToken(): Promise<void> {
+    try {
+      const refreshToken = this.apiService.getRefreshToken();
+      
+      if (!refreshToken) {
+        console.log('⚠️ No hay refresh token disponible');
+        this.logout();
+        return;
+      }
+
+      const response: any = await this.apiService.refreshAccessToken().toPromise();
+      
+      if (response && response.status && response.data) {
+        console.log('✅ Token renovado exitosamente');
+        this.setAuthData(response.data);
+        
+        // Programar la próxima renovación
+        const newToken = response.data.tokens.accessToken;
+        const tokenPayload = this.decodeToken(newToken);
+        
+        if (tokenPayload && tokenPayload.exp) {
+          const expirationTime = tokenPayload.exp * 1000;
+          const timeUntilExpiration = expirationTime - Date.now();
+          this.scheduleTokenRefresh(timeUntilExpiration);
+        }
+      } else {
+        console.error('❌ Error al renovar token - respuesta inválida');
+        this.logout();
+      }
+    } catch (error) {
+      console.error('❌ Error al renovar token:', error);
+      this.logout();
     }
   }
 
@@ -107,6 +236,9 @@ export class AuthService {
   }
 
   logout(): void {
+    // Cancelar cualquier renovación programada
+    this.cancelTokenRefresh();
+    
     this.apiService.clearAuthData();
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);

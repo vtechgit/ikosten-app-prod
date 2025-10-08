@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.ikosten.com/api',
+  apiUrl: 'https://ikosten-api-v3-e7cbdta5hndta2fc.eastus-01.azurewebsites.net/api',
   firebaseConfig:{
     apiKey: "AIzaSyDLzqus6wv3-fDO0s8pT7yTESudco-8Y48",
     authDomain: "ikosten-app.firebaseapp.com",

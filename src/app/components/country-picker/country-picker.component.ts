@@ -38,14 +38,14 @@ export class CountryPickerComponent  implements OnInit {
 
   selectOption(option){
     if(this.type == 'country'){
-      this.selected = {country:option.country,code:option.code};
+      this.selected = {country:option.country,code:option.code, country_translate_key:option.country_translate_key};
     }
     if(this.type == 'currency'){
       this.selected = option.code;
 
     }
     if(this.type == 'add_country'){
-      this.selected = {country:option.country,code:option.code};
+      this.selected = {country:option.country,code:option.code, country_translate_key:option.country_translate_key};
 
     }
     
@@ -74,6 +74,10 @@ export class CountryPickerComponent  implements OnInit {
   confirmOptionSelected(){
     this.optionSelected.emit(this.selected);
     this.isModalOpen=false;
+    
+    // Limpiar búsqueda al seleccionar una opción
+    this.searchText = '';
+    this.options = this.temp;
   }
   onWillDismiss(){
     this.searchText ='';

@@ -96,6 +96,49 @@ export class SigInComponent  implements OnInit {
     });
   }
 
+  /**
+   * Limpia el número de teléfono eliminando el código de país si está presente
+   * @param phoneNumber - El número de teléfono ingresado por el usuario
+   * @returns El número limpio sin código de país
+   */
+  cleanPhoneNumber(phoneNumber: string): string {
+    if (!phoneNumber || !this.selectedCountry) {
+      return phoneNumber;
+    }
+
+    // Remover espacios en blanco
+    let cleanedPhone = phoneNumber.trim();
+    
+    // Obtener el código de país (ej: "+34", "+1", "+52")
+    const countryCode = this.selectedCountry.digit;
+    
+    if (!countryCode) {
+      return cleanedPhone;
+    }
+
+    console.log('🧹 Limpiando número:', cleanedPhone);
+    console.log('🌍 Código de país:', countryCode);
+
+    // Eliminar el símbolo '+' si está al inicio
+    if (cleanedPhone.startsWith('+')) {
+      cleanedPhone = cleanedPhone.substring(1);
+    }
+
+    // Eliminar el código de país sin el '+' si está al inicio
+    // Ej: Si el código es "+34" y el usuario ingresó "34612345678"
+    const codeWithoutPlus = countryCode.replace('+', '');
+    if (cleanedPhone.startsWith(codeWithoutPlus)) {
+      cleanedPhone = cleanedPhone.substring(codeWithoutPlus.length);
+    }
+
+    // Eliminar espacios, guiones y paréntesis que puedan quedar
+    cleanedPhone = cleanedPhone.replace(/[\s\-()]/g, '');
+
+    console.log('✅ Número limpio:', cleanedPhone);
+    
+    return cleanedPhone;
+  }
+
   closeModal(){
     this.isModalOpen = false;
     this.onClosed.emit();
@@ -137,6 +180,14 @@ export class SigInComponent  implements OnInit {
 
         //create lead and load profile data
         let country = this.selectedCountry._id;
+        let countryDigit = this.selectedCountry.digit;
+
+        // Limpiar y formatear el número de teléfono con el código de país
+        const cleanedPhone = this.cleanPhoneNumber(this.userPhone);
+        const fullPhoneNumber = cleanedPhone ? `${countryDigit}${cleanedPhone}` : user.phoneNumber;
+        console.log('📞 Teléfono ingresado:', this.userPhone);
+        console.log('📞 Teléfono limpio:', cleanedPhone);
+        console.log('📞 Teléfono formateado:', fullPhoneNumber);
 
         var obj = {};
         if(this.utm_lead && this.utm_lead != ''){
@@ -145,8 +196,9 @@ export class SigInComponent  implements OnInit {
             lead_email: user.email,
             lead_token: user.uid,
             lead_name: user.displayName,
-            lead_phone: user.phoneNumber,
+            lead_phone: fullPhoneNumber,
             lead_country: country,
+            lead_country_digit: countryDigit,
             lead_role:0,
             lead_id: this.utm_lead,
             lead_invitation_status: 'active',
@@ -158,8 +210,9 @@ export class SigInComponent  implements OnInit {
             lead_email: user.email,
             lead_token: user.uid,
             lead_name: user.displayName,
-            lead_phone: user.phoneNumber,
+            lead_phone: fullPhoneNumber,
             lead_country: country,
+            lead_country_digit: countryDigit,
             lead_role:0,
             lead_source: localStorage.getItem('clientSource')
           }
@@ -514,14 +567,23 @@ export class SigInComponent  implements OnInit {
 
       console.log('🌍 País seleccionado:', this.selectedCountry);
       const country = this.selectedCountry._id;
+      const countryDigit = this.selectedCountry.digit;
+      
+      // Limpiar y formatear el número de teléfono con el código de país
+      const cleanedPhone = this.cleanPhoneNumber(this.userPhone);
+      const fullPhoneNumber = cleanedPhone ? `${countryDigit}${cleanedPhone}` : user.phoneNumber;
+      console.log('📞 Teléfono ingresado:', this.userPhone);
+      console.log('📞 Teléfono limpio:', cleanedPhone);
+      console.log('📞 Teléfono formateado:', fullPhoneNumber);
       
       let authData: any = {
         lead_type: 'google',
         lead_email: user.email,
         lead_token: user.uid,
         lead_name: user.displayName,
-        lead_phone: user.phoneNumber,
+        lead_phone: fullPhoneNumber,
         lead_country: country,
+        lead_country_digit: countryDigit,
         lead_role: 0,
         lead_source: localStorage.getItem('clientSource')
       };
@@ -701,14 +763,23 @@ export class SigInComponent  implements OnInit {
 
       console.log('🌍 País seleccionado:', this.selectedCountry);
       const country = this.selectedCountry._id;
+      const countryDigit = this.selectedCountry.digit;
+      
+      // Limpiar y formatear el número de teléfono con el código de país
+      const cleanedPhone = this.cleanPhoneNumber(this.userPhone);
+      const fullPhoneNumber = cleanedPhone ? `${countryDigit}${cleanedPhone}` : user.phoneNumber;
+      console.log('📞 Teléfono ingresado:', this.userPhone);
+      console.log('📞 Teléfono limpio:', cleanedPhone);
+      console.log('📞 Teléfono formateado:', fullPhoneNumber);
       
       let authData: any = {
         lead_type: 'apple',
         lead_email: user.email && user.email != 'null' ? user.email : '',
         lead_token: user.uid,
         lead_name: user.displayName || '',
-        lead_phone: user.phoneNumber,
+        lead_phone: fullPhoneNumber,
         lead_country: country,
+        lead_country_digit: countryDigit,
         lead_role: 0,
         lead_source: localStorage.getItem('clientSource')
       };
@@ -833,6 +904,7 @@ export class SigInComponent  implements OnInit {
               this.phoneToSend = undefined;
   
               let country = this.selectedCountry._id;
+              let countryDigit = this.selectedCountry.digit;
               var obj = {};
               if(this.utm_lead && this.utm_lead != ''){
                 obj ={
@@ -842,6 +914,7 @@ export class SigInComponent  implements OnInit {
                   lead_name: user.displayName,
                   lead_phone: this.userPhone,
                   lead_country: country,
+                  lead_country_digit: countryDigit,
                   lead_role:0,
                   lead_id: this.utm_lead,
                   lead_invitation_status: 'active',
@@ -855,6 +928,7 @@ export class SigInComponent  implements OnInit {
                   lead_name: user.displayName,
                   lead_phone: this.userPhone,
                   lead_country: country,
+                  lead_country_digit: countryDigit,
                   lead_role:0,
                   lead_source: localStorage.getItem('clientSource')
                 }

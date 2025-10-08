@@ -17,12 +17,26 @@
         }
 
       }
+
+      <!-- Botón Upgrade (visible solo si lead_role = 0) -->
+      @if (shouldShowUpgradeButton()) {
+        <ion-menu-toggle auto-hide="false">
+          <ion-item button (click)="openMembershipModal()" lines="none" detail="false" class="upgrade-item">
+            <ion-icon aria-hidden="true" slot="start" name="diamond"></ion-icon>
+            <ion-label>{{ 'buttons.upgrade-plan' | translate }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      }
     </ion-list>
-    <ion-list >
-      <ion-button class="ion-margin" (click)="closeSession()" color="light" expand="block">{{'buttons.close-session' | translate}}</ion-button>
-      
-    </ion-list>
+
     
 
   </ion-content>
+
+  <!-- Modal de Memberships -->
+  <app-membership-modal
+    [isOpen]="showMembershipModal"
+    [uploadLimitData]="uploadLimitData"
+    (dismiss)="onMembershipModalDismiss()">
+  </app-membership-modal>
 </ion-menu>

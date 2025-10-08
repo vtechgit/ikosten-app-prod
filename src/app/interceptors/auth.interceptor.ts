@@ -78,32 +78,51 @@ export class AuthInterceptor implements HttpInterceptor {
       const refreshToken = this.getRefreshToken();
 
       if (refreshToken) {
-        // Hacer la llamada directa al endpoint de refresh sin usar ApiService para evitar dependencia circular
-        const refreshRequest = new HttpRequest('POST', `${environment.apiUrl}/leads/refresh-token`, { refreshToken });
+        console.log('🔄 Intentando refrescar token...');
+        
+        // Hacer la llamada al endpoint de refresh
+        const refreshRequest = new HttpRequest('POST', `${environment.apiUrl}/leads/refresh-token`, 
+          { refreshToken },
+          { responseType: 'json' }
+        );
         
         return next.handle(refreshRequest).pipe(
-          switchMap((response: any) => {
-            this.isRefreshing = false;
-            
-            if (response && response.body && response.body.status && response.body.data.tokens) {
-              const newToken = response.body.data.tokens.accessToken;
-              const newRefreshToken = response.body.data.tokens.refreshToken;
+          switchMap((event: any) => {
+            // Solo procesar cuando tengamos el body completo
+            if (event.type === 4 && event.body) { // HttpEventType.Response = 4
+              const response = event.body;
               
-              this.setToken(newToken);
-              this.setRefreshToken(newRefreshToken);
-              this.setUserData(response.body.data.user);
+              console.log('✅ Respuesta del refresh token:', response);
               
-              this.refreshTokenSubject.next(newToken);
-              
-              return next.handle(this.addTokenHeader(request, newToken));
-            } else {
-              // Token refresh falló
-              this.clearAuthData();
-              this.router.navigate(['/auth/login']);
-              return throwError(() => new Error('Session expired'));
+              if (response.status && response.data && response.data.tokens) {
+                const newToken = response.data.tokens.accessToken;
+                const newRefreshToken = response.data.tokens.refreshToken;
+                
+                console.log('✅ Nuevos tokens obtenidos, guardando...');
+                
+                this.setToken(newToken);
+                this.setRefreshToken(newRefreshToken);
+                this.setUserData(response.data.user);
+                
+                this.isRefreshing = false;
+                this.refreshTokenSubject.next(newToken);
+                
+                // Reintentar la petición original con el nuevo token
+                return next.handle(this.addTokenHeader(request, newToken));
+              } else {
+                console.error('❌ Token refresh falló - respuesta inválida');
+                this.isRefreshing = false;
+                this.clearAuthData();
+                this.router.navigate(['/auth/login']);
+                return throwError(() => new Error('Session expired'));
+              }
             }
+            
+            // Para otros eventos HTTP (como progress), simplemente dejarlos pasar
+            return [event];
           }),
           catchError((error) => {
+            console.error('❌ Error al refrescar token:', error);
             this.isRefreshing = false;
             this.clearAuthData();
             this.router.navigate(['/auth/login']);
@@ -111,7 +130,8 @@ export class AuthInterceptor implements HttpInterceptor {
           })
         );
       } else {
-        // No hay refresh token
+        console.warn('⚠️ No hay refresh token disponible');
+        this.isRefreshing = false;
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
         return throwError(() => new Error('No refresh token available'));
@@ -119,6 +139,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // Si ya se está refrescando el token, esperar
+    console.log('⏳ Ya se está refrescando el token, esperando...');
     return this.refreshTokenSubject.pipe(
       filter(token => token !== null),
       take(1),

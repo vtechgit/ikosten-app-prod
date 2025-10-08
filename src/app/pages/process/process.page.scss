@@ -2176,3 +2176,522 @@ p {
     }
   }
 }
+
+// ============================================
+// WIZARD MODE - NEW MINIMALIST DESIGN
+// ============================================
+
+.wizard-container {
+  --background: #f8f9fa;
+}
+
+.wizard-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 2rem 1rem;
+}
+
+.wizard-step {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Pregunta principal
+.step-question {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .question-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .question-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+}
+
+// Botón Atrás
+.step-back-button {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  
+  ion-button {
+    --color: white;
+    font-weight: 600;
+    text-transform: none;
+    margin-left: 0;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// Input principal
+.step-input {
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+// Selectores (país, moneda)
+.country-selector,
+.currency-selector {
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  
+  &:hover {
+    background: #edf2f7;
+    border-color: var(--ion-color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .selector-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .selector-icon {
+    font-size: 2rem;
+    color: var(--ion-color-primary);
+  }
+  
+  .selector-text {
+    flex: 1;
+    
+    .selector-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .selector-placeholder {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+  }
+  
+  .selector-chevron {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+  }
+}
+
+// Países seleccionados
+.selected-countries {
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  
+  .countries-label {
+    font-size: 0.9rem;
+    color: var(--ion-color-primary);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .country-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    
+    ion-chip {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      border: 2px solid transparent;
+      
+      &[color="light"] {
+        --background: #f7fafc;
+        --color: var(--ion-color-primary);
+        border-color: #e2e8f0;
+        
+        &:hover {
+          --background: #edf2f7;
+          border-color: var(--ion-color-primary);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      &[color="success"] {
+        --background: var(--ion-color-success);
+        --color: white;
+        border-color: var(--ion-color-success-shade);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// Lista de recibos
+.receipts-list {
+  .receipt-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    
+    &.success {
+      border-left-color: var(--ion-color-success);
+    }
+    
+    &.error {
+      border-left-color: var(--ion-color-danger);
+    }
+    
+    &.loading {
+      border-left-color: var(--ion-color-primary);
+    }
+    
+    .receipt-icon {
+      font-size: 1.5rem;
+    }
+    
+    .receipt-info {
+      flex: 1;
+      
+      .receipt-vendor {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        
+        &.error {
+          color: var(--ion-color-danger);
+        }
+      }
+      
+      .receipt-details {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// Upload section
+.upload-section {
+  .upload-card {
+    background: #f7fafc;
+    border: 2px dashed var(--ion-color-primary);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      background: #edf2f7;
+      border-color: var(--ion-color-primary-shade);
+      transform: translateY(-2px);
+    }
+    
+    input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--ion-color-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .upload-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+  
+  .upload-option {
+    margin-bottom: 1rem;
+  }
+}
+
+// Image preview
+.image-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+  
+  .preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    &.add-more {
+      background: #f7fafc;
+      border: 2px dashed var(--ion-color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      
+      ion-icon {
+        font-size: 2rem;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    .delete-preview {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      z-index: 10;
+      --padding-start: 0.5rem;
+      --padding-end: 0.5rem;
+      width: 32px;
+      height: 32px;
+    }
+    
+    ion-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+// Extracto subido
+.extract-uploaded {
+  .extract-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+    
+    &.success {
+      border-left-color: var(--ion-color-success);
+    }
+    
+    &.error {
+      border-left-color: var(--ion-color-danger);
+    }
+    
+    &.loading {
+      border-left-color: var(--ion-color-primary);
+    }
+    
+    .extract-icon {
+      font-size: 1.5rem;
+    }
+    
+    .extract-info {
+      flex: 1;
+      
+      .extract-bank {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        
+        &.error {
+          color: var(--ion-color-danger);
+        }
+      }
+      
+      .extract-details {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// Inputs de formulario
+.input-group {
+  margin-bottom: 1.5rem;
+  
+  .input-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  ion-input,
+  ion-select {
+    --background: #f7fafc;
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+    --border-radius: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    
+    &:focus-within {
+      --background: white;
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    }
+  }
+}
+
+// Opciones de exportación
+.export-options {
+  .options-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  
+  .option-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    
+    &:hover {
+      background: #edf2f7;
+      border-color: var(--ion-color-primary);
+    }
+    
+    .option-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      
+      .option-icon {
+        font-size: 1.8rem;
+      }
+      
+      .option-title {
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+        color: var(--text-primary);
+      }
+      
+      .option-description {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+    }
+  }
+}
+
+// Botones de acción
+.step-action,
+.step-actions {
+  margin-top: 2rem;
+  
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    height: 56px;
+    
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+    
+    // Botones outline dentro de step-input (sobre fondo blanco)
+    &[fill="outline"][color="light"] {
+      --border-color: var(--ion-color-primary);
+      --border-width: 2px;
+      --color: var(--ion-color-primary);
+      
+      &:hover {
+        --background: rgba(30, 150, 252, 0.1);
+      }
+    }
+  }
+}
+
+// Mejorar botones outline dentro de step-input
+.step-input {
+  ion-button[fill="outline"][color="light"] {
+    --border-color: var(--ion-color-primary);
+    --border-width: 2px;
+    --color: var(--ion-color-primary);
+    
+    &:hover {
+      --background: rgba(30, 150, 252, 0.1);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .wizard-content {
+    padding: 1rem 0.5rem;
+  }
+  
+  .step-question {
+    .question-title {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .step-input {
+    padding: 1rem;
+  }
+}
+

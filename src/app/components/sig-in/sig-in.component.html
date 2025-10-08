@@ -142,9 +142,27 @@
         </ion-item>
       </div>
 
+      <div class="phone-input">
+        <ion-item class="custom-input">
+          <ion-input 
+            label="{{'inputs.phone-number.title' | translate}}" 
+            type="tel" 
+            [(ngModel)]="userPhone" 
+            labelPlacement="floating" 
+            placeholder="{{'inputs.phone-number.placeholder' | translate}}">
+          </ion-input>
+          <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+        <div class="input-hint" *ngIf="selectedCountry">
+          <ion-text color="medium">
+            <small>{{'inputs.phone-number.hint' | translate}}: {{selectedCountry.digit}}</small>
+          </ion-text>
+        </div>
+      </div>
+
       <ion-button 
         *ngIf="isLoginGoogle"
-        [disabled]="isLoading || !selectedCountry" 
+        [disabled]="isLoading || !selectedCountry || !userPhone" 
         expand="block" 
         (click)="loginGooglev2()" 
         color="primary" 
@@ -156,7 +174,7 @@
 
       <ion-button 
         *ngIf="isLoginApple" 
-        [disabled]="isLoading || !selectedCountry" 
+        [disabled]="isLoading || !selectedCountry || !userPhone" 
         expand="block" 
         (click)="doLoginApple()" 
         color="primary" 

@@ -1,4 +1,9 @@
-<app-header></app-header>
+<ion-header  class="header-primary">
+  <ion-toolbar color="primary">
+    <ion-menu-button color="light" slot="start"></ion-menu-button>
+    <ion-title>{{ 'menu.tabs.profile' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
 <ion-content class="profile-container">
 
   <!-- Welcome Section -->
@@ -35,20 +40,47 @@
         </ion-button>
         -->
       </div>
-
       <div class="plan-card premium-plan" *ngIf="this.userSession && this.userSession.lead_role > 0 && this.activeMebership">
         <div class="plan-info">
           <div class="plan-details">
-            <h3 class="plan-title">{{activeMebership.purchasedMembership_description | translate}}</h3>
+            <h3 class="plan-title">
+              {{activeMebership.membershipPlan?.membership_title || activeMebership.purchasedMembership_description | translate}}
+            </h3>
+            <p class="plan-description" *ngIf="activeMebership.membershipPlan?.membership_sub_title">
+              {{activeMebership.membershipPlan.membership_sub_title | translate}}
+            </p>
             <div class="plan-status">
               <ion-icon name="ellipse" color="success"></ion-icon>
               <span>{{'titles.modules.profile.active-plan' | translate}}</span>
+            </div>
+            
+            <!-- Información adicional de la membresía -->
+            <div class="membership-details" *ngIf="activeMebership">
+              <div class="detail-item">
+                <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.start-date' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_date | date: 'dd/MM/yyyy'}}</span>
+              </div>
+              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_recurring">
+                <ion-icon name="sync-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.billing' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_currency}} ${{activeMebership.purchasedMembership_value}} / {{'titles.modules.profile.membership.month' | translate}}</span>
+              </div>
+              <div class="detail-item">
+                <ion-icon name="card-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.status' | translate}}:</span>
+                <span class="detail-value status-active">{{activeMebership.purchasedMembership_status}}</span>
+              </div>
             </div>
           </div>
         </div>
         <ion-button class="upgrade-button" fill="solid" color="primary" *ngIf="this.userSession && this.userSession.lead_role < 3" (click)="openMemberships()">
           {{'titles.modules.profile.upgrade-plan' | translate}}
           <ion-icon name="diamond-outline" slot="end"></ion-icon>
+        </ion-button>
+        <ion-button class="cancel-button" fill="outline" color="danger" *ngIf="this.activeMebership && this.activeMebership.purchasedMembership_status === 'ACTIVE'" (click)="confirmCancelMembership()">
+          {{'buttons.cancel-membership' | translate}}
+          <ion-icon name="close-circle-outline" slot="end"></ion-icon>
         </ion-button>
       </div>
     </div>
@@ -171,7 +203,7 @@ subHeader="{{'alerts.general.try-again-later' | translate}}"
 <!-- Transaction History Modal -->
 <ion-modal [isOpen]="showModalAllTransacions" (willDismiss)="showModalAllTransacions=false;">
   <ng-template>
-    <ion-header [translucent]="true">
+    <ion-header >
       <ion-toolbar color="primary">
         <ion-buttons slot="start">
           <ion-button color="light" (click)="showModalAllTransacions=false">
@@ -198,7 +230,26 @@ subHeader="{{'alerts.general.try-again-later' | translate}}"
               <div class="transaction-amount">{{transaction.transaction_currency}} ${{transaction.transaction_value}}</div>
             </div>
           </div>
+          
+          <!-- Mensaje si no hay transacciones -->
+          <div class="no-transactions-message" *ngIf="transactionsHistory.length === 0">
+            <ion-icon name="receipt-outline" color="medium"></ion-icon>
+            <p>{{'messages.no-transactions' | translate}}</p>
+          </div>
         </div>
+        
+        <!-- Infinite Scroll -->
+        <ion-infinite-scroll 
+          *ngIf="!isTransactionsLoading"
+          threshold="200px" 
+          (ionInfinite)="loadMoreTransactions($event)"
+          [disabled]="!hasMoreTransactions">
+          <ion-infinite-scroll-content
+            loadingSpinner="crescent"
+            loadingText="{{ 'loadings.loading-more-transactions' | translate }}">
+          </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+        
         <div class="loading-container" *ngIf="isTransactionsLoading">
           <ion-progress-bar type="indeterminate"></ion-progress-bar>
           <p class="loading-text">{{'loading.transactions' | translate}}</p>

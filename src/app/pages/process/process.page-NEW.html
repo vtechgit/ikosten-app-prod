@@ -1,10 +1,20 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button *ngIf="currentStep > 1" (click)="backStep()">
+      <ion-button (click)="goBackToTrips()">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
+    <ion-title>
+      <span [ngSwitch]="currentStep">
+        <span *ngSwitchCase="1">{{ 'titles.modules.process.wizard.step1.question' | translate }}</span>
+        <span *ngSwitchCase="2">{{ 'titles.modules.process.wizard.step2.question' | translate }}</span>
+        <span *ngSwitchCase="3">{{ 'titles.modules.process.wizard.step3.question' | translate }}</span>
+        <span *ngSwitchCase="4">{{ 'titles.modules.process.wizard.step4.question' | translate }}</span>
+        <span *ngSwitchCase="5">{{ 'titles.modules.process.wizard.step5.question' | translate }}</span>
+        <span *ngSwitchDefault>{{ 'titles.modules.process.title' | translate }}</span>
+      </span>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="closeProcess()">
         <ion-icon name="close"></ion-icon>
@@ -39,6 +49,18 @@
           </div>
         </div>
       </div>
+
+      <div class="step-action">
+        <ion-button
+          expand="block"
+          size="large"
+          color="primary"
+          [disabled]="!currencyBlockSelected"
+          (click)="goToStepTwo()">
+          {{ 'buttons.next' | translate }}
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
+      </div>
     </div>
 
     <!-- STEP 2: Subir Recibos -->
@@ -54,18 +76,10 @@
         <div class="country-chips">
           <ion-chip
             *ngFor="let bill of getBillsArray(); index as iBill"
-            [color]="this.billPos == iBill ? 'success' : 'light'"
+            [color]="this.billPos == iBill ? 'primary' : 'medium'"
             (click)="selectCountry(iBill)">
             <ion-icon name="flag"></ion-icon>
             <ion-label>{{convertKey(bill.country) | translate}}</ion-label>
-          </ion-chip>
-          
-          <!-- Botón agregar país dentro de los chips -->
-          <ion-chip
-            color="light"
-            (click)="showModalPicker('inputs.select-country.title','add_country')">
-            <ion-icon name="add-circle"></ion-icon>
-            <ion-label>{{ 'buttons.add-country' | translate }}</ion-label>
           </ion-chip>
         </div>
       </div>
@@ -185,11 +199,34 @@
             *ngIf="hasBillsAtCurrentPosition()"
             expand="block"
             fill="outline"
-            color="primary"
+            color="medium"
             (click)="isUploadingOther=false">
             {{ 'buttons.cancel' | translate }}
           </ion-button>
         </div>
+      </div>
+
+      <div class="step-actions">
+        <ion-button
+          expand="block"
+          size="large"
+          fill="outline"
+          color="primary"
+          (click)="showModalPicker('inputs.select-country.title','add_country')"
+          [disabled]="!hasSuccessfulBills()">
+          <ion-icon name="add" slot="start"></ion-icon>
+          {{ 'buttons.add-country' | translate }}
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          size="large"
+          color="primary"
+          [disabled]="!hasSuccessfulBills() || (imagesToUpload && imagesToUpload.length > 0)"
+          (click)="nextStep()">
+          {{ 'buttons.next' | translate }}
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
       </div>
     </div>
 
@@ -272,6 +309,18 @@
           <ion-progress-bar type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
         </div>
       </div>
+
+      <div class="step-action">
+        <ion-button
+          expand="block"
+          size="large"
+          color="primary"
+          [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 500"
+          (click)="nextStep()">
+          {{ 'buttons.next' | translate }}
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
+      </div>
     </div>
 
     <!-- STEP 4: Selección de Moneda del Extracto -->
@@ -314,6 +363,18 @@
             <ion-icon name="chevron-forward" class="selector-chevron"></ion-icon>
           </div>
         </div>
+      </div>
+
+      <div class="step-action">
+        <ion-button
+          expand="block"
+          size="large"
+          color="primary"
+          [disabled]="extracts['extract']['type'] == '' || extracts['extract']['currency'] == ''"
+          (click)="goToStepFive()">
+          {{ 'buttons.next' | translate }}
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
       </div>
     </div>
 
@@ -371,6 +432,19 @@
           </div>
         </div>
       </div>
+
+      <div class="step-action">
+        <ion-button
+          expand="block"
+          size="large"
+          color="primary"
+          [disabled]="!userName || userName == '' || !userEmail || userEmail == '' || (!sendPdf && !sendExcel) || sendingForm"
+          (click)="sendResult()">
+          <ion-spinner *ngIf="sendingForm" name="crescent" slot="start"></ion-spinner>
+          <ion-icon *ngIf="!sendingForm" name="send" slot="start"></ion-icon>
+          {{ 'buttons.send' | translate }}
+        </ion-button>
+      </div>
     </div>
 
   </div>
@@ -413,68 +487,3 @@
   </ion-alert>
 
 </ion-content>
-
-<ion-footer *ngIf="travelSelected">
-  <ion-toolbar>
-    <!-- Botón Paso 1 -->
-    <ion-button
-      *ngIf="currentStep === 1"
-      expand="block"
-      size="large"
-      color="primary"
-      [disabled]="!currencyBlockSelected"
-      (click)="goToStepTwo()">
-      {{ 'buttons.next' | translate }}
-      <ion-icon name="arrow-forward" slot="end"></ion-icon>
-    </ion-button>
-
-    <!-- Botón Paso 2 -->
-    <ion-button
-      *ngIf="currentStep === 2"
-      expand="block"
-      size="large"
-      color="primary"
-      [disabled]="!hasSuccessfulBills() || (imagesToUpload && imagesToUpload.length > 0)"
-      (click)="nextStep()">
-      {{ 'buttons.next' | translate }}
-      <ion-icon name="arrow-forward" slot="end"></ion-icon>
-    </ion-button>
-
-    <!-- Botón Paso 3 -->
-    <ion-button
-      *ngIf="currentStep === 3"
-      expand="block"
-      size="large"
-      color="primary"
-      [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 500"
-      (click)="nextStep()">
-      {{ 'buttons.next' | translate }}
-      <ion-icon name="arrow-forward" slot="end"></ion-icon>
-    </ion-button>
-
-    <!-- Botón Paso 4 -->
-    <ion-button
-      *ngIf="currentStep === 4"
-      expand="block"
-      size="large"
-      color="primary"
-      [disabled]="extracts['extract']['type'] == '' || extracts['extract']['currency'] == ''"
-      (click)="goToStepFive()">
-      {{ 'buttons.next' | translate }}
-      <ion-icon name="arrow-forward" slot="end"></ion-icon>
-    </ion-button>
-
-    <!-- Botón Paso 5 -->
-    <ion-button
-      *ngIf="currentStep === 5"
-      expand="block"
-      size="large"
-      color="primary"
-      [disabled]="!userName || userName == '' || !userEmail || userEmail == '' || (!sendPdf && !sendExcel) || sendingForm"
-      (click)="sendResult()">
-      <ion-spinner *ngIf="sendingForm" name="crescent" slot="start"></ion-spinner>
-      <ion-icon *ngIf="!sendingForm" name="send" slot="start"></ion-icon>
-      {{ 'buttons.send' | translate }}
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>

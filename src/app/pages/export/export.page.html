@@ -1,0 +1,432 @@
+<ion-header class="header-primary">
+  <ion-toolbar color="primary">
+    <ion-menu-button color="light" slot="start"></ion-menu-button>
+    <ion-title>{{ 'menu.tabs.export' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="export-container">
+    
+    <!-- STEP 1: Date Range Selection -->
+    <div *ngIf="currentStep === 1" class="step-container">
+      <!-- Header Section -->
+      <div class="header-section">
+        <div class="header-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <h1>{{ 'titles.modules.export.step1-title' | translate }}</h1>
+        <p class="subtitle">{{ 'titles.modules.export.step1-subtitle' | translate }}</p>
+      </div>
+
+      <!-- Date Range Selector -->
+      <div class="date-range-section">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'titles.modules.export.select-dates' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="date-inputs">
+              <div class="date-input-group">
+                <ion-label>{{ 'labels.start-date' | translate }}</ion-label>
+                <ion-datetime-button datetime="startDatetime"></ion-datetime-button>
+              </div>
+
+              <div class="date-input-group">
+                <ion-label>{{ 'labels.end-date' | translate }}</ion-label>
+                <ion-datetime-button datetime="endDatetime"></ion-datetime-button>
+              </div>
+            </div>
+
+            <!-- Modals para los datetime -->
+            <ion-modal #startModal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime 
+                  #startDatetimeRef
+                  id="startDatetime"
+                  [(ngModel)]="startDate"
+                  [locale]="dateLocale"
+                  presentation="date"
+                  [max]="endDate"
+                  [doneText]="'buttons.accept' | translate"
+                  [cancelText]="'buttons.cancel' | translate"
+                  [showDefaultButtons]="true"
+                  (ionChange)="onDateChange()">
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+
+            <ion-modal #endModal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime 
+                  #endDatetimeRef
+                  id="endDatetime"
+                  [(ngModel)]="endDate"
+                  [locale]="dateLocale"
+                  presentation="date"
+                  [min]="startDate"
+                  [doneText]="'buttons.accept' | translate"
+                  [cancelText]="'buttons.cancel' | translate"
+                  [showDefaultButtons]="true"
+                  (ionChange)="onDateChange()">
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Loading -->
+        <div *ngIf="isLoadingReceipts" class="loading-section">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>{{ 'loadings.loading-receipts' | translate }}</p>
+        </div>
+
+        <!-- Results -->
+        <div *ngIf="!isLoadingReceipts && receiptsData.length > 0" class="results-section">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>
+                {{ 'titles.modules.export.countries-found' | translate }}
+                <ion-badge color="primary">{{ totalReceipts }}</ion-badge>
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <!-- Summary by Country -->
+              <div class="country-summary">
+                <div *ngFor="let countryData of receiptsData" class="country-item">
+                  <div class="country-info">
+                    <ion-icon name="flag" color="primary"></ion-icon>
+                    <span class="country-name">{{ countryData.country_translate_key | translate }}</span>
+                  </div>
+                  <div class="country-stats">
+                    <ion-badge color="medium">{{ countryData.count }}</ion-badge>
+                    <span class="country-total" *ngIf="countryData.totalAmount > 0">
+                      {{ countryData.totalAmount | number:'1.2-2' }} {{ countryData.currency_code || 'USD' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <ion-button 
+                expand="block" 
+                (click)="goToStep2()" 
+                class="next-button">
+                {{ 'buttons.next' | translate }}
+                <ion-icon name="arrow-forward" slot="end"></ion-icon>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="!isLoadingReceipts && totalReceipts === 0 && receiptsData.length === 0 && (startDate || endDate)" class="no-results">
+          <ion-icon name="document-outline" color="medium"></ion-icon>
+          <p>{{ 'titles.modules.export.no-receipts-found' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Bank Statement Reconciliation -->
+    <div *ngIf="currentStep === 2" class="step-container">
+      <!-- Header Section -->
+      <div class="header-section">
+        <div class="header-icon">
+          <ion-icon name="git-compare-outline"></ion-icon>
+        </div>
+        <h1>¿Deseas conciliar con un extracto bancario?</h1>
+        <p class="subtitle">Opcional: Sube tu extracto bancario para comparar automáticamente con tus recibos</p>
+      </div>
+
+      <div class="reconciliation-section">
+        <!-- Checkbox para activar reconciliación -->
+        <ion-card>
+          <ion-card-content>
+            <div class="reconciliation-option" (click)="toggleReconciliation()">
+              <ion-checkbox 
+                [(ngModel)]="wantsReconciliation"
+                (ionChange)="onReconciliationChange()"
+                (click)="$event.stopPropagation()">
+              </ion-checkbox>
+              <div class="option-content">
+                <h2>Quiero conciliar mis gastos con un extracto bancario</h2>
+                <p>Sube o selecciona un extracto PDF para comparar con tus recibos</p>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Sección de subida de extracto (solo si está activado) -->
+        <div *ngIf="wantsReconciliation" class="extract-upload-section">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Subir Extracto Bancario</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <!-- Extracto subido -->
+              <div *ngIf="extractFile" class="extract-uploaded">
+                <div class="extract-item"
+                     [class.success]="extractStatus === 1 && extractBankName"
+                     [class.error]="extractStatus === 500 || (extractStatus === 1 && !extractBankName)"
+                     [class.loading]="extractStatus === 0">
+                  
+                  <div class="extract-icon">
+                    <ion-icon
+                      name="checkmark-circle"
+                      color="success"
+                      *ngIf="extractStatus === 1 && extractBankName"></ion-icon>
+                    <ion-icon
+                      name="warning"
+                      color="warning"
+                      *ngIf="extractStatus === 1 && !extractBankName"></ion-icon>
+                    <ion-icon
+                      name="close-circle"
+                      color="danger"
+                      *ngIf="extractStatus === 500"></ion-icon>
+                    <ion-spinner
+                      name="crescent"
+                      *ngIf="extractStatus === 0"></ion-spinner>
+                  </div>
+
+                  <div class="extract-info">
+                    <p class="extract-bank" *ngIf="extractStatus === 1 && extractBankName">
+                      {{extractBankName}}
+                    </p>
+                    <p class="extract-bank error" *ngIf="extractStatus === 1 && !extractBankName">
+                      {{ 'errors.file-uploads.cannot-read-bank-name' | translate }}
+                    </p>
+                    <p class="extract-bank" *ngIf="extractStatus === 500">
+                      {{ 'errors.file-uploads.cannot-read-file' | translate }}
+                    </p>
+                    <p class="extract-bank" *ngIf="extractStatus === 0">
+                      {{extractOriginalName}}
+                    </p>
+                  </div>
+
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    size="small"
+                    (click)="deleteExtract()">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+
+              <!-- Upload de extracto -->
+              <div *ngIf="!extractFile" class="upload-section">
+                <div class="upload-card">
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    [disabled]="isUploadingExtract"
+                    #extractFileInput
+                    id="extractFileInput"
+                    (change)="onExtractFileSelected($event)">
+                  <label for="extractFileInput" class="upload-label">
+                    <ion-icon name="cloud-upload" class="upload-icon"></ion-icon>
+                    <p class="upload-title">Solo archivos PDF</p>
+                  </label>
+                </div>
+
+                <ion-progress-bar type="indeterminate" *ngIf="isUploadingExtract"></ion-progress-bar>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Historial de extractos -->
+          <ion-card>
+            <ion-card-header (click)="toggleExtractHistory()" class="history-header">
+              <ion-card-title>
+                <ion-icon name="time-outline"></ion-icon>
+                Extractos anteriores
+                <ion-icon 
+                  [name]="showExtractHistory ? 'chevron-up' : 'chevron-down'" 
+                  class="toggle-icon">
+                </ion-icon>
+              </ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content *ngIf="showExtractHistory" class="history-content">
+              <div *ngIf="extractsHistory.length === 0 && !isLoadingExtracts" class="no-history">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <p>No hay extractos anteriores</p>
+              </div>
+
+              <div class="extracts-list">
+                <div 
+                  *ngFor="let extract of extractsHistory" 
+                  class="extract-item-history"
+                  [class.selected]="isExtractSelected(extract._id)"
+                  (click)="selectExtractFromHistory(extract)">
+                  
+                  <div class="extract-icon-small">
+                    <ion-icon 
+                      name="document-text" 
+                      [color]="isExtractSelected(extract._id) ? 'primary' : 'medium'">
+                    </ion-icon>
+                  </div>
+
+                  <div class="extract-details">
+                    <p class="extract-name">{{ extract.original_name }}</p>
+                    <p class="extract-date">{{ formatExtractDate(extract.uploaded_at) }}</p>
+                    <p class="extract-bank" *ngIf="extract.bank_name">{{ extract.bank_name }}</p>
+                  </div>
+
+                  <ion-icon 
+                    *ngIf="isExtractSelected(extract._id)"
+                    name="checkmark-circle" 
+                    color="primary"
+                    class="selected-icon">
+                  </ion-icon>
+                </div>
+              </div>
+
+              <!-- Infinite Scroll -->
+              <ion-infinite-scroll 
+                threshold="100px" 
+                (ionInfinite)="loadMoreExtracts($event)"
+                [disabled]="!hasMoreExtracts">
+                <ion-infinite-scroll-content
+                  loadingSpinner="crescent"
+                  loadingText="Cargando más extractos...">
+                </ion-infinite-scroll-content>
+              </ion-infinite-scroll>
+
+              <div *ngIf="isLoadingExtracts && extractsHistory.length === 0" class="loading-extracts">
+                <ion-spinner name="crescent"></ion-spinner>
+                <p>Cargando historial...</p>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            (click)="goBackToStep1()">
+            <ion-icon name="arrow-back" slot="start"></ion-icon>
+            {{ 'buttons.back' | translate }}
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            (click)="goToStep3()">
+            {{ 'buttons.next' | translate }}
+            <ion-icon name="arrow-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Export Settings -->
+    <div *ngIf="currentStep === 3" class="step-container">
+      <!-- Header Section -->
+      <div class="header-section">
+        <div class="header-icon">
+          <ion-icon name="mail-outline"></ion-icon>
+        </div>
+        <h1>{{ 'titles.modules.export.step2-title' | translate }}</h1>
+        <p class="subtitle">{{ 'titles.modules.export.step2-subtitle' | translate }}</p>
+      </div>
+
+      <!-- Export Settings Form -->
+      <div class="export-settings-section">
+        <!-- User Info Card -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'titles.modules.export.user-info' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item>
+              <ion-label position="stacked">{{ 'labels.name' | translate }}</ion-label>
+              <ion-input 
+                [(ngModel)]="userName" 
+                type="text" 
+                placeholder="{{ 'placeholders.enter-name' | translate }}">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">{{ 'labels.email' | translate }}</ion-label>
+              <ion-input 
+                [(ngModel)]="userEmail" 
+                type="email" 
+                placeholder="{{ 'placeholders.enter-email' | translate }}">
+              </ion-input>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Export Format Card -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'titles.modules.export.export-format' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item >
+              <ion-checkbox 
+                [(ngModel)]="sendPdf">
+                {{ 'titles.modules.export.pdf' | translate }}
+               <!--<p>{{ 'titles.modules.export.pdf-description' | translate }}</p>--> 
+              </ion-checkbox>
+
+            </ion-item>
+
+            <ion-item>
+              <ion-checkbox 
+                [(ngModel)]="sendExcel">
+                {{ 'titles.modules.export.excel' | translate }}
+               <!--<p>{{ 'titles.modules.export.excel-description' | translate }}</p>--> 
+              </ion-checkbox>
+
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Summary Card -->
+        <ion-card class="summary-card">
+          <ion-card-header>
+            <ion-card-title>{{ 'titles.modules.export.summary' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="summary-item">
+              <span class="summary-label">{{ 'labels.period' | translate }}:</span>
+              <span class="summary-value">{{ formatDate(startDate) }} - {{ formatDate(endDate) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">{{ 'labels.total-receipts' | translate }}:</span>
+              <span class="summary-value">{{ totalReceipts }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">{{ 'labels.countries' | translate }}:</span>
+              <span class="summary-value">{{ receiptsData.length }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            (click)="goBackToStep2()">
+            <ion-icon name="arrow-back" slot="start"></ion-icon>
+            {{ 'buttons.back' | translate }}
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            (click)="sendReport()" 
+            [disabled]="isSending">
+            <ion-spinner *ngIf="isSending" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!isSending" name="send" slot="start"></ion-icon>
+            {{ isSending ? ('loadings.sending' | translate) : ('buttons.send-report' | translate) }}
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

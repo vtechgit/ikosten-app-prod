@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Router} from '@angular/router';
 import {ApiService} from '../../services/api.service';
+import {AuthService} from '../../services/auth.service';
 import {TranslateService} from "@ngx-translate/core";
 import { Device } from '@capacitor/device';
 import { Platform } from '@ionic/angular';
@@ -29,9 +30,16 @@ export class ProfilePage implements OnInit {
   loadingButtons:boolean=false;
   availableLanguage:any;
   transactions:any;
-  transactionsHistory:any;
+  transactionsHistory:any = [];
   showModalAllTransacions:boolean=false;
   isTransactionsLoading:boolean=false;
+  
+  // Paginación para transacciones
+  currentTransactionsPage:number = 1;
+  transactionsPageLimit:number = 20;
+  hasMoreTransactions:boolean = false;
+  totalTransactions:number = 0;
+  isLoadingMoreTransactions:boolean = false;
 
 
 
@@ -61,7 +69,8 @@ export class ProfilePage implements OnInit {
 
   constructor(
     private router:Router, 
-    private api:ApiService, 
+    private api:ApiService,
+    private authService:AuthService,
     private translate: TranslateService, 
     public platform: Platform,
   ) { }
@@ -113,39 +122,165 @@ export class ProfilePage implements OnInit {
   }
   ngOnInit() {
 
-    if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
+    // Obtener usuario del nuevo sistema de autenticación
+    const currentUser = this.authService.getCurrentUser();
+    
+    if(currentUser){
+      this.userSession = {
+        _id: currentUser.id,
+        lead_name: currentUser.name,
+        lead_email: currentUser.email,
+        lead_phone: '', // Estos datos podrían venir del backend
+        lead_country: '',
+        lead_role: currentUser.role,
+        lead_preferred_language: ''
+      };
 
-      this.userSession = JSON.parse(localStorage.getItem('userSession'));
+      // Cargar datos completos del usuario desde el backend
+      this.api.read('leads/' + currentUser.id).subscribe(res => {
+        if(res && res['body']){
+          const userData = res['body'];
+          console.log('👤 User data loaded:', userData);
+          this.userSession = {
+            _id: userData._id,
+            lead_name: userData.lead_name,
+            lead_email: userData.lead_email,
+            lead_phone: userData.lead_phone || '',
+            lead_country: userData.lead_country || '',
+            lead_role: userData.lead_role,
+            lead_preferred_language: userData.lead_preferred_language || ''
+          };
+          
+          this.userName = this.userSession.lead_name;
+          this.userEmail = this.userSession.lead_email;
+          this.userPhone = this.userSession.lead_phone;
+          
+          // Seleccionar el país después de cargar los datos del usuario
+          this.selectUserCountry();
+          
+          if(this.userSession.lead_role > 0){
+            this.getActiveMembership();
+          }
+        }
+      });
       
-      if(this.userSession.lead_role > 0){
-
-        this.getActiveMembership();
-
-      }
+      this.userName = this.userSession.lead_name;
+      this.userEmail = this.userSession.lead_email;
+      this.userPhone = this.userSession.lead_phone;
     }
 
-    this.userName = this.userSession.lead_name;
-    this.userEmail = this.userSession.lead_email;
-    this.userPhone = this.userSession.lead_phone;
     this.getAvailableCountries();
     this.getLanguages();
     this.getTransactions();
   }
   openModalTransactions(){
     this.showModalAllTransacions = true;
-    this.isTransactionsLoading=true;
+    this.currentTransactionsPage = 1;
+    this.transactionsHistory = [];
+    this.loadTransactionsHistory(true);
+  }
 
-    this.api.read('transactions/lead/'+this.userSession._id).subscribe(res=>{
-      this.isTransactionsLoading=false;
-      this.transactionsHistory = res['body'];
-    })
+  loadTransactionsHistory(resetPagination: boolean = false) {
+    if (!this.userSession || !this.userSession._id) {
+      console.error('❌ No user session available');
+      return;
+    }
+
+    if (resetPagination) {
+      this.currentTransactionsPage = 1;
+      this.transactionsHistory = [];
+      this.isTransactionsLoading = true;
+    } else {
+      this.isLoadingMoreTransactions = true;
+    }
+
+    console.log('🔄 Loading transactions, page:', this.currentTransactionsPage);
+
+    this.api.read(`transactions/lead/${this.userSession._id}?page=${this.currentTransactionsPage}&limit=${this.transactionsPageLimit}`)
+      .subscribe({
+        next: (res) => {
+          if (res['status'] == 201) {
+            const responseData = res['body'];
+            const newTransactions = responseData.data || responseData;
+            const pagination = responseData.pagination;
+
+            console.log('✅ Transactions loaded:', newTransactions);
+
+            if (pagination) {
+              this.hasMoreTransactions = pagination.hasMore;
+              this.totalTransactions = pagination.totalTransactions;
+              console.log('📊 Pagination info:', {
+                currentPage: pagination.currentPage,
+                hasMore: pagination.hasMore,
+                totalTransactions: pagination.totalTransactions
+              });
+            }
+
+            // Agregar nuevas transacciones al array existente
+            if (resetPagination) {
+              this.transactionsHistory = newTransactions;
+            } else {
+              this.transactionsHistory = [...this.transactionsHistory, ...newTransactions];
+            }
+          }
+          this.isTransactionsLoading = false;
+          this.isLoadingMoreTransactions = false;
+        },
+        error: (error) => {
+          console.error('❌ Error loading transactions:', error);
+          this.isTransactionsLoading = false;
+          this.isLoadingMoreTransactions = false;
+        }
+      });
+  }
+
+  loadMoreTransactions(event: any) {
+    if (this.isLoadingMoreTransactions || !this.hasMoreTransactions) {
+      event.target.complete();
+      return;
+    }
+
+    this.currentTransactionsPage++;
+    console.log('📄 Loading more transactions, page:', this.currentTransactionsPage);
+
+    this.api.read(`transactions/lead/${this.userSession._id}?page=${this.currentTransactionsPage}&limit=${this.transactionsPageLimit}`)
+      .subscribe({
+        next: (res) => {
+          if (res['status'] == 201) {
+            const responseData = res['body'];
+            const newTransactions = responseData.data || responseData;
+            const pagination = responseData.pagination;
+
+            if (pagination) {
+              this.hasMoreTransactions = pagination.hasMore;
+              this.totalTransactions = pagination.totalTransactions;
+            }
+
+            // Agregar nuevas transacciones
+            this.transactionsHistory = [...this.transactionsHistory, ...newTransactions];
+          }
+          event.target.complete();
+        },
+        error: (error) => {
+          console.error('❌ Error loading more transactions:', error);
+          event.target.complete();
+        }
+      });
   }
   getActiveMembership(){
     this.api.read('purchasedMemberships/lead/'+this.userSession._id).subscribe(res=>{
-      console.log('membership',res);
-      if(res['body'].length >0){
+      console.log('✅ Memberships loaded:', res);
+      if(res['body'] && res['body'].length > 0){
+        // El backend ahora devuelve solo membresías activas ordenadas por fecha
         this.activeMebership = res['body'][0];
+        console.log('✅ Active membership:', this.activeMebership);
+      } else {
+        console.log('⚠️ No active memberships found');
+        this.activeMebership = null;
       }
+    }, error => {
+      console.error('❌ Error loading memberships:', error);
+      this.activeMebership = null;
     })
   }
 
@@ -158,6 +293,78 @@ export class ProfilePage implements OnInit {
   openMemberships(){
     this.router.navigate(['/customer/memberships']);
   }
+
+  confirmCancelMembership() {
+    this.translate.get([
+      _('alerts.cancel-membership.title'),
+      _('alerts.cancel-membership.message'),
+      _('buttons.confirm'),
+      _('buttons.cancel')
+    ]).subscribe((translations) => {
+      const alert = document.createElement('ion-alert');
+      alert.header = translations['alerts.cancel-membership.title'];
+      alert.message = translations['alerts.cancel-membership.message'];
+      alert.buttons = [
+        {
+          text: translations['buttons.cancel'],
+          role: 'cancel'
+        },
+        {
+          text: translations['buttons.confirm'],
+          role: 'confirm',
+          handler: () => {
+            this.cancelMembership();
+          }
+        }
+      ];
+      document.body.appendChild(alert);
+      alert.present();
+    });
+  }
+
+  cancelMembership() {
+    if (!this.activeMebership || !this.activeMebership._id) {
+      return;
+    }
+
+    this.api.update(`purchasedMemberships/cancel/${this.activeMebership._id}`, {}).subscribe(
+      (res) => {
+        if (!res['error']) {
+          this.translate.get(_('messages.membership-cancelled')).subscribe((text) => {
+            const alert = document.createElement('ion-alert');
+            alert.header = text;
+            alert.buttons = ['OK'];
+            document.body.appendChild(alert);
+            alert.present();
+          });
+          
+          // Actualizar el rol en la sesión local
+          if (this.userSession) {
+            this.userSession.lead_role = 0;
+          }
+          
+          // Actualizar el rol en el authService
+          const currentUser = this.authService.getCurrentUser();
+          if (currentUser) {
+            this.authService.updateCurrentUser({
+              ...currentUser,
+              role: 0
+            });
+          }
+          
+          // Recargar datos de membresía
+          this.getActiveMembership();
+        } else {
+          this.showAlertError = true;
+        }
+      },
+      (error) => {
+        console.error('Error cancelling membership:', error);
+        this.showAlertError = true;
+      }
+    );
+  }
+
   translateAlerts(){
     this.translate.get(_('buttons.accept')).subscribe((text: string) => {
       this.alertButtonsAccept[0] =text;
@@ -190,30 +397,53 @@ export class ProfilePage implements OnInit {
   getAvailableCountries(){
     this.api.read('availableCountries').subscribe(res=>{
       this.availableCountries= res['body'];
-      this.selectedCountry = this.userSession.lead_country;
-
+      console.log('🌍 Available countries loaded:', this.availableCountries);
+      
+      // Intentar seleccionar el país del usuario después de cargar los países
+      this.selectUserCountry();
     })
+  }
+
+  selectUserCountry(){
+    // Solo intentar seleccionar si tenemos países disponibles y datos del usuario
+    if(this.availableCountries && this.availableCountries.length > 0 && 
+       this.userSession && this.userSession.lead_country){
+      
+      console.log('🔍 Searching for user country:', this.userSession.lead_country);
+      
+      // Buscar el país por _id en la lista de países disponibles
+      const userCountry = this.availableCountries.find((country: any) => 
+        country._id === this.userSession.lead_country
+      );
+      
+      if(userCountry){
+        this.selectedCountry = userCountry._id;
+        console.log('✅ User country found and selected:', userCountry);
+      } else {
+        console.log('⚠️ User country not found in available countries list');
+      }
+    } else {
+      console.log('⏳ Waiting for countries or user data to load...');
+    }
   }
   getLanguages(){
     this.api.read('languages').subscribe(res=>{
 
       this.availableLanguages= res['body'];
 
-      if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != '' && localStorage.getItem('userSession') != null){
-        let userSession = JSON.parse(localStorage.getItem('userSession'));
-  
-        if(userSession.lead_preferred_language && userSession.lead_preferred_language != ''){
-          this.selectedLanguage = userSession.lead_preferred_language;
+      const currentUser = this.authService.getCurrentUser();
+      if(currentUser){
+        // Intentar obtener el idioma preferido del usuario
+        if(this.userSession && this.userSession.lead_preferred_language && this.userSession.lead_preferred_language != ''){
+          this.selectedLanguage = this.userSession.lead_preferred_language;
         }else{
           Device.getLanguageCode().then(lang=>{
             this.selectedLanguage = lang.value;
-
           });
         }
       }else{
         Device.getLanguageCode().then(lang=>{
           this.selectedLanguage = lang.value;
-
         });
       }
     })
@@ -233,16 +463,18 @@ export class ProfilePage implements OnInit {
       this.userSession.lead_email = this.userEmail;
       this.userSession.lead_country = this.selectedCountry;
       this.userSession.lead_phone = this.userPhone;
-      localStorage.setItem('userSession',JSON.stringify(this.userSession));
-
-
+      
+      // Actualizar los datos del usuario en el nuevo sistema de autenticación
+      this.authService.updateCurrentUser({
+        id: this.userSession._id,
+        email: this.userEmail,
+        name: this.userName,
+        role: this.userSession.lead_role
+      });
     })
   }
   closeSession(){
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    window.location.href = '/';
-
+    this.authService.logout();
   }
   convertKey(input){
     let string = input.replace(/ /g, '-').toLowerCase();
@@ -258,18 +490,15 @@ export class ProfilePage implements OnInit {
     this.loadingDelete=true;
     this.api.create('leads/deleteAccount',{id:this.userSession._id}).subscribe(res=>{
        if(!res['error']){
-        localStorage.clear();
+        this.authService.logout();
         this.showAlertAccountDeleted = true;
        }else{
         this.showAlertError = true;
        }
-
-
     })
   }
   dissmisAccountDeletion(){
     this.showAlertAccountDeleted = false;
-    window.location.href = '/';
-
+    this.router.navigate(['/auth/login']);
   }
 }

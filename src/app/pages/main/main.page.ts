@@ -1,2361 +1,851 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { transition, style, animate, trigger } from '@angular/animations';
-import {ApiService} from '../../services/api.service';
-import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router, ActivatedRoute } from '@angular/router';
-import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Device } from '@capacitor/device';
+import { ApiService } from '../../services/api.service';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
-import { ShepherdService } from 'angular-shepherd';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Device } from '@capacitor/device';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 const enterTransition = transition(':enter', [
-  style({
-    opacity: 0
-  }),
-  animate('0.2s 0.1s ease-in', style({
-    opacity: 1
-  }))
-]);
-const fadeIn = trigger('fadeIn', [
-  enterTransition
+  style({ opacity: 0 }),
+  animate('0.2s 0.1s ease-in', style({ opacity: 1 }))
 ]);
 
+const fadeIn = trigger('fadeIn', [enterTransition]);
 
 @Component({
   selector: 'app-main',
-  standalone:false,
+  standalone: false,
   templateUrl: './main.page.html',
   styleUrls: ['./main.page.scss'],
-  animations: [
-    fadeIn,
-  ]
+  animations: [fadeIn]
 })
 export class MainPage implements OnInit {
+  
+  // Alert buttons
   alertButtons = ['buttons.accept'];
-
-  public deleteExtractAlertButtons = [
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.delete',
-      role: 'confirm',
-      handler: () => {
-        this.confirmDeleteExtract()
-      },
-    },
-  ];
-  public alertRestartButtons= [
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.confirm',
-      role: 'confirm',
-      handler: () => {
-        this.confirmRestartProcess()
-      },
-    },
-  ];
-  public deleteLineAlertButtons =[
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.delete',
-      role: 'confirm',
-      handler: () => {
-        this.confirmDeleteLine()
-      },
-    },
-  ];
-  public deleteAllNotMatchedAlertButtons =[
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.delete',
-      role: 'confirm',
-      handler: () => {
-        this.confirmDeleteAllNotMatchedLines()
-      },
-    },
-  ];
   
-  public deleteTravelAlertButtons =[
+  public deleteReceiptAlertButtons = [
     {
       text: 'buttons.cancel',
       role: 'cancel',
-      handler: () => {
-        
-      },
+      handler: () => {}
     },
     {
       text: 'buttons.delete',
       role: 'confirm',
       handler: () => {
-        this.confirmDeleteTravel()
-      },
-    },
+        this.confirmDeleteReceipt();
+      }
+    }
   ];
-  public deleteBillAlertButtons =[
+
+  public deleteAllReceiptsAlertButtons = [
     {
       text: 'buttons.cancel',
       role: 'cancel',
-      handler: () => {
-        
-      },
+      handler: () => {}
     },
     {
-      text: 'buttons.delete',
+      text: 'buttons.delete-all',
       role: 'confirm',
+      cssClass: 'alert-button-danger',
       handler: () => {
-        this.confirmDeleteBill()
-      },
-    },
+        this.confirmDeleteAllReceipts();
+      }
+    }
   ];
-  public deleteAllAlertButtons =[
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.delete',
-      role: 'confirm',
-      handler: () => {
-        this.confirmDeleteBillAll()
-      },
-    },
-  ];
-  public goBackAlertButtons =[
-    {
-      text: 'buttons.cancel',
-      role: 'cancel',
-      handler: () => {
-        
-      },
-    },
-    {
-      text: 'buttons.confirm',
-      role: 'confirm',
-      handler: () => {
-        this.confirmGoBack()
-      },
-    },
-  ];
-  currentStep=0;
-  loadingButtons:boolean=false;
-  dataLoaded:boolean=false; // Flag para evitar doble carga
-  shouldAnimateHistory:boolean=true; // Flag para controlar animaciones de history
-  languagesLoaded:boolean=false; // Flag para evitar cargar idiomas múltiples veces
-  processesLoaded:boolean=false; // Flag para evitar cargar procesos múltiples veces
-  extracts:any;
-  notUploaded:any = [];
-  uploadedBill:string;
-  results:any;
-  userEmail:string='';
-  userName:string='';
-  openModalMemberships:boolean=false;
-  isUploading:boolean=false;
-  uploadMessage:string="Subir archivo";
 
-  uploadedExtractName:string;
-  currentExtract:number=0;
-  currentBill:number=0;
+  // Variables de usuario
+  userSession: any;
+  selectedLanguage: string = 'es';
+  dateLocale: string = 'es-MX';
+  languagesLoaded: boolean = false;
+  availableLanguages: any = [];
 
-  isAlertDeleteExtract:boolean=false;
-  idToDelete:number=0;
-  openModalAddBill:boolean=false;
-  isAlertDeleteBill:boolean=false;
-  isAlertDeleteAll:boolean=false;
-  idToDeleteBill:number=0;
-  idToDeleteBillContainer:number=0;
-  documentIdToDelete:string;
-  isSettingBill:boolean=false;
-  exportSettings:any;
-  sendPdf:boolean;
-  sendExcel:boolean;
-  sendingForm:boolean=false;
-
-  currencies:any;
-  isEdditingLine:boolean=false;
-
-  selectedLine:any;
-  selectedDeleteLine:any;
-  docToDelete:string;
-  isDeletingLine:boolean=false;
-  isDeletingAllNotMatched:boolean=false;
-
-  linesDescription:string;
-  linesBill:number;
-  linesExtract:number;
-  linesCurrency:string;
-
-  showAlertRestart:boolean=false;
-  showAlertFounds:boolean=false;
-  showAlertFoundsMatched:boolean=false;
-  foundsQty:number=0;
-  imagesToUpload:any=[];
-
-  currencyExchange:string;
-  showAlertTime:boolean=false;
-  isUploadingOther:boolean=true;
-
-  uploadLineResultId:number;
-  uploadLineExtractId:number;
-  currencyBlockSelected:any;
-
-
-  matchedBills:any;
-  notMatched:any;
-  showResults:boolean=false;
-  notmatchedExtractLines:any;
-
-
-  isAlertGoBack:boolean=false;
-
-  editLineDate:string;
-  editLineTime:string;
-  editLineDescription:string;
-  editLineBill:string;
-  editLineCurrency:string;
-  editLineReceipt:any;
-  editLineExtract:any;
-  editLineDocId:string;
-  editLineReason:string;
-
-
-  toggleDate:boolean=false;
-  toggleTime:boolean=false;
-
-  imageMimes = [ "image/png", "image/jpeg", ];
-  pdfMimes = ["application/pdf"];
-
-  toggleDatesExtracts:any;
-  showPicker:boolean = false;
-  pickerTitle:string = '';
-  pickerType:string = '';
-  pickerOptions:any=[];
-
-  billAccOpened:number = 0;
-  checkResults:boolean=false;
-
-  modalHelp:boolean=false;
-
-  userSession:any;
-  travels:any;
-  openModalAddTravel:boolean=false;
+  // Variables de recibos
+  userCountries: any[] = []; // Array de países del usuario con sus recibos
+  selectedCountryIndex: number = 0;
+  currentCountryData: any = null;
+  currencies: any = [];
+  currencyBlockSelected: any;
+  isLoadingReceipts: boolean = true; // Indicador de carga inicial
   
-  // Variables para eliminación de travel
-  travelToDelete:any;
-  showAlertDeleteTravel:boolean=false;
+  // Variables de paginación
+  currentPage: number = 1;
+  pageLimit: number = 20;
+  hasMoreReceipts: boolean = false;
+  totalReceipts: number = 0;
+  isLoadingMore: boolean = false;
 
-  todayDate:string;
-  startDateTrip:any;
-  endDateTrip:any;
-  dateRangeSelected:any;
+  // Variables de subida de archivos
+  imagesToUpload: any[] = [];
+  uploadingFiles: any[] = []; // Array para trackear archivos en upload
+  isUploading: boolean = false;
+  isUploadingOther: boolean = true;
+  uploadMessage: string = 'Subir archivo';
+  imageMimes: string[] = ['image/png', 'image/jpeg'];
+  pdfMimes: string[] = ['application/pdf'];
 
-  travelSelected:any;
-  showAlertLogin:boolean=false;
-  showAlert24Hours:boolean=false;
+  // Variables de modales y alertas
+  showPicker: boolean = false;
+  pickerTitle: string = '';
+  pickerType: string = '';
+  pickerOptions: any = [];
+  isAlertDeleteReceipt: boolean = false;
+  isAlertDeleteAllReceipts: boolean = false;
+  receiptToDelete: string = '';
+  showAlertTime: boolean = false;
+  showMembershipModal: boolean = false;
+  uploadLimitData: any = null;
 
-  showAlertResend:boolean=false;
-
-  dateLocale:string ='en-US';
-  limitations:any;
-  showModalUpgrade:boolean=false;
-  availableLanguage:any;
-  selectedLanguage:string;
-  availableLanguages:any=[];
-
-  guideSteps: any = [
-    {
-      id: 'tour-step-1',
-      attachTo: {
-        element: '.tour-step-1',
-        on: 'bottom'
-      },
-      beforeShowPromise: function() {
-        return new Promise((resolve)=> {
-          setTimeout(function() {
-            window.scrollTo(0, 0);
-            resolve(0);
-          }, 500);
-        });
-      },
-      buttons: [
-        {
-          classes: 'shepherd-button-primary',
-          text: 'Siguiente',
-          action: ()=> {
-            return this.shepherdService.next();
-          }
-        }
-      ],
-      cancelIcon: {
-        enabled: false
-      },
-      classes: 'guided-tour-dialog',
-      highlightClass: 'highlight',
-      scrollTo: false,
-      title: 'Guía de inicio rápido',
-      text: ['Para crear tu primer reporte de viaticos, selecciona un país'],
-      when: {
-        show: () => {
-        },
-        hide: () => {
-        }
-      }
-    },
-    {
-      id: 'tour-step-3',
-      attachTo: {
-        element: '.tour-step-3',
-        on: 'bottom'
-      },
-      beforeShowPromise: function() {
-        return new Promise((resolve)=> {
-          setTimeout(function() {
-            window.scrollTo(0, 0);
-            resolve(0);
-          }, 500);
-        });
-      },
-      buttons: [
-        {
-          classes: 'shepherd-button-primary',
-          text: 'Siguiente',
-          action: ()=> {
-            return this.shepherdService.next();
-          }
-        }
-      ],
-      cancelIcon: {
-        enabled: false
-      },
-      classes: 'guided-tour-dialog',
-      highlightClass: 'highlight',
-      scrollTo: false,
-      title: 'Crea tu viaje',
-      text: ['Haz click en este boton para crear y guardar tu viaje'],
-      when: {
-        show: () => {
-        },
-        hide: () => {
-        }
-      }
-    },   
-    {
-      id: 'tour-step-4',
-      attachTo: {
-        element: '.tour-step-4',
-        on: 'bottom'
-      },
-      beforeShowPromise: function() {
-        return new Promise((resolve)=> {
-          setTimeout(function() {
-            window.scrollTo(0, 0);
-            resolve(0);
-          }, 500);
-        });
-      },
-      buttons: [
-        {
-          classes: 'shepherd-button-primary',
-          text: 'Cerrar',
-          action: ()=> {
-            localStorage.setItem('tourCompleted','1');
-            return this.shepherdService.complete();
-          }
-        }
-      ],
-      cancelIcon: {
-        enabled: false
-      },
-      classes: 'guided-tour-dialog',
-      highlightClass: 'highlight',
-      scrollTo: false,
-      title: 'Tu historial de viajes',
-      text: ['Cada vez que crees un viaje nuevo, estára guardado en tu historial'],
-      when: {
-        show: () => {
-        },
-        hide: () => {
-        }
-      }
-    },
-
-  ];  
-  billPos:number=0;
   constructor(
-    private api:ApiService,
+    private api: ApiService,
     private http: HttpClient,
-    private _sanitizer: DomSanitizer,
-    private changeDetector:ChangeDetectorRef,
-    private router:Router,
+    private sanitizer: DomSanitizer,
+    private router: Router,
     private translate: TranslateService,
     public platform: Platform,
-    private activatedRoute:ActivatedRoute,
-    public shepherdService: ShepherdService
-  ) { }
-
-  ngAfterViewInit() {
-
-    this.shepherdService.defaultStepOptions =  {
-      classes: 'guided-tour-dialog',
-      scrollTo: false,
-      cancelIcon: {
-        enabled: true,
-        
-      }
-    };
-    this.shepherdService.modal = true;
-    this.shepherdService.confirmCancel = false;
-  
-  }
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-
-
-
-    let today = new Date();
-    this.todayDate = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate())+"T00:00";
-    //this.dateRangeSelected = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
-    this.dateRangeSelected = [];
-    this.startDateTrip = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
+    this.initializeLanguage();
     
-    this.dateRangeSelected = [this.startDateTrip];
-    this.hidrate();
+    // Obtener sesión de usuario
+    if (this.api.isLoggedIn()) {
+      this.userSession = this.api.getUserData();
+      console.log('✅ User session loaded:', this.userSession);
+    } else {
+      // Redirigir a login si no está autenticado
+      this.router.navigate(['/customer/login']);
+      return;
+    }
 
-
-    
+    this.loadCurrencies();
+    this.setDateLocale();
+    this.loadUserReceipts();
   }
 
-  getLanguages(){
-    // Evitar múltiples llamadas simultáneas
-    if(this.languagesLoaded) return;
+  ionViewWillEnter() {
+    // Solo cargar idiomas una vez
+    if (!this.languagesLoaded) {
+      this.getLanguages();
+    }
+
+    if (localStorage.getItem('langIntl')) {
+      this.dateLocale = localStorage.getItem('langIntl') || 'es-MX';
+    }
+
+    // Recargar recibos cuando se vuelve a la página
+    if (this.userSession) {
+      this.loadUserReceipts();
+    }
+
+    // Asegurar que el primer país esté seleccionado si hay países disponibles
+    if (this.userCountries && this.userCountries.length > 0 && !this.currentCountryData) {
+      this.selectCountry(0);
+    }
+  }
+
+  initializeLanguage() {
+    this.selectedLanguage = localStorage.getItem('lang') || 
+                           this.translate.currentLang || 
+                           this.translate.defaultLang || 
+                           'es';
+    this.translate.use(this.selectedLanguage);
+  }
+
+  getLanguages() {
+    if (this.languagesLoaded) return;
     
     this.api.read('languages').subscribe({
       next: (res) => {
         this.availableLanguages = res['body'];
+        this.languagesLoaded = true;
 
-        if(this.api.isLoggedIn() && this.userSession){
-          if(this.userSession.lead_preferred_language && this.userSession.lead_preferred_language != ''){
+        if (this.api.isLoggedIn() && this.userSession) {
+          if (this.userSession.lead_preferred_language) {
             this.selectedLanguage = this.userSession.lead_preferred_language;
-            this.translate.use(this.selectedLanguage);  
+            this.translate.use(this.selectedLanguage);
             this.translateWords();
-
-          }else{
-            if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-              this.selectedLanguage = localStorage.getItem('lang');
-              this.translate.use(this.selectedLanguage);  
-              this.translateWords();
-            }else{
-              Device.getLanguageCode().then(lang=>{
-                this.selectedLanguage = lang.value;
-                this.translate.use(this.selectedLanguage);  
-                this.translateWords();
-      
-              });
-            }
-
+          } else {
+            this.applyStoredOrDeviceLanguage();
           }
-        }else{
-          if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-            this.selectedLanguage = localStorage.getItem('lang');
-            this.translate.use(this.selectedLanguage);  
-            this.translateWords();
-          }else{
-            Device.getLanguageCode().then(lang=>{
-              this.selectedLanguage = lang.value;
-              this.translate.use(this.selectedLanguage);  
-              this.translateWords();
-
-            });
-          }
+        } else {
+          this.applyStoredOrDeviceLanguage();
         }
       },
       error: (error) => {
         console.error('Error loading languages:', error);
-        // Usar idioma por defecto si hay error
         this.selectedLanguage = 'en';
         this.translate.use(this.selectedLanguage);
       }
     });
   }
-  translateWords(){
-    this.getCurrencies();
-    
-    this.translate.get(_('buttons.accept')).subscribe((text: string) => {
-      this.alertButtons[0]=text;
-    });
-    this.translate.get(_('buttons.delete')).subscribe((text: string) => {
-      this.deleteExtractAlertButtons[1].text =text;
-      this.deleteLineAlertButtons[1].text = text;
-      this.deleteAllNotMatchedAlertButtons[1].text = text;
-      this.deleteBillAlertButtons[1].text = text;
-      this.deleteAllAlertButtons[1].text = text;
 
-      
-    });
-    this.translate.get(_('buttons.cancel')).subscribe((text: string) => {
-      this.deleteExtractAlertButtons[0].text =text;
-      this.alertRestartButtons[0].text = text;
-      this.deleteLineAlertButtons[0].text = text;
-      this.deleteAllNotMatchedAlertButtons[0].text = text;
-      this.deleteBillAlertButtons[0].text = text;
-      this.deleteAllAlertButtons[0].text = text;
-      this.goBackAlertButtons[0].text = text;
-
-    });
-    this.translate.get(_('buttons.confirm')).subscribe((text: string) => {
-      this.alertRestartButtons[1].text = text;
-      this.goBackAlertButtons[1].text = text;
-      
-
-    });
-    this.translate.get(_('buttons.next')).subscribe((text: string) => {
-
-
-        this.guideSteps[0]['buttons'][0]['text'] = text;
-        this.guideSteps[1]['buttons'][0]['text'] = text;
-
-        this.translate.get(_('buttons.finish')).subscribe((text: string) => {
-          this.guideSteps[2]['buttons'][0]['text'] = text;
-
-          this.translate.get(_('titles.modules.tour.step-1.title')).subscribe((text: string) => {
-            this.guideSteps[0]['title'] = text;
-
-            this.translate.get(_('titles.modules.tour.step-1.description')).subscribe((text: string) => {
-            this.guideSteps[0]['text'] = text;
-
-              this.translate.get(_('titles.modules.tour.step-3.title')).subscribe((text: string) => {
-              this.guideSteps[1]['title'] = text;
-
-                this.translate.get(_('titles.modules.tour.step-3.description')).subscribe((text: string) => {
-                this.guideSteps[1]['text'] = text;
-
-                  this.translate.get(_('titles.modules.tour.step-4.title')).subscribe((text: string) => {
-                  this.guideSteps[2]['title'] = text;
-
-                    this.translate.get(_('titles.modules.tour.step-4.description')).subscribe((text: string) => {
-                    this.guideSteps[2]['text'] = text;
-                      this.shepherdService.addSteps(this.guideSteps);
-                      if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
-                        this.shepherdService.start();
-                       
-                  
-                      }
-                    })
-                  })
-                })
-              })
-            })
-
-          })
-
-
-        })
-        
-        
-
-
-    });
-
-  }
-  hidrate(){
-    
-    // Prevenir llamadas duplicadas de processes
-    if (this.processesLoaded) {
-      console.log('Processes already loaded, skipping API call in hidrate()');
-      return;
-    }
-
-    if(this.api.isLoggedIn()){
-      console.log('is logged')
-      this.userSession = this.api.getUserData();
-      console.log('user session', this.userSession);
-
-      if(this.userSession && this.userSession.id) {
-        console.log('entra user session id');
-
-        this.api.read('processes/list/'+this.userSession.id).subscribe({
-          next: (res) => {
-            console.log('respueta list processes', res);
-            this.travels = res['body'];
-            this.dataLoaded = true; // Marcar que los datos fueron cargados
-            this.processesLoaded = true; // Marcar que los procesos fueron cargados
-            
-            // Desactivar animaciones después de que se muestren por primera vez
-            if (this.shouldAnimateHistory && this.travels && this.travels.length > 0) {
-              // Dar tiempo para que se ejecuten las animaciones y luego desactivarlas
-              setTimeout(() => {
-                this.shouldAnimateHistory = false;
-              }, 1500); // Tiempo suficiente para que terminen todas las animaciones
-            }
-            
-            let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
-            
-            if(trip && trip != ''){
-              this.travels.forEach(element => {
-                if(element._id == trip){
-                  this.openTravel(element);
-                }
-              });
-            }
-          },
-          error: (error) => {
-            console.error('Error loading processes in hidrate():', error);
-            // En caso de error, permitir reintentos
-            this.processesLoaded = false;
-          }
-        });
-        
-        this.api.read('leads/'+this.userSession.id).subscribe(res=>{
-
-          if(res['body']['lead_email'] && res['body']['lead_email'] != ''){
-
-            this.userEmail = res['body']['lead_email'];
-
-          }
-          if(res['body']['lead_name'] && res['body']['lead_name'] != ''){
-
-            this.userName = res['body']['lead_name'];
-
-          }
-        })
-      }else{
-
-      }
-
-    }else{
-            console.log('is not logged')
-      // Usuario no autenticado - manejar modo offline si es necesario
-      if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
-
-        this.travels = JSON.parse(sessionStorage.getItem('travels'));
-        this.dataLoaded = true; // Marcar que los datos fueron cargados
-        this.processesLoaded = true; // También marcar como cargado para modo offline
-        
-        // Desactivar animaciones después de que se muestren por primera vez
-        if (this.shouldAnimateHistory && this.travels && this.travels.length > 0) {
-          setTimeout(() => {
-            this.shouldAnimateHistory = false;
-          }, 1500);
-        }
-      }else{
-        this.travels = [];
-        this.dataLoaded = true; // Marcar que se intentó cargar (aunque esté vacío)
-        this.processesLoaded = true; // También marcar como cargado
-      }
-
-    }
-
-
-
-    if(this.countBills() > 0){
-      this.isUploadingOther=false;
-    }else{
-      this.isUploadingOther=true;
-
-    }
-  }
-  ionViewWillEnter(){
-    // Solo cargar datos si no se han cargado previamente o si venimos de otra página
-    if(!this.dataLoaded || this.currentStep > 0) {
-      this.hidrate();
-    }
-    // Solo cargar idiomas una vez para evitar rate limiting
-    if(!this.languagesLoaded) {
-      this.getLanguages();
-    }
-    if(localStorage.getItem('langIntl') && localStorage.getItem('langIntl') != '' && localStorage.getItem('langIntl') != null){
-      
-      this.dateLocale=localStorage.getItem('langIntl');
-    }else{
-  
-    }
-  }
-  changeStartDatePicker(event){
-
-    this.dateRangeSelected = event.target.value;
-
-    if(!this.startDateTrip && !this.endDateTrip){
-
-      this.startDateTrip = this.dateRangeSelected[0];
-    }else if(!this.endDateTrip && this.startDateTrip){
-      
-      this.endDateTrip = this.dateRangeSelected[this.dateRangeSelected.length-1];
-
-
-
-
-    }else{
-      let aux = this.dateRangeSelected[this.dateRangeSelected.length-1];
-
-      this.dateRangeSelected = [aux];
-      this.startDateTrip = aux;
-      this.endDateTrip = undefined;
-
-    }
-    if(this.startDateTrip && this.endDateTrip){
-      if(new Date(this.startDateTrip).getTime() > new Date(this.endDateTrip).getTime()){
-        let aux2 = this.startDateTrip;
-        this.startDateTrip = this.endDateTrip;
-        this.endDateTrip = aux2;
-  
-      }
-      let start = new Date(this.startDateTrip);
-      let end = new Date(this.endDateTrip);
-      let days = (end.getTime()- start.getTime()) /86400000;
-
-      for (let index =1 ; index < days; index++) {
-        
-        let newDate = new Date(this.calcular(this.dateRangeSelected[index-1]));
-
-        this.dateRangeSelected[index] = newDate.getFullYear()+"-"+this.addZero(newDate.getMonth()+1)+"-"+this.addZero(newDate.getDate())
-        
-      }
-      this.dateRangeSelected.push(this.endDateTrip);
-    }
-
-    this.changeDetector.detectChanges();
-    if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
-      this.shepherdService.show('tour-step-3');
-
-    }
-    
-  }
-  calcular(fecha, operacion='sumar', dias=1) {
-    var date = fecha.split("-"),
-        hoy = new Date(date[0], date[1], date[2]),
-        calculado = new Date(),
-        dateResul = operacion == "sumar" ? hoy.getDate() + dias : hoy.getDate() - dias;
-    calculado.setDate(dateResul);
-    return calculado.getFullYear()+'-'+(calculado.getMonth() + 1)+'-'+calculado.getDate();
-   
-      
-  }
-  openLogin(){
-    this.showAlertLogin=false;
-    setTimeout(() => {
-    this.router.navigate(['/login']);
-      
-    }, 500);
-  }
-  listProcesses(){
-    
-    // Prevenir llamadas duplicadas de processes
-    if (this.processesLoaded) {
-      console.log('Processes already loaded, skipping API call in listProcesses()');
-      return;
-    }
-    
-    if(this.api.isLoggedIn() && this.userSession){
-      this.api.read('processes/list/'+this.userSession.id).subscribe({
-        next: (res) => {
-          this.travels = res['body'];
-          this.processesLoaded = true; // Marcar como cargado
-        },
-        error: (error) => {
-          console.error('Error loading processes in listProcesses():', error);
-          // En caso de error, permitir reintentos
-          this.processesLoaded = false;
-        }
+  applyStoredOrDeviceLanguage() {
+    if (localStorage.getItem('lang')) {
+      this.selectedLanguage = localStorage.getItem('lang') || 'es';
+      this.translate.use(this.selectedLanguage);
+      this.translateWords();
+    } else {
+      Device.getLanguageCode().then(lang => {
+        this.selectedLanguage = lang.value;
+        this.translate.use(this.selectedLanguage);
+        this.translateWords();
       });
-    }else{
-      if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
-
-        this.travels = JSON.parse(sessionStorage.getItem('travels'));
-
-      }else{
-        this.travels = [];
-      }
-      this.processesLoaded = true; // Marcar como cargado para modo offline
     }
-
   }
-  scrollToTarget(target){
-    setTimeout(() => {
 
-      if(document.getElementById(target)){
-        document.getElementById(target).scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "nearest"
-        });
-      }
-
-      
-    }, 500);
-  }
-  showModalPicker(modaTitle, type){
-    this.shepherdService.hide();
-    this.pickerTitle = modaTitle;
-    this.showPicker = true;
-    this.pickerType = type;
-    this.pickerOptions = this.currencies;
-  }
-  pickerDismissed(){
-    this.showPicker = false;
-
-    if(!localStorage.getItem('tourCompleted') || localStorage.getItem('tourCompleted') == null){
-      this.shepherdService.show('tour-step-2');
-
-    }
-
-  }
-  validateCountriesLimitations(){
-    return new Promise ((resolve,rejected)=>{
-
+  translateWords() {
+    this.loadCurrencies();
     
-      if(this.api.isLoggedIn() && this.userSession){
-        this.api.read('limitations/validateCountries/'+this.userSession.id).subscribe(res=>{
-          if(res['body']['result']){
-            resolve(true);
-          }else{
-            resolve(false);
-          }
+    this.translate.get('buttons.accept').subscribe((text: string) => {
+      this.alertButtons[0] = text;
+    });
     
-        })
-  
-      }else{
-        resolve(true);
-
-      }
-    })
-
-
-
-
-  }
-  pickerOptionSelected(event){
-    if(this.pickerType == 'country'){
-
-      this.currencyBlockSelected = event;
-      this.scrollToTarget('card-step-2');
-      /*
-      uncomment
-      this.validateCountriesLimitations().then(res=>{
-        if(res){
-          this.currencyBlockSelected = event;
-          this.scrollToTarget('card-step-2');
-        }else{
-          this.router.navigate(['/customer/memberships']);
-          this.currencyBlockSelected=undefined;
-        }
-      })
-        */
-
-      /*
-      if(this.travelSelected.process_data.bills.length >= this.limitations.limitations_country_x_travel){
-
-
-        var founds = 0;
-        this.travelSelected.process_data.bills.forEach(bill => {
-
-
-          if(bill.country == event.country){
-            founds ++;
-          }
-        });
-
-
-        if(founds == 0){
-          this.showModalUpgrade=true;
-          this.currencyBlockSelected=undefined;
-        }else{
-          this.currencyBlockSelected = event;
-          this.scrollToTarget('card-step-2');
-        }
-        
-
-      }else{
-
-        this.currencyBlockSelected = event;
-        this.scrollToTarget('card-step-2');
-      }
-        */
-      
-
-
-      
-    }
-    if(this.pickerType == 'add_country'){
-      
-      var found = 0;
-      var code = event.code;
-      var country = event.country;
-
-      this.extracts.bills.forEach(bill => {
-        if(bill.currency == event.code && bill.country == event.country){
-          found = 1;
-        }
-      });
-
-      if(found == 0){
-
-        let newcountry = {
-          currency:code,
-          country: country,
-          bill:[]
-        }
-        this.extracts.bills.push(newcountry);
-        this.updateTravel();
-      }
-    }
-    if(this.pickerType == 'currency'){
-      this.extracts['extract']['currency'] = event;
-      this.scrollToTarget('card-step-4');
-
-    }
-
-  }
-  cancelUploading(){
-    this.isUploadingOther = false;
-    this.imagesToUpload = [];
-    this.currencyBlockSelected=undefined;
-
-  }
-  deleteImageToUpload(i){
-    this.imagesToUpload.splice(i,1);
-  }
-  addZero(value){
-
-    return ("0"+value).slice(-2);
-
-  }
-  getCurrencies(){
+    this.translate.get('buttons.delete').subscribe((text: string) => {
+      this.deleteReceiptAlertButtons[1].text = text;
+    });
     
-    this.api.read('countries/'+this.selectedLanguage).subscribe(res=>{
-      if(res['status'] == 200){
-        this.currencies=res['body'];
-      }
-    })
-      
-  }
-  convertKey(input){
-    let string = input.replace(/ /g, '-').toLowerCase();
-    string = string.replace(/,/g, '');
-    string = string.replace(/\./g, "");
-    string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    return 'countries.'+string;
-  }
-  openTravel(travel){
-    console.log('🚀 openTravel called with:', travel);
-    console.log('🔗 Navigating to:', ['/customer/process', travel._id]);
-    
-    // Verificar que el router esté disponible
-    if (!this.router) {
-      console.error('❌ Router is not available!');
-      return;
-    }
+    this.translate.get('buttons.cancel').subscribe((text: string) => {
+      this.deleteReceiptAlertButtons[0].text = text;
+      this.deleteAllReceiptsAlertButtons[0].text = text;
+    });
 
-    // Verificar que el travel tenga ID
-    if (!travel || !travel._id) {
-      console.error('❌ Travel or travel._id is missing:', travel);
-      return;
-    }
-
-    // Navegar a la página de proceso con el ID del viaje
-    const routePath = ['/customer/process', travel._id];
-    console.log('🎯 Final route path:', routePath);
-    
-    this.router.navigate(routePath).then(success => {
-      console.log('✅ Navigation result:', success);
-      if (!success) {
-        console.error('❌ Navigation failed - route may not exist or guards prevented navigation');
-      }
-    }).catch(error => {
-      console.error('💥 Navigation error:', error);
+    this.translate.get('buttons.delete-all').subscribe((text: string) => {
+      this.deleteAllReceiptsAlertButtons[1].text = text;
     });
   }
 
-  // Método de prueba para verificar navegación
-  testNavigation() {
-    console.log('🧪 Testing navigation...');
-    this.router.navigate(['/customer/process', '64f7a8b8e1234567890abcde']).then(success => {
-      console.log('🧪 Test navigation result:', success);
-    }).catch(error => {
-      console.error('🧪 Test navigation error:', error);
+  loadCurrencies() {
+    this.api.read('countries/' + this.selectedLanguage).subscribe(res => {
+      if (res['status'] == 200) {
+        this.currencies = res['body'];
+        console.log('✅ Currencies loaded:', this.currencies);
+      }
     });
   }
-  updateTravel(){
 
-    this.travelSelected['process_data']= this.extracts;
-
-    if(this.results){
-      this.travelSelected['process_result'] = this.results;
-    }else{
-      this.travelSelected['process_result'] = undefined;
-    }
+  async setDateLocale() {
+    const deviceLanguage = await Device.getLanguageCode();
+    const currentLang = this.translate.currentLang || this.translate.defaultLang;
     
-    
-    
-    this.travels.forEach((element,index) => {
-
-      if(element._id == this.travelSelected._id){
-        this.travels[index] = this.travelSelected;
-      }
-
-    });
-    if(this.api.isLoggedIn()){
-      this.api.update('processes/'+this.travelSelected._id,this.travelSelected).subscribe(res=>{
-      })
-    }else{
-        sessionStorage.setItem('travels', JSON.stringify(this.travels));
-    }
-
-  }
-
-  validateTravelLimitations(){
-    return new Promise ((resolve,rejected)=>{
-
-      this.api.read('limitations/validateTravel/'+this.userSession.id).subscribe(res=>{
-        if(res['body']['result']){
-          resolve(true);
-        }else{
-          resolve(false);
-        }
-  
-      })
-
-    })
-  }
-  addTravel(){
-    this.openModalAddTravel =true;
-    /*
-    uncomment
-      if(this.userSession){
-        this.validateTravelLimitations().then(res=>{
-          if(res){
-            this.openModalAddTravel =true;
-
-          }else{
-            this.router.navigate(['/customer/memberships']);
-
-
-          }
-        })
-      }else{
-        
-        if(this.travels && this.travels.length <= 0 || !this.travels){
-          this.openModalAddTravel =true;
-        }else{
-          this.router.navigate(['/customer/memberships']);
-
-
-        }
-      }
-        */
-    
-    
-  }
-  createProcess(){
-    this.loadingButtons=true;
-    
-    // Verificar que el usuario esté autenticado
-    if (!this.api.isLoggedIn()) {
-      this.loadingButtons = false;
-      this.router.navigate(['/login']);
-      return;
-    }
-    
-    this.executeProcessCreation();
-  }
-
-
-
-  executeProcessCreation(){
-    let processSettings = {
-      sendPdf:false,
-      sendExcel:false
-    }
-    let processData = {
-      bills:[
-        {
-          bill:[],
-          country:this.currencyBlockSelected['country'],
-          currency:this.currencyBlockSelected['code']
-        }
-      ],
-      extract:{
-        currency:"",
-        type:""
-      }
-    }
-
-    let req = {
-      // process_lead ya no se envía, se obtiene del JWT token
-      process_country: this.currencyBlockSelected,
-      process_step:1,
-      process_settings:processSettings,
-      process_source: localStorage.getItem('clientSource'),
-      process_data:processData
+    const localeMap: { [key: string]: string } = {
+      'es': 'es-ES',
+      'en': 'en-US',
+      'pt': 'pt-BR',
+      'it': 'it-IT',
+      'de': 'de-DE',
+      'fr': 'fr-FR',
+      'ja': 'ja-JP',
+      'ko': 'ko-KR',
+      'ar': 'ar-SA'
     };
 
-    this.api.create('processes',req).subscribe(res=>{
-      if(res['status'] == 201){
+    this.dateLocale = localeMap[currentLang] || localeMap[deviceLanguage.value] || 'en-US';
+  }
 
-        this.openModalAddTravel = false;
-        this.listProcesses();
+  // ============================================
+  // FUNCIONES DE GESTIÓN DE RECIBOS
+  // ============================================
 
-        // Solo usar sessionStorage si no está autenticado (modo offline)
-        if(!this.api.isLoggedIn()){
-          if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
+  loadUserReceipts(resetPagination: boolean = true) {
+    if (!this.userSession || !this.userSession.id) {
+      console.error('❌ No user session available');
+      this.isLoadingReceipts = false;
+      return;
+    }
 
-            this.travels = JSON.parse(sessionStorage.getItem('travels'));
-            this.travels.push(res['body']);
-            
+    // Resetear paginación si es una carga inicial
+    if (resetPagination) {
+      this.currentPage = 1;
+      this.userCountries = [];
+    }
+
+    console.log('🔄 Loading receipts for user:', this.userSession.id, 'Page:', this.currentPage);
+    this.isLoadingReceipts = resetPagination;
+    this.isLoadingMore = !resetPagination;
     
-          }else{
-            this.travels = [];
-            this.travels.push(res['body']);
-
+    this.api.read(`userReceipts/${this.userSession.id}/grouped?page=${this.currentPage}&limit=${this.pageLimit}`).subscribe({
+      next: (res) => {
+        if (res['status'] == 200) {
+          const responseData = res['body'];
+          const newCountries = responseData.data || responseData; // Compatibilidad con respuesta antigua y nueva
+          const pagination = responseData.pagination;
+          
+          console.log('✅ User receipts loaded:', newCountries);
+          
+          if (pagination) {
+            this.hasMoreReceipts = pagination.hasMore;
+            this.totalReceipts = pagination.totalReceipts;
+            console.log('📊 Pagination info:', {
+              currentPage: pagination.currentPage,
+              hasMore: pagination.hasMore,
+              totalReceipts: pagination.totalReceipts
+            });
           }
-          sessionStorage.setItem('travels', JSON.stringify(this.travels));
-
-        }
-
-      }
-      this.loadingButtons=false;
-      this.currencyBlockSelected=undefined;
-      this.openTravel(res['body']);
-      this.toggleDate=false;
-      this.endDateTrip=undefined;
-      let today = new Date();
-
-      this.dateRangeSelected = [];
-      this.startDateTrip = today.getFullYear()+"-"+this.addZero(today.getMonth()+1)+"-"+this.addZero(today.getDate());
-      
-      this.dateRangeSelected = [this.startDateTrip];
-
-    })
-
-
-
-  }
-  countBills(){
-    if(this.extracts && this.extracts['bills']){
-      return this.extracts['bills'].length;
-
-    }else{
-      return 0;
-    }
-  }
-  nextStep(){
-    if(this.currentStep == 1 ){
-      this.currentStep ++;
-      this.travelSelected['process_step']= this.currentStep;
-      this.travelSelected['process_status']=1;
-      this.updateTravel();
-
-    }else if(this.currentStep == 2){
-      this.currentStep ++;
-
-      this.getAnalisysResult().then(res=>{
-
-        if(this.countNotMatched() <= 0){
-         this.currentStep ++;
-
-
-        }
-        this.travelSelected['process_step']= this.currentStep;
-        this.updateTravel();
-
-     });
-     this.travelSelected['process_step']= this.currentStep;
-     this.updateTravel();
-    }else{
-      this.currentStep++;
-
-      this.travelSelected['process_step']= this.currentStep;
-      this.updateTravel();
-    }
-
-
-
-
-  }
-  finishProcess(event){
-
-    this.api.create('ratings', {ratings_lead_email: this.userEmail, ratings_process:this.travelSelected._id ,ratings_score:event['score'], ratings_comment:event['comment'] }).subscribe(res=>{
-      
-      this.api.update('processes/'+this.travelSelected._id, {process_date_finished:Date.now()}).subscribe(res=>{
-
-        this.travelSelected['process_status']=2;
-        this.updateTravel();
-        this.extracts=[];
-    
-        this.results=undefined;
-    
-        this.exportSettings=undefined;
-    
-        this.currentExtract=0;
-        this.currentBill=0;
-        this.sendPdf=undefined;
-        this.sendExcel=undefined;
-        this.checkResults=false;
-        this.currentStep = 0;
-        this.shouldAnimateHistory = true; // Reiniciar animaciones al volver al dashboard
-      })
-
-    })
-    
-
-
-
-    
-
-  }
-  countNotMatched(){
-    let founds =0;
-
-    if(this.results){
-      this.results['notMatched'].forEach(element => {
-
-        founds = founds + element['bill'].length;
-      });
-    }
-
-
-    return founds;
-
-  }
-  countMatched(){
-    let founds =0;
-    
-    if(this.results && this.results['matchedBills']){
-      this.results['matchedBills'].forEach(element => {
-
-        founds = founds + element['bill'].length;
-      });
-    }
-
-
-    return founds;
-  }
-  getAnalisysResult(){
-
-    return new Promise((resolve,rejected)=>{
-      if(!this.travelSelected['process_result']){
-
-        this.api.create('processes/getResult', this.extracts).subscribe(res=>{
-
-          if(!res['error']){
-            let obj= {
-              matchedBills:res['body']['matchedExtracts'],
-              notMatched:res['body']['notMatched'],
-              notmatchedExtractLines:res['body']['notMatchedExtractLines'],
-              startDate:res['body']['startDate'],
-              endDate:res['body']['endDate']
+          
+          // Combinar recibos por país
+          if (this.currentPage === 1) {
+            this.userCountries = newCountries;
+          } else {
+            // Agregar nuevos recibos a países existentes o crear nuevos
+            newCountries.forEach((newCountry: any) => {
+              const existingCountry = this.userCountries.find(c => c.country === newCountry.country);
+              if (existingCountry) {
+                existingCountry.receipts = [...existingCountry.receipts, ...newCountry.receipts];
+              } else {
+                this.userCountries.push(newCountry);
+              }
+            });
+          }
+          
+          // Si hay países, seleccionar el primero
+          if (this.userCountries && this.userCountries.length > 0 && resetPagination) {
+            this.selectCountry(0);
+          } else if (!resetPagination && this.currentCountryData) {
+            // Actualizar el país actual con los nuevos datos
+            const updatedCountry = this.userCountries[this.selectedCountryIndex];
+            if (updatedCountry) {
+              this.currentCountryData = updatedCountry;
             }
-            this.results=obj;
-    
-            this.updateTravel();
-            resolve(true);
-    
+          } else {
+            this.currentCountryData = null;
           }
-     
-    
-        })
-  
-      }else{
-        this.results = this.travelSelected['process_result'];
-        resolve(true);
+        }
+        this.isLoadingReceipts = false;
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('❌ Error loading user receipts:', error);
+        if (resetPagination) {
+          this.userCountries = [];
+          this.currentCountryData = null;
+        }
+        this.isLoadingReceipts = false;
+        this.isLoadingMore = false;
       }
-    })
+    });
+  }
+  
+  loadMoreReceipts(event: any) {
+    if (this.isLoadingMore || !this.hasMoreReceipts) {
+      event.target.complete();
+      return;
+    }
+    
+    this.currentPage++;
+    console.log('📄 Loading more receipts, page:', this.currentPage);
+    
+    this.api.read(`userReceipts/${this.userSession.id}/grouped?page=${this.currentPage}&limit=${this.pageLimit}`).subscribe({
+      next: (res) => {
+        if (res['status'] == 200) {
+          const responseData = res['body'];
+          const newCountries = responseData.data || responseData;
+          const pagination = responseData.pagination;
+          
+          if (pagination) {
+            this.hasMoreReceipts = pagination.hasMore;
+            this.totalReceipts = pagination.totalReceipts;
+          }
+          
+          // Agregar nuevos recibos a países existentes o crear nuevos
+          newCountries.forEach((newCountry: any) => {
+            const existingCountry = this.userCountries.find(c => c.country === newCountry.country);
+            if (existingCountry) {
+              existingCountry.receipts = [...existingCountry.receipts, ...newCountry.receipts];
+            } else {
+              this.userCountries.push(newCountry);
+            }
+          });
+          
+          // Actualizar el país actual con los nuevos datos
+          const updatedCountry = this.userCountries[this.selectedCountryIndex];
+          if (updatedCountry) {
+            this.currentCountryData = updatedCountry;
+          }
+        }
+        event.target.complete();
+      },
+      error: (error) => {
+        console.error('❌ Error loading more receipts:', error);
+        event.target.complete();
+      }
+    });
+  }
 
-
-
+  selectCountry(index: number) {
+    this.selectedCountryIndex = index;
+    if (this.userCountries && this.userCountries[index]) {
+      this.currentCountryData = this.userCountries[index];
       
-  }
-  confirmGoBack(){
-    this.backStep();
-  }
-  backStep(){
-    this.isSettingBill=false;
-    if(this.currentStep == 3){
+      // Establecer currencyBlockSelected según el país
+      const country = this.currentCountryData.country;
+      const countryInfo = this.currencies?.find((c: any) => c.country === country);
+      
+      if (countryInfo) {
+        this.currencyBlockSelected = countryInfo;
+      }
 
-      this.results=undefined;
-      this.checkResults=false;
-
+      // Verificar si hay recibos
+      if (this.hasReceipts()) {
+        this.isUploadingOther = false;
+      } else {
+        this.isUploadingOther = true;
+      }
+      
+      console.log('✅ Country selected:', this.currentCountryData);
     }
+  }
 
-    if(this.currentStep == 1){
-      this.isUploadingOther=false;
-      this.currencyBlockSelected = undefined;
+  hasReceipts(): boolean {
+    return this.currentCountryData && 
+           this.currentCountryData.receipts && 
+           this.currentCountryData.receipts.length > 0;
+  }
+
+  getCurrentReceipts(): any[] {
+    if (!this.hasReceipts()) return [];
+    
+    // Ordenar recibos por fecha del documento (más recientes primero)
+    return [...this.currentCountryData.receipts].sort((a: any, b: any) => {
+      // Obtener la fecha del document_result.date
+      const dateA = a.document_result?.date || a.document_created || a.created_at || 0;
+      const dateB = b.document_result?.date || b.document_created || b.created_at || 0;
+      
+      // Convertir a timestamp si es string
+      const timestampA = typeof dateA === 'string' ? new Date(dateA).getTime() : dateA;
+      const timestampB = typeof dateB === 'string' ? new Date(dateB).getTime() : dateB;
+      
+      return timestampB - timestampA; // Orden descendente (más reciente primero)
+    });
+  }
+
+  getCurrentCurrency(): string {
+    if (this.currencyBlockSelected && this.currencyBlockSelected.code) {
+      return this.currencyBlockSelected.code;
     }
-    this.currentStep--;
-    if(this.currentStep == 3){
-      if(this.countNotMatched() <= 0){
-        this.currentStep --;
-        this.results=undefined;
-        this.checkResults=false;
+    return '';
+  }
 
-       }
-    }
-    if(this.currentStep > 0){
-      this.travelSelected['process_step']= this.currentStep;
-      this.updateTravel();
-    }
+  checkReceiptsErrors(): boolean {
+    if (!this.hasReceipts()) return true;
+    
+    const receipts = this.getCurrentReceipts();
+    return receipts.some((receipt: any) => receipt.analysis_status === 500 || receipt.analysis_status === 0);
+  }
 
-  }
-  addExtract(){
-    this.extracts.push({
-      fileName:"Bancolombia_16-04-2024.pdf",
-      uploadedDate:"16/04/2023",
-      id:1
-    })
-  }
-  changeDateBill(){
+  // ============================================
+  // FUNCIONES DE SUBIDA DE ARCHIVOS
+  // ============================================
 
-  }
-  exportResult(){
-    this.currentStep++;
-    this.travelSelected['process_step']= this.currentStep;
-
-    this.updateTravel();
-
-  }
-  dismissAlertFounds(){
-    this.showAlertFounds=false;
-  }
-  dismissAlertFoundsNotMatched(){
-    this.showAlertFoundsMatched=false;
-  }
-  dismissAlertRestart(){
-    this.showAlertRestart=false;
-  }
-  takePhoto(){
-
+  takePhoto() {
     Camera.getPhoto({
       quality: 90,
       allowEditing: true,
       resultType: CameraResultType.DataUrl,
       source: CameraSource.Camera
     }).then((imageData) => {
-
-      // imageData is either a base64 encoded string or a file URI
-      // If it's base64 (DATA_URL):
       this.imagesToUpload.push(imageData);
-
-      
-
-     }, (err) => {
-     });
-  }
-  deleteBillFromResult(docId){
-    
-  }
-  updateOrCreateLead(obj){
-    return new Promise ((resolve,reject)=>{
-      if(this.api.isLoggedIn() && this.userSession){
-        this.api.update('leads/'+this.userSession.id,obj).subscribe(res=>{
-          resolve(res);
-        })
-      }else{
-        this.api.create('leads', obj).subscribe(res=>{
-          resolve(res);
-        });
-      }
-
-    })
-  }
-
-  ionResult(){
-    this.sendingForm=true; 
-
-    let exportSettings ={
-      userName:this.userName,
-      userEmail:this.userEmail,
-      sendPdf:this.sendPdf,
-      sendExcel:this.sendExcel
-
-    }
-
-
-   let obj = {
-    lead_name:this.userName,
-    lead_email: this.userEmail.toLowerCase(),
-    process_id: this.travelSelected._id
-  }
-   this.updateOrCreateLead(obj).then(()=>{
-    if(this.countNotMatched() > 0 ){
-    
-      if(this.results.matchedBills.length > 0){
-        this.results.matchedBills.forEach( (matched,index) => {
-
-          this.results.notMatched.forEach(notMatched => {
-  
-            if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
-  
-              this.results.matchedBills[index].bill = this.results.matchedBills[index].bill.concat(notMatched.bill);
-  
-            }
-  
-          });
-  
-        });
-      }else{
-        this.results.matchedBills = this.results.notMatched;
-      }
-
-
-      //this.results.matchedBills = this.results.matchedBills.concat(this.results.notMatched);
-
-    }
-
-    let objSendResult = {
-      results: this.results,
-      exportSettings : exportSettings,
-      userName : this.userName,
-      userEmail : this.userEmail,
-    }
-    
-    this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
-      if(res['body'] == 202){
-
-        this.showAlertResend = true;
-        this.currentStep = 0;
-        this.shouldAnimateHistory = true; // Reiniciar animaciones al volver al dashboard
-        this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
-
-      }
-      this.sendingForm=false; 
-    })
-   })
-
-
-  }
-  sendResult(){
-    this.sendingForm=true; 
-
-
-    let exportSettings ={
-      userName:this.userName,
-      userEmail:this.userEmail,
-      sendPdf:this.sendPdf,
-      sendExcel:this.sendExcel
-
-    }
-
-
-   let obj = {
-    lead_name:this.userName,
-    lead_email: this.userEmail.toLowerCase(),
-    process_id: this.travelSelected._id
-  }
-   this.updateOrCreateLead(obj).then(()=>{
-
-    var resultToSend = this.results;
-
-    if(this.countNotMatched() > 0 ){
-    
-      if(resultToSend.matchedBills.length > 0){
-
-        resultToSend.matchedBills.forEach( (matched,index) => {
-
-          resultToSend.notMatched.forEach(notMatched => {
-  
-            if(matched.currency && matched.currency == notMatched.currency && notMatched.bill && notMatched.bill.length > 0){
-  
-          
-              resultToSend.matchedBills[index].bill = resultToSend.matchedBills[index].bill.concat(notMatched.bill);
-  
-            }
-  
-          });
-  
-        });
-      }else{
-        resultToSend.matchedBills = resultToSend.notMatched;
-      }
-
-
-
-    }
-
-    this.getlanguage().then(res=>{
-      var lang = res;
-      let objSendResult = {
-        results: resultToSend,
-        exportSettings : exportSettings,
-        userName : this.userName,
-        userEmail : this.userEmail,
-        lang: lang
-      }
-      this.api.create('processes/sendResult',objSendResult).subscribe(res=>{
-        if(res['body'] == 202){
-          this.currentStep ++;
-          this.travelSelected['process_step']= this.currentStep;
-  
-          this.updateTravel();
-  
-          this.router.navigate(['./customer/trips'],{queryParams:{lead:true}});
-  
-        }
-        this.sendingForm=false; 
-      })
-
-    })
-
-
-      
-   })
-
-
-  }
-
-  getlanguage(){
-    return new Promise((resolve,rejected)=>{
-
-      if(localStorage.getItem('lang') && localStorage.getItem('lang') != '' && localStorage.getItem('lang') != null){
-        resolve(localStorage.getItem('lang'));
-  
-      }else{
-        Device.getLanguageCode().then(res=>{
-          resolve(res.value);
-
-        });
-      }
-
-    })
-  }
-  showMemberships(){
-    this.openModalMemberships=true;
-  }
-  showCheckout(){}
-  jumpToStep(step:number){
-    this.currentStep=step;
-    this.travelSelected['process_step']= this.currentStep;
-
-    this.updateTravel();
-  }
-  flushData(){
-    this.jumpToStep(0);
-  }
-  onWillDismiss(){
-    this.openModalMemberships=false;
-  }
-  onWillDismissEditLine(){
-    this.isEdditingLine=false;
-    this.selectedLine=undefined;
-  }
-  onWillDismissModalHelp(){
-    this.modalHelp=false;
-  }
-  dismissDeleteAllNotMatched(){
-    this.isDeletingAllNotMatched=false;
-  }
-  changeExportSettings(){
-
-
-    this.travelSelected['process_settings']['sendPdf'] = this.sendPdf ? true : false;
-    this.travelSelected['process_settings']['sendExcel'] = this.sendExcel? true : false;
-
-    this.updateTravel();
-
-
-  }
-  skipRevision(){
-    this.nextStep();
-    this.modalHelp=false;
-  }
-  showModalAddBill(){
-    this.openModalAddBill=true;
-    this.currentBill = this.extracts[this.currentExtract]['bills'].length;
-    this.uploadedBill='';
-  }
-  onWillDismissAddBill(){
-    this.openModalAddBill=false;
-    this.uploadedBill="";
-  }
-  onWillDismissAddTravel(){
-    this.openModalAddTravel =false;
-    this.currencyBlockSelected = undefined;
-  }
-  onFileDropped($event,type){
-    this.uploadFile($event,type);
-  }
-  deleteExtract(id, document_id){
-    this.isAlertDeleteExtract=true;
-    this.idToDelete = id;
-    this.documentIdToDelete = document_id;
-
-
-  }
-  deleteBill(iBill,id, document_id){
-
-
-    this.isAlertDeleteBill=true;
-    this.idToDeleteBill =id;
-    this.documentIdToDelete = document_id;
-    this.idToDeleteBillContainer =iBill;
-
-  }
-  deleteAllReceiptsAlert(){
-    this.isAlertDeleteAll = true;
-  }
-  dismissDeleteExtract(){
-    this.isAlertDeleteExtract=false;
-  }
-  dismissDeleteLine(){
-    this.isDeletingLine=false;
-    this.selectedDeleteLine=undefined;
-  }
-  openAddBill(){
-    this.openModalAddBill=true;
-    this.uploadedBill='';
-  }
-  dismissDeleteBill(){
-    this.isAlertDeleteBill=false;
-    this.idToDeleteBill=0;
-    this.idToDeleteBillContainer=0;
-
-  }
-  dismissDeleteAll(){
-    this.isAlertDeleteAll=false;
-
-  }
-  finishSettingBill(){
-    this.isSettingBill = false;
-    this.currentBill = this.extracts[this.currentExtract]['bills'].length;
-    this.openModalAddBill=false;
-
-   
-  }
-  confirmDeleteExtract(){
-  
-
-    delete this.extracts['extract']['file'];
-    delete this.extracts['extract']['status'];
-    delete this.extracts['extract']['lines'];
-    delete this.extracts['extract']['bankName'];
-    delete this.extracts['extract']['blobName'];
-    delete this.extracts['extract']['document_id'];
-    delete this.extracts['extract']['endDate'];
-    delete this.extracts['extract']['file_url'];
-    delete this.extracts['extract']['mimeType'];
-    delete this.extracts['extract']['startDate'];
-
-
-    this.updateTravel();
-    this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
-    })
-    this.isAlertDeleteExtract=false;
-
-  }
-  confirmDeleteBill(){
-    
-    
-    this.extracts['bills'][this.idToDeleteBillContainer]['bill'].splice(this.idToDeleteBill, 1);
-
-
-    if(this.extracts['bills'][this.idToDeleteBillContainer]['bill'].length <=0){
-
-      this.extracts['bills'].splice(this.idToDeleteBillContainer,1);
-
-    }
-    this.updateTravel();
-
-    this.api.update('documents/'+ this.documentIdToDelete,{deleted:true}).subscribe(res=>{
-    })
-    
-    this.isAlertDeleteBill=false;
-    
-
-  }
-  confirmDeleteBillAll(){
-
-    let extractsToDelete = this.extracts;
-
-    extractsToDelete['bills'][this.billPos]['bill'].forEach( (bill,groupIndex) => {
-      
-        this.api.update('documents/'+ bill.document_id,{deleted:true}).subscribe(res=>{
-        })
-
+      this.cdr.detectChanges();
+    }, (err) => {
+      console.error('Error taking photo:', err);
     });
-    this.extracts['bills'].splice(this.billPos,1);
-
-    this.billPos=0;
-    //this.extracts['bills'][this.billPos]['bill'] = [];
-    this.updateTravel();
-
   }
 
-
-  changeExtractType(){
-    this.updateTravel();
-
-  }
-  nextConfirmData(){
-    this.currentStep =2;
-    this.travelSelected['process_step']= this.currentStep;
-
-    this.getAnalisysResult();
-    /*
-    if(this.currentStep ==1 && this.extracts 
-      && this.extracts[this.currentExtract] 
-      && this.extracts[this.currentExtract]['bills'] 
-      && this.extracts[this.currentExtract]['bills'][this.currentBill] 
-      && this.extracts[this.currentExtract]['bills'][this.currentBill]['confirmed'] == 1){
-        
-       
-    
-    }else{
-      this.isSettingBill = true;
-
-    }
-      */
-
-    this.updateTravel();
-
-  }
-  confirmData(){
-
-    this.isSettingBill = false;
-    this.extracts[this.currentExtract]['bills'][this.currentBill]['confirmed']=1;
-
-    this.currentBill = this.extracts[this.currentExtract]['bills'].length;
-    this.updateTravel();
-
-    this.nextStep();
-
-  }
-  startExtractWorker(){
-    if(this.extracts && this.extracts['extract'] ){
-
-
-        setTimeout(() => {
-          if(this.extracts['extract']['status'] == 0){
-            let form = new FormData();
-            form.append('jobId', this.extracts['extract']['jobId']); 
-    
-            this.api.sendForm('aws/getExpenseAnalysis',form).subscribe(res=>{
-              if(res['status']){
-                let data = res['result'];
- 
-                this.extracts['extract']['status'] = 1; 
-                this.extracts['extract']['lines'] = res['result']['lines']; 
-
-                if(res['result']['name'] && res['result']['name'] != ''){
-                this.extracts['extract']['name'] = res['result']['name']; 
-
-                }
-                sessionStorage.setItem('extracts', JSON.stringify(this.extracts));
-
-                
-              }else{
-                this.startExtractWorker();
-              }
-            })
-            
-          }
-    
-        }, 5000);
-        
-      
-
-    }
-
-
-  }
-  uploadLineBill(extract,line){
-
-    this.openModalAddBill = true;
-
-    this.uploadLineResultId=line;
-    this.uploadedExtractName=extract;
-    
-
+  onFileDropped(files: any) {
+    this.imagesToUpload = [];
+    this.isUploadingOther = false;
+    this.uploadFile(files);
   }
 
-  changeDateExtractLine(i){
+  fileBrowseHandler(event: any) {
+    const files = event.target.files;
+    this.imagesToUpload = [];
+    this.isUploadingOther = false;
+    this.uploadFile(files);
   }
-  editLine(line){
-    let startDate = new Date(line.date+"T"+line.hour);
 
-    this.editLineDate = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T00:00";
-    this.editLineTime = startDate.getFullYear()+"-"+this.addZero(startDate.getMonth()+1)+"-"+this.addZero(startDate.getDate())+"T"+startDate.getHours()+":"+startDate.getMinutes()+":00";
+  deleteImageToUpload(index: number) {
+    this.imagesToUpload.splice(index, 1);
+  }
 
-    this.editLineReason = line.reason && line.reason != '' ? line.reason : '';
-    this.editLineDescription=line.vendor;
-    this.editLineBill = line.bill;
-    this.editLineCurrency = line.currency;
-    this.editLineDocId= line.document_id;
-    this.toggleDatesExtracts = [];
-    this.extracts.extract.lines.forEach(element => {
-      this.toggleDatesExtracts.push(false);
+  uploadImagesBase64() {
+    let files: any[] = [];
+
+    this.imagesToUpload.forEach((image: any) => {
+      const blob = this.dataURItoBlob(image.dataUrl || image);
+      const file = new File([blob], 'receipt_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+      files.push(file);
     });
 
+    this.imagesToUpload = [];
+    this.isUploadingOther = false;
     
-    this.api.create('uploads/readBlob', {
-      file_name:line.blobName,
-      mimeType:line.mimeType,
-      process_id:this.travelSelected._id,
-      folder:"receipts"
-    }).subscribe(res=>{
-
-      this.editLineReceipt = res['body'];
-      this.changeDetector.detectChanges();
-      
-
-    })
-
-    this.api.create('uploads/readBlob', {
-      file_name:this.extracts['extract'].blobName,
-      mimeType:this.extracts['extract'].mimeType,
-      process_id:this.travelSelected._id,
-      folder:"extracts"
-    }).subscribe(res=>{
-
-      this.editLineExtract = res['body'];
-      this.changeDetector.detectChanges();
-
-      
-
-    })
-
-
-    this.isEdditingLine=true;
-    
-
-
+    this.uploadFile(files);
   }
 
-  sanitizeImage(blob){
-
-    return this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' 
-      + blob);
-  }
-
-  isImage(mime){
-    if(this.imageMimes.indexOf(mime) >= 0){
-      return true;
-    }else{
-      return false;
-    }
-  }
-
-  isPdf(mime){
-    if(mime){
-      if(this.pdfMimes.indexOf(mime) >= 0){
-        return true;
-      }else{
-        return false;
-      }
-    }else{
-      return false;
-    }
-
-  }
-
-  deleteLine(i,line){
-    this.selectedDeleteLine=[i,line];
-    
-    this.isDeletingLine=true;
-  }
-  deleteAllNotMatched(){
-    this.isDeletingAllNotMatched = true;
-  }
-  deleteNotMatched(group,line, lineObj){
-    this.selectedDeleteLine=[group,line];
-    this.docToDelete = lineObj.document_id;
-
-    this.isDeletingLine=true;
-
-
-  }
-
-  getNotScheduledStatus(){
-    let founds =0;
-
-    this.results['notMatched'].forEach(element => {
-
-      if(element['bill'] && element['bill'].length > 0){
-        element['bill'].forEach(bill => {
-          founds ++;
-        });
-      }
-    });
-
-    if(founds == 0){
-      return false;
-    }else{
-      return true;
-    }
-
-  }
-  confirmDeleteAllNotMatchedLines(){
-    this.results['notMatched']=[];
-    this.updateTravel();
-
-  }
-  confirmDeleteLine(){
-
-    this.results['notMatched'][this.selectedDeleteLine[0]]['bill'].splice(this.selectedDeleteLine[1],1);
-
-    if(this.results['notMatched'][this.selectedDeleteLine[0]]['bill'].length <=0){
-      this.results['notMatched'].splice(0,1);
-    }
-    
-
-    this.extracts.bills.forEach((billGroup,groupIndex) => {
-      billGroup.bill.forEach((bill, billIndex) => {
-        if(bill.document_id == this.docToDelete){
-          this.idToDeleteBillContainer = groupIndex;
-          this.idToDeleteBill = billIndex;
-          this.documentIdToDelete = this.docToDelete;
-        }
-      });
-    });
-    this.confirmDeleteBill();
-
-
-    this.updateTravel()
-
-
-  }
-  checkMatchStatus(){
-    let found = 0;
-    this.results.forEach(element => {
-      element.lines.forEach(line => {
-          if(!line.match){
-            found ++;
-          }
-      });
-    });
-    if(found >0){
-      return {status:false, found:found};
-    }else{
-      return {status:true, found:found};
-
-    }
-  }
-  finishEditLine(){
-
-    this.extracts.bills.forEach((billGroup, indexBillGroup) => {
-      billGroup.bill.forEach((bill, indexBill) => {
-
-        if(bill.document_id == this.editLineDocId){
-
-          let date = new Date(this.editLineDate);
-          let time = new Date(this.editLineTime);
-
-          this.extracts.bills[indexBillGroup].bill[indexBill].date = date.getFullYear()+"-"+this.addZero(date.getMonth()+1)+"-"+this.addZero(date.getDate());
-          this.extracts.bills[indexBillGroup].bill[indexBill].hour = time.getHours()+":"+time.getMinutes()+":00";
-          this.extracts.bills[indexBillGroup].bill[indexBill].vendor = this.editLineDescription;
-          this.extracts.bills[indexBillGroup].bill[indexBill].currency = this.editLineCurrency;
-          this.extracts.bills[indexBillGroup].bill[indexBill].total = this.editLineBill;
-
-
-
-        }
-      });
-      
-    });
-
-
-    
-    this.extracts.extract.lines.forEach( (line, index) => {
-      if(line.date && line.date != '' && line.date.indexOf('T') >= 0){
-
-        let date = line.date.split('T');
-        
-        this.extracts.extract.lines[index].date = date[0];
-
-      }
-
-    });
-  
-
-
-    this.isEdditingLine=false;
-    this.results=undefined;
-    this.updateTravel();
-    sessionStorage.removeItem('result')
-    this.getAnalisysResult();
-    
-
-  }
-
-  checkUploadStatus(){
-    if(!this.extracts || this.extracts &&
-       this.extracts['bills'].length <=0 
-      ){
-
-        return true;
-
-      }else{
-
-        if(this.extracts['bills'] &&  
-          this.extracts['bills'].length >0){
-
-            let count = 0;
-            this.extracts['bills'].forEach((element,index) => {
-
-              element.bill.forEach(bill => {
-                if(bill.status == false){
-                  count ++;
-                }
-              });
-   
-            });
-            if(count > 0){
-              return true;
-            }else{
-              return false;
-            }
-            
-          }else{
-              return true;
-          }
-
-      }
-  }
-  sanitizeFileName(name){
-
-    name = name.replace(/\s+/g, '-').toLowerCase();
-    name = name.replace(/[^a-zA-Z0-9]/g,'');
-    return name;
-
-  }
-
-  uploadFile(file,type){
-    this.showAlertTime =true;
-    this.isUploading=true;
-    this.travelSelected['last_uploaded_bill_date'] = Date.now();
-    this.updateTravel();
-    if (file.length > 0) {
-      var arrFiles =[];
-    
-      for(const fileElement of file){
-        arrFiles.push(fileElement);
-
-        if((fileElement.size/1048576)<=10){
-          if(type == 'extracts'){
-
-            this.extracts['extract']['file'] = this.sanitizeFileName(fileElement.name);
-            this.extracts['extract']['original_name'] = fileElement.name;
-            this.extracts['extract']['status'] = 0;
-            this.extracts['extract']['lines'] = [];
-            
-            this.updateTravel();
-
-          }
-          if(type == 'bills'){
-
-            if(this.extracts && this.extracts.bills){
-
-              this.extracts.bills[this.billPos]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
-
-              /*
-              let founds = 0;
-
-              this.extracts.bills.forEach( (element,index) => {
-                if(element.currency == this.currencyBlockSelected['code'] && element.country == this.currencyBlockSelected['country']){
-                  founds ++;
-                  this.extracts.bills[index]['bill'].push({ original_name:fileElement.name, file:this.sanitizeFileName(fileElement.name), status: 0 });
-                  this.billAccOpened = index;
-                }
-              });
-              if(founds <=0){
-                this.extracts.bills.push({currency:this.currencyBlockSelected['code'],country:this.currencyBlockSelected['country'], bill:[{original_name:fileElement.name,file:this.sanitizeFileName(fileElement.name), status: 0}]});
-
-              }
-                */
-
-
-            }
-            this.updateTravel();
-
-          }
-
-        }
-      }
-
-      for (let [indexFile, fileElement] of arrFiles.entries()) {
-
-        if((fileElement.size/1048576)<=10){
-
-          if(type == 'extracts'){
-
-            let form = new FormData();
-            form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', this.travelSelected._id); 
-            form.append('model_id', 'custom-ikosten-extracts-v2'); 
-
-            this.api.sendForm('uploads/uploadExtract',form).subscribe(res=>{
-              let status =500;
-              if(!res['error'] && !res['body']['error']){
-               status =1;
-
-              }else{
-                alert('Error subiendo el archivo');
-
-              }
-
-              this.extracts['extract']['status'] = status; 
-              this.extracts['extract']['lines'] = res['body']['document_result']['lines']; 
-              this.extracts['extract']['bankName'] = res['body']['document_result']['bankName']; 
-              this.extracts['extract']['startDate'] = res['body']['document_result']['startDate']; 
-              this.extracts['extract']['endDate'] = res['body']['document_result']['endDate']; 
-              this.extracts['extract']['document_id'] = res['body']['document_id']; 
-              this.extracts['extract']['file_url'] = res['body']['fileUrl']; 
-              this.extracts['extract']['blobName'] = res['body']['document_result']['blobName']; 
-              this.extracts['extract']['mimeType'] = res['body']['document_result']['mimeType']; 
-
-              this.updateTravel();
-
-
-            })
-            
-
-          }else if(type == 'bills'){
-            let form = new FormData();
-            form.append('file', fileElement, fileElement.name); 
-            form.append('process_id', this.travelSelected._id); 
-            form.append('model_id', 'prebuilt-receipt'); 
-
-            this.api.sendForm('uploads/uploadReceipt',form).subscribe(res=>{
-              
-              let status =500;
-              if(!res['body']['error']){
-               
-                status=1;
-
-              }
-              for (let [index, element] of this.extracts.bills.entries()) {
-
-
-                for (let [indexBill, bill] of element.bill.entries()) {
-
-                  if(element.currency == this.currencyBlockSelected['code'] && 
-                    bill.file == res['body']['document_result']['fileName']
-                  ){
-                    this.extracts.bills[index]['bill'][indexBill]['status']=status;
-
-                    if(status == 1){
-     
-                      this.extracts.bills[index]['bill'][indexBill]['date']=res['body']['document_result']['date'];
-                      this.extracts.bills[index]['bill'][indexBill]['hour']=res['body']['document_result']['hour'];
-                      this.extracts.bills[index]['bill'][indexBill]['vendor']=res['body']['document_result']['vendor'];
-                      this.extracts.bills[index]['bill'][indexBill]['docType']=res['body']['document_result']['docType'];
-                      this.extracts.bills[index]['bill'][indexBill]['total']=res['body']['document_result']['total'];
-                      this.extracts.bills[index]['bill'][indexBill]['document_id']=res['body']['document_id'];
-                      this.extracts.bills[index]['bill'][indexBill]['file_url']=res['body']['fileUrl'];
-                      this.extracts.bills[index]['bill'][indexBill]['mimeType']=res['body']['document_result']['mimeType'];
-                      this.extracts.bills[index]['bill'][indexBill]['blobName']=res['body']['document_result']['blobName'];
-  
-                    }else{
-                      this.extracts.bills[index]['bill'][indexBill]['date']="";
-                      this.extracts.bills[index]['bill'][indexBill]['hour']="";
-                      this.extracts.bills[index]['bill'][indexBill]['vendor']="Error";
-                      this.extracts.bills[index]['bill'][indexBill]['docType']="";
-                      this.extracts.bills[index]['bill'][indexBill]['total']=0;
-                      this.extracts.bills[index]['bill'][indexBill]['document_id']=res['body']['document_id'];
-                      this.extracts.bills[index]['bill'][indexBill]['file_url']="";
-                      this.extracts.bills[index]['bill'][indexBill]['mimeType']="";
-                      this.extracts.bills[index]['bill'][indexBill]['blobName']="";
-                    }
-
-                    this.updateTravel();
-
-                    
-
-                  }
-                  
-                };
- 
-              };
-              let receiptDates = [];
-
-              for (let [index, element] of this.extracts.bills.entries()) {
-
-
-                for (let [indexBill, bill] of element.bill.entries()) {
-                  
-                  if( this.extracts.bills[index]['bill'][indexBill]['date'] &&  this.extracts.bills[index]['bill'][indexBill]['date'] != ''){
-                    receiptDates.push(this.extracts.bills[index]['bill'][indexBill]['date']);
-                  }
-                };
-              };
-
-
-              receiptDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-              
-              this.travelSelected.process_start_date = receiptDates[0];
-              this.travelSelected.process_end_date = receiptDates[receiptDates.length-1];
-              this.updateTravel();
-
-            })
-
-          }
-
-        }
-      };
-      this.isUploading=false;
-      this.isUploadingOther=false;
-      this.imagesToUpload = [];
-
-
-
-    }
-  
-  }
-  selectCountry(index:number){
-      
-    this.billPos=index;
-    var code = this.extracts.bills[index].currency;
-    var country = this.extracts.bills[index].country;
-
-    this.currencyBlockSelected = {country:country, currency:code};
-
-    if(this.extracts.bills[this.billPos].bill.length > 0){
-      this.isUploadingOther=false;
-    }else{
-      this.isUploadingOther = true;
-
-    }
-
-  }
-  openUploading(){
-
-    this.isUploadingOther = true
-    /*
-    if(this.extracts['bills'].length >= this.limitations.limitations_country_x_travel){
-      this.router.navigate(['/customer/memberships'])
-    }else{
-
-
-    }*/
-
-
-  }
-  checkBillsErrors(){
-    let founds = 0;
-    this.extracts.bills.forEach((element,index) => {
-          
-      element.bill.forEach((bill,indexBill) => {
-        if(bill.status == 500 || bill.status == 0){
-          founds ++;
-        }
-      })
-
-    })
-
-    if(founds == 0){
-      return false;
-    }else{
-      return true;
-    }
-  }
-  uploadImagesBase64(){
-    let files = [];
-
-
-    this.imagesToUpload.forEach(image => {
-
-      const imageName = Date.now()+'.'+image.format;
-      const imageBlob = this.dataURItoBlob(image.dataUrl);
-
-      const imageFile = new File([imageBlob], imageName, { type: 'image/'+image.format });
-      files.push(imageFile);
-
-    });
-
-    this.uploadFile(files,'bills');
-  }
-  dataURItoBlob(dataURI) {
-    // convert base64/URLEncoded data component to raw binary data held in a string
+  dataURItoBlob(dataURI: string) {
     var byteString;
     if (dataURI.split(',')[0].indexOf('base64') >= 0)
-        byteString = atob(dataURI.split(',')[1]);
+      byteString = atob(dataURI.split(',')[1]);
     else
-        byteString = unescape(dataURI.split(',')[1]);
+      byteString = unescape(dataURI.split(',')[1]);
 
-    // separate out the mime component
     var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
-    // write the bytes of the string to a typed array
     var ia = new Uint8Array(byteString.length);
     for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+      ia[i] = byteString.charCodeAt(i);
     }
 
-    return new Blob([ia], {type:mimeString});
+    return new Blob([ia], { type: mimeString });
   }
 
-  confirmRestartProcess(){
-    sessionStorage.clear();
-    this.isUploadingOther=true;
+  sanitizeFileName(name: string): string {
+    name = name.replace(/\s+/g, '-').toLowerCase();
+    name = name.replace(/[^a-zA-Z0-9]/g, '');
+    return name;
   }
 
-  fileBrowseHandler(files, type){
-    this.uploadFile(files.target.files, type);
+  uploadFile(files: any[]) {
+    if (!this.userSession || !this.userSession.id) {
+      console.error('❌ No user session for upload');
+      return;
+    }
 
-  }
+    if (!this.currencyBlockSelected) {
+      alert('Por favor selecciona un país primero');
+      return;
+    }
 
-  // Métodos para eliminar travel
-  confirmDeleteTravelDialog(travel: any, event: Event) {
-    event.stopPropagation(); // Evitar que se abra el travel
-    this.travelToDelete = travel;
-    this.showAlertDeleteTravel = true;
-  }
-
-  confirmDeleteTravel() {
-    if (!this.travelToDelete) return;
+    // Validar límite de subida antes de proceder
+    const filesToUpload = files.length;
+    console.log('🔍 Validando límite antes de subir', filesToUpload, 'archivos');
     
-    const travelId = this.travelToDelete._id;
-    
-    if (this.api.isLoggedIn() && this.userSession) {
-      // Usuario autenticado - llamar al backend
-      this.api.delete('processes/' + travelId).subscribe({
-        next: (res) => {
-          // Eliminar de la lista local
-          this.travels = this.travels.filter(travel => travel._id !== travelId);
-          this.showAlertDeleteTravel = false;
-          this.travelToDelete = null;
-          
-          // Actualizar sessionStorage si existe
-          if (sessionStorage.getItem('travels')) {
-            sessionStorage.setItem('travels', JSON.stringify(this.travels));
-          }
-        },
-        error: (error) => {
-          console.error('Error eliminando travel:', error);
-          this.showAlertDeleteTravel = false;
+    this.api.checkUploadLimit(this.userSession.id, filesToUpload).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta de validación de límite:', response);
+        
+        const limitResult = response.body || response;
+        
+        if (limitResult.canUpload) {
+          // El usuario puede subir, proceder con la subida
+          console.log('✅ Usuario puede subir archivos');
+          this.proceedWithUpload(files);
+        } else {
+          // El límite ha sido alcanzado, mostrar modal de memberships
+          console.log('❌ Límite alcanzado, mostrando modal de memberships');
+          this.uploadLimitData = limitResult;
+          this.openMembershipModal(); // Llamar al método para cargar membresías
         }
-      });
-    } else {
-      // Usuario no autenticado - eliminar del sessionStorage
-      this.travels = this.travels.filter(travel => travel._id !== travelId);
-      sessionStorage.setItem('travels', JSON.stringify(this.travels));
-      this.showAlertDeleteTravel = false;
-      this.travelToDelete = null;
+      },
+      error: (error) => {
+        console.error('❌ Error validando límite de subida:', error);
+        // En caso de error, permitir la subida (para no bloquear al usuario)
+        this.proceedWithUpload(files);
+      }
+    });
+  }
+
+  private proceedWithUpload(files: any[]) {
+    this.showAlertTime = true;
+    this.isUploading = true;
+    
+    // Limpiar array de archivos en upload
+    this.uploadingFiles = [];
+
+    if (files.length > 0) {
+      for (const fileElement of files) {
+        if ((fileElement.size / 1048576) <= 10) {
+          // Agregar archivo al array de tracking
+          const fileTrack = {
+            name: fileElement.name,
+            size: fileElement.size,
+            status: 'uploading' // 'uploading', 'success', 'error'
+          };
+          this.uploadingFiles.push(fileTrack);
+          
+          // Subir archivo con índice para actualizar su status
+          this.uploadReceiptFile(fileElement, this.uploadingFiles.length - 1);
+        } else {
+          console.error('❌ File too large:', fileElement.name);
+          // Agregar como error
+          this.uploadingFiles.push({
+            name: fileElement.name,
+            size: fileElement.size,
+            status: 'error'
+          });
+        }
+      }
     }
+  }
+
+  openMembershipModal() {
+    console.log('🔄 Abriendo modal de membresías...');
+    this.showMembershipModal = true;
+  }
+
+  closeMembershipModal() {
+    this.showMembershipModal = false;
+    this.uploadLimitData = null;
+  }
+
+  onMembershipModalDismiss() {
+    this.closeMembershipModal();
+  }
+
+  private uploadReceiptFile(fileElement: any, fileIndex: number) {
+    let form = new FormData();
+    form.append('file', fileElement, fileElement.name);
+    form.append('user_id', this.userSession.id);
+    form.append('country', this.currencyBlockSelected.country);
+    form.append('currency_code', this.currencyBlockSelected.code);
+    form.append('country_translate_key', this.currencyBlockSelected.country_translate_key || this.convertKey(this.currencyBlockSelected.country));
+    form.append('model_id', 'custom-ikosten-bills-v2');
+
+    console.log(`🔄 Uploading receipt ${fileIndex + 1}:`, fileElement.name);
+
+    this.api.sendForm('uploads/uploadUserReceipt', form).subscribe({
+      next: (res) => {
+        console.log(`✅ Receipt ${fileIndex + 1} uploaded:`, res);
+        
+        // Actualizar status del archivo específico
+        if (this.uploadingFiles[fileIndex]) {
+          this.uploadingFiles[fileIndex].status = 'success';
+        }
+        
+        // Verificar si todos los archivos terminaron
+        const allFinished = this.uploadingFiles.every(
+          file => file.status === 'success' || file.status === 'error'
+        );
+        
+        if (allFinished) {
+          this.showAlertTime = false;
+          this.isUploading = false;
+          
+          // Esperar a que el usuario vea el éxito antes de limpiar y recargar
+          setTimeout(() => {
+            // Primero limpiar la lista de archivos subiendo
+            this.uploadingFiles = [];
+            
+            // Luego recargar recibos para que aparezcan en la lista
+            this.loadUserReceipts();
+            
+            // Cerrar la sección de upload si ya hay recibos
+            if (this.hasReceipts()) {
+              this.isUploadingOther = false;
+            }
+          }, 1500);
+        }
+        
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error(`❌ Error uploading receipt ${fileIndex + 1}:`, error);
+        
+        // Actualizar status del archivo específico
+        if (this.uploadingFiles[fileIndex]) {
+          this.uploadingFiles[fileIndex].status = 'error';
+        }
+        
+        // Verificar si todos los archivos terminaron
+        const allFinished = this.uploadingFiles.every(
+          file => file.status === 'success' || file.status === 'error'
+        );
+        
+        if (allFinished) {
+          this.showAlertTime = false;
+          this.isUploading = false;
+        }
+        
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openUploading() {
+    this.isUploadingOther = true;
+  }
+
+  // ============================================
+  // FUNCIONES DE PICKER Y MODALES
+  // ============================================
+
+  showModalPicker(title: string, type: string) {
+    this.pickerTitle = title;
+    this.showPicker = true;
+    this.pickerType = type;
+    this.pickerOptions = this.currencies;
+  }
+
+  pickerDismissed() {
+    this.showPicker = false;
+  }
+
+  pickerOptionSelected(event: any) {
+    if (this.pickerType === 'country') {
+      // Primera selección de país
+      this.currencyBlockSelected = event;
+      
+      // Verificar si el país ya existe en userCountries
+      const existingCountryIndex = this.userCountries.findIndex(
+        (country: any) => country.country === event.country
+      );
+
+      if (existingCountryIndex >= 0) {
+        // País ya existe, seleccionarlo
+        this.selectCountry(existingCountryIndex);
+      } else {
+        // País nuevo, agregarlo
+        const newCountry = {
+          country: event.country,
+          country_translate_key: event.country_translate_key,
+          receipts: []
+        };
+        this.userCountries.push(newCountry);
+        this.selectCountry(this.userCountries.length - 1);
+      }
+    } else if (this.pickerType === 'add_country') {
+      // Agregar nuevo país
+      const existingCountryIndex = this.userCountries.findIndex(
+        (country: any) => country.country === event.country
+      );
+
+      if (existingCountryIndex >= 0) {
+        // País ya existe, seleccionarlo
+        this.selectCountry(existingCountryIndex);
+      } else {
+        // País nuevo, agregarlo
+        const newCountry = {
+          country: event.country,
+          country_translate_key: event.country_translate_key,
+          receipts: []
+        };
+        this.userCountries.push(newCountry);
+        this.selectCountry(this.userCountries.length - 1);
+        this.currencyBlockSelected = event;
+      }
+    }
+  }
+
+  convertKey(input: string): string {
+    if (!input) return '';
+    let string = input.replace(/ /g, '-').toLowerCase();
+    string = string.replace(/,/g, '');
+    string = string.replace(/\./g, '');
+    string = string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return 'countries.' + string;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // ============================================
+  // FUNCIONES DE ELIMINACIÓN
+  // ============================================
+
+  deleteReceipt(receiptId: string) {
+    this.receiptToDelete = receiptId;
+    this.isAlertDeleteReceipt = true;
+  }
+
+  confirmDeleteReceipt() {
+    if (!this.receiptToDelete) return;
+
+    console.log('🗑️ Deleting receipt:', this.receiptToDelete);
+
+    this.api.delete(`userReceipts/${this.receiptToDelete}`).subscribe({
+      next: (res) => {
+        console.log('✅ Receipt deleted successfully');
+        this.isAlertDeleteReceipt = false;
+        this.receiptToDelete = '';
+        
+        // Recargar recibos
+        this.loadUserReceipts();
+      },
+      error: (error) => {
+        console.error('❌ Error deleting receipt:', error);
+        this.isAlertDeleteReceipt = false;
+        alert('Error al eliminar el recibo');
+      }
+    });
+  }
+
+  dismissDeleteReceipt() {
+    this.isAlertDeleteReceipt = false;
+    this.receiptToDelete = '';
+  }
+
+  deleteAllReceipts() {
+    if (!this.currentCountryData || !this.currentCountryData.receipts || this.currentCountryData.receipts.length === 0) {
+      alert(this.translate.instant('errors.no-receipts-to-delete'));
+      return;
+    }
+    this.isAlertDeleteAllReceipts = true;
+  }
+
+  confirmDeleteAllReceipts() {
+    if (!this.currentCountryData || !this.currentCountryData.receipts) return;
+
+    const receiptIds = this.currentCountryData.receipts.map((receipt: any) => receipt._id);
+    const country = this.currentCountryData.country;
+    
+    console.log(`🗑️ Deleting all ${receiptIds.length} receipts from ${country}`);
+
+    // Llamar a la API para eliminar múltiples recibos
+    const deletePromises = receiptIds.map((id: string) => 
+      this.api.delete(`userReceipts/${id}`).toPromise()
+    );
+
+    Promise.all(deletePromises)
+      .then(() => {
+        console.log('✅ All receipts deleted successfully');
+        this.isAlertDeleteAllReceipts = false;
+        
+        // Reiniciar el selector de país
+        this.currencyBlockSelected = undefined;
+        
+        // Recargar recibos
+        this.loadUserReceipts();
+      })
+      .catch((error) => {
+        console.error('❌ Error deleting receipts:', error);
+        this.isAlertDeleteAllReceipts = false;
+        alert(this.translate.instant('errors.delete-all-failed'));
+      });
+  }
+
+  dismissDeleteAllReceipts() {
+    this.isAlertDeleteAllReceipts = false;
+  }
+
+  // ============================================
+  // FUNCIONES AUXILIARES
+  // ============================================
+
+  isImage(mime: string): boolean {
+    return this.imageMimes.indexOf(mime) >= 0;
+  }
+
+  isPdf(mime: string): boolean {
+    if (mime) {
+      return this.pdfMimes.indexOf(mime) >= 0;
+    }
+    return false;
+  }
+
+  sanitizeImage(blob: string) {
+    return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + blob);
   }
 }

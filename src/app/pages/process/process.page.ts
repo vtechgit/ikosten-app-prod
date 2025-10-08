@@ -1037,6 +1037,56 @@ export class ProcessPage implements OnInit {
     }
   }
 
+  // Nueva función para wizard: Paso 1 -> Paso 2
+  goToStepTwo() {
+    if (!this.currencyBlockSelected) {
+      return;
+    }
+    
+    // Inicializar estructura de bills si no existe
+    if (!this.extracts.bills || !Array.isArray(this.extracts.bills)) {
+      this.extracts.bills = [];
+    }
+    
+    // Verificar si el país ya existe
+    const countryExists = this.extracts.bills.some((bill: any) => 
+      bill.currency === this.currencyBlockSelected.code && 
+      bill.country === this.currencyBlockSelected.country
+    );
+    
+    // Si el país no existe, agregarlo
+    if (!countryExists) {
+      this.extracts.bills.push({
+        currency: this.currencyBlockSelected.code,
+        country: this.currencyBlockSelected.country,
+        bill: []
+      });
+    }
+    
+    // Seleccionar el último país
+    this.billPos = this.extracts.bills.length - 1;
+    this.selectCountry(this.billPos);
+    this.isUploadingOther = true;
+    
+    // Avanzar al paso 2
+    this.currentStep = 2;
+    this.travelSelected['process_step'] = this.currentStep;
+    this.updateTravel();
+  }
+
+  // Nueva función para wizard: Paso 4 -> Paso 5
+  goToStepFive() {
+    // Verificar que se haya seleccionado tipo de extracto y moneda
+    if (this.extracts['extract']['type'] == '' || this.extracts['extract']['currency'] == '') {
+      return;
+    }
+    
+    // Avanzar al paso 5
+    this.currentStep = 5;
+    this.travelSelected['process_step'] = this.currentStep;
+    this.updateTravel();
+  }
+
   backStep() {
     if(this.currentStep == 3) {
       this.isAlertGoBack = false;

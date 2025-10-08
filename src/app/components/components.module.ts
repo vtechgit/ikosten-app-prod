@@ -9,9 +9,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import {NgPipesModule} from 'ngx-pipes';
+import { MembershipModalComponent } from './membership-modal/membership-modal.component';
+import { NgxPayPalModule } from 'ngx-paypal';
 
 @NgModule({
-  declarations: [StarRatingComponent,CountryPickerComponent, SigInComponent, SignUpComponent],
+  declarations: [StarRatingComponent,CountryPickerComponent, SigInComponent, SignUpComponent, MembershipModalComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -19,8 +21,20 @@ import {NgPipesModule} from 'ngx-pipes';
     TranslateModule,
     NgPipesModule,
     RouterModule,
-    IonicModule
+    IonicModule,
+    NgxPayPalModule
   ],
-  exports:[StarRatingComponent,CountryPickerComponent, SigInComponent,SignUpComponent]
+  exports:[
+    StarRatingComponent,
+    CountryPickerComponent,
+    SigInComponent,
+    SignUpComponent,
+    MembershipModalComponent,
+    CommonModule,
+    IonicModule,
+    TranslateModule,
+    FormsModule,
+    ReactiveFormsModule
+  ]
 })
 export class ComponentsModule { }

@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { environment } from '../environments/environment';
 import {TranslateService} from "@ngx-translate/core";
 import {ApiService} from "./services/api.service";
+import {AuthService} from "./services/auth.service";
 import { Device } from '@capacitor/device';
 import { ActivatedRoute } from '@angular/router'; 
 
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit  {
     public platform: Platform,
     private translate: TranslateService,
     private api:ApiService,
+    private authService:AuthService,
     private activatedRoute:ActivatedRoute  
   ) {
     this.activatedRoute.queryParams.subscribe(params=>{
@@ -91,12 +93,15 @@ export class AppComponent implements OnInit  {
   }
 
     ngOnInit() {
-      if(localStorage.getItem('userSession') && localStorage.getItem('userSession') != ''){
-        this.isLogged=true;
-      }else{
-        this.isLogged=false;
+      // Suscribirse al estado de autenticación del nuevo sistema de sesiones
+      this.authService.currentUser$.subscribe(user => {
+        this.isLogged = !!user;
+        console.log('🔄 Estado de autenticación actualizado:', this.isLogged);
+      });
 
-      }
+      // Verificar el estado inicial usando el nuevo sistema
+      this.isLogged = this.authService.isLoggedIn();
+      console.log('🔍 Estado inicial de autenticación:', this.isLogged);
     }
 
 

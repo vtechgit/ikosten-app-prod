@@ -245,3 +245,49 @@
     transform: translateY(0);
   }
 }
+// Desktop responsive styles
+@media (min-width: 768px) {
+  // Ocultar el header en desktop
+  ion-header {
+    display: none !important;
+  }
+
+  .language-container {
+    --background: #f5f7fa; // Fondo gris en toda la pantalla
+    
+    // Eliminar max-width del contenedor para que el fondo sea 100%
+    // Los elementos hijos tendrán el max-width
+    
+    .welcome-section {
+      max-width: 1200px;
+      margin: 0 auto 2rem auto; // Centrado
+      
+      .welcome-content {
+        padding: 2.5rem 2rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.8rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .language-selection-section {
+      max-width: 1200px;
+      margin: 0 auto; // Centrado
+      padding: 0 1rem;
+      
+      .selection-card {
+        max-width: 600px;
+        margin: 0 auto 2rem auto; // Centrado dentro de la sección
+      }
+    }
+  }
+}

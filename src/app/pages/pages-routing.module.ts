@@ -36,6 +36,10 @@ const routes: Routes = [
         component: MembershipsPage
       },
       {
+        path: 'export',
+        loadChildren: () => import('./export/export.module').then( m => m.ExportPageModule)
+      },
+      {
         path: 'process',
         loadChildren: () => import('./process/process.module').then( m => m.ProcessPageModule)
       },
@@ -51,6 +55,7 @@ const routes: Routes = [
     redirectTo: '/customer/trips',
     pathMatch: 'full'
   }
+
 
 ];
 @NgModule({

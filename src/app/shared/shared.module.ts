@@ -5,17 +5,18 @@ import { IonicModule } from '@ionic/angular';
 import { DropFilesInputDirective } from './directives/drop-files-input.directive';
 import {SlideComponent} from './slide/slide.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { ComponentsModule } from '../components/components.module';
 import { HeaderComponent } from './header/header.component';
 import { RouterModule } from '@angular/router';
+import { ComponentsModule } from '../components/components.module';
+
 @NgModule({
   declarations: [DropFilesInputDirective,SlideComponent,HeaderComponent],
   imports: [
     CommonModule,
     IonicModule,
     RouterModule,
-    ComponentsModule,
-    TranslateModule
+    TranslateModule,
+    ComponentsModule
   ],
   exports:[ DropFilesInputDirective,SlideComponent,HeaderComponent]
 })

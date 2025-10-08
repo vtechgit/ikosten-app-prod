@@ -1,52 +1,59 @@
+// Ocultar header en desktop
+@media (min-width: 768px) {
+  ion-header {
+    display: none !important;
+  }
+}
+
 .profile-container {
   --background: #ffffff;
   
   .welcome-section {
+    max-width: 1200px;
+    margin: 0 auto;
     background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
     border-radius: 0 0 30px 30px;
     margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(30, 150, 252, 0.2);
     
     .welcome-content {
       text-align: center;
-      padding: 3rem 2rem 2.5rem 2rem;
+      padding: 2.5rem 2rem 2rem 2rem;
       color: white;
       
       .welcome-icon {
-        font-size: 4rem;
+        font-size: 3.5rem; // Reducido de 4rem para coincidir con main
         color: white;
         margin-bottom: 1rem;
       }
       
       .welcome-title {
-        font-size: 2rem;
+        font-size: 1.8rem; // Reducido de 2rem para coincidir con main
         font-weight: 700;
         margin: 0 0 0.5rem 0;
         color: white;
       }
       
       .welcome-subtitle {
-        font-size: 1.1rem;
+        font-size: 1rem; // Reducido de 1.1rem para coincidir con main
         color: rgba(255, 255, 255, 0.9);
         line-height: 1.5;
         margin: 0;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
       }
     }
   }
   
   .profile-content {
-    padding: 0 1rem 2rem 1rem;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding-bottom: 2rem;
     
     .section-card {
       background: #ffffff;
       border-radius: 20px;
       box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
       border: 2px solid var(--ion-color-light);
-      margin-bottom: 2rem;
+      margin: 0 1rem 2rem 1rem; // Margen lateral para móvil
       overflow: hidden;
       transition: all 0.3s ease;
       animation: slideInUp 0.6s ease forwards;
@@ -134,6 +141,13 @@
               margin: 0 0 0.5rem 0;
             }
             
+            .plan-description {
+              color: var(--ion-color-medium);
+              font-size: 0.9rem;
+              margin: 0 0 1rem 0;
+              line-height: 1.4;
+            }
+            
             .plan-status {
               display: flex;
               align-items: center;
@@ -141,9 +155,53 @@
               color: var(--ion-color-success);
               font-size: 0.95rem;
               font-weight: 600;
+              margin-bottom: 1.5rem;
               
               ion-icon {
                 font-size: 0.8rem;
+              }
+            }
+            
+            .membership-details {
+              margin-top: 1rem;
+              padding-top: 1rem;
+              border-top: 1px solid rgba(30, 150, 252, 0.1);
+              
+              .detail-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 0.8rem;
+                color: var(--ion-color-medium);
+                font-size: 0.9rem;
+                
+                &:last-child {
+                  margin-bottom: 0;
+                }
+                
+                ion-icon {
+                  font-size: 1.2rem;
+                  flex-shrink: 0;
+                }
+                
+                .detail-label {
+                  font-weight: 500;
+                  min-width: 120px;
+                }
+                
+                .detail-value {
+                  font-weight: 600;
+                  color: var(--ion-color-dark);
+                  
+                  &.status-active {
+                    color: var(--ion-color-success);
+                    text-transform: uppercase;
+                    font-size: 0.85rem;
+                    padding: 0.2rem 0.6rem;
+                    background: rgba(40, 167, 69, 0.1);
+                    border-radius: 6px;
+                  }
+                }
               }
             }
           }
@@ -159,6 +217,19 @@
           &:hover {
             transform: translateY(-2px);
             --box-shadow: 0 6px 25px rgba(30, 150, 252, 0.4);
+          }
+        }
+
+        .cancel-button {
+          --border-radius: 16px;
+          height: 48px;
+          font-weight: 600;
+          margin-left: 1rem;
+          margin-top: 0.5rem;
+          
+          &:hover {
+            transform: translateY(-2px);
+            --box-shadow: 0 4px 15px rgba(var(--ion-color-danger-rgb), 0.3);
           }
         }
       }
@@ -188,8 +259,10 @@
           
           .transaction-main {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.5rem;
             margin-bottom: 0.8rem;
             
             .transaction-date {
@@ -203,6 +276,10 @@
               align-items: center;
               gap: 0.5rem;
               
+              ion-icon {
+                font-size: 0.75rem;
+              }
+              
               .status-text {
                 font-size: 0.9rem;
                 font-weight: 600;
@@ -213,18 +290,25 @@
           
           .transaction-details {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.5rem;
             
             .transaction-description {
               color: var(--ion-color-medium);
               font-size: 0.95rem;
+              line-height: 1.4;
+              width: 100%;
             }
             
             .transaction-amount {
-              color: var(--ion-color-dark);
-              font-size: 1rem;
-              font-weight: 600;
+              color: var(--ion-color-primary);
+              font-size: 1.1rem;
+              font-weight: 700;
+              background: rgba(30, 150, 252, 0.1);
+              padding: 0.3rem 0.8rem;
+              border-radius: 6px;
             }
           }
         }
@@ -415,6 +499,23 @@
     color: var(--ion-color-medium);
     font-size: 1rem;
     margin-top: 1rem;
+  }
+}
+
+.no-transactions-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    font-size: 4rem;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    margin: 0;
   }
 }
 

@@ -298,6 +298,57 @@
       }
     }
     
+    .phone-input {
+      margin-bottom: 2rem;
+      
+      .custom-input {
+        --background: #ffffff;
+        --border-radius: 16px;
+        --border-color: var(--ion-color-light);
+        --border-width: 2px;
+        --highlight-color-focused: var(--ion-color-primary);
+        --padding-start: 56px;
+        --padding-end: 16px;
+        margin: 0;
+        border: 2px solid var(--ion-color-light);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          --border-color: var(--ion-color-secondary);
+        }
+        
+        &.ion-focused {
+          --border-color: var(--ion-color-primary);
+          box-shadow: 0 0 0 4px rgba(30, 150, 252, 0.1);
+        }
+        
+        .input-icon {
+          position: absolute;
+          left: 16px;
+          color: var(--ion-color-medium);
+          font-size: 1.2rem;
+          z-index: 10;
+        }
+      }
+      
+      .input-hint {
+        margin-top: 0.5rem;
+        padding-left: 4px;
+        
+        ion-text {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          small {
+            font-size: 0.85rem;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+    
     .continue-button {
       --border-radius: 20px;
       --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
@@ -478,6 +529,7 @@
       }
       
       .country-input .custom-input,
+      .phone-input .custom-input,
       .code-input .custom-input {
         --padding-start: 50px;
       }

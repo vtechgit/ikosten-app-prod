@@ -1,0 +1,1797 @@
+
+<ion-content class="main-container">
+
+  <div class="main-content">
+
+    <!--
+    <ion-button color="primary" class="ion-margin-start" fill="outline" *ngIf="currentStep>=1" (click)="currentStep=0">
+      <ion-icon slot="start" name="close-outline"></ion-icon>
+      {{'buttons.exit' | translate}}
+    </ion-button>
+    -->
+
+    <!-- Step 0: Main Dashboard -->
+    <div *ngIf="currentStep == 0" @fadeIn class="dashboard-section">
+      
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <ion-icon name="airplane" class="welcome-icon"></ion-icon>
+          <h1 class="welcome-title">{{'titles.modules.travels.main' | translate}}</h1>
+          <p class="welcome-subtitle">{{'titles.modules.travels.welcome-subtitle' | translate}}</p>
+        </div>
+      </div>
+
+      <!-- Travel Creation Section -->
+      <div class="creation-section">
+        <div class="creation-card">
+          <div class="tour-step-1">
+            <div class="card-header">
+              <div class="header-content">
+                <h2 class="card-title">{{'titles.modules.travels.create.complement' | translate}}</h2>
+                <p class="card-subtitle">{{'titles.modules.travels.create.subtitle' | translate}}</p>
+              </div>
+            </div>
+          
+            <div class="card-content">
+              <div class="country-selector" [disabled]="this.shepherdService.isActive" (click)="showModalPicker('inputs.select-country.title','country')">
+                <ion-icon name="location" class="selector-icon"></ion-icon>
+                <div class="selector-content">
+                  <div class="selector-label">{{'global.words.country' | translate}}</div>
+                  <div class="selector-value" *ngIf="currencyBlockSelected">
+                    {{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})
+                  </div>
+                  <div class="selector-placeholder" *ngIf="!currencyBlockSelected">
+                    {{'inputs.select-country.placeholder' | translate}}
+                  </div>
+                </div>
+                <ion-icon name="chevron-forward" class="selector-chevron"></ion-icon>
+              </div>
+            </div>
+
+            <ion-button 
+              [disabled]="!this.currencyBlockSelected || this.shepherdService.isActive" 
+              color="primary" 
+              class="create-button tour-step-3" 
+              expand="block"
+              (click)="createProcess()">
+              <ion-icon name="rocket" slot="start"></ion-icon>
+              {{'buttons.create-travel' | translate}}
+            </ion-button>
+          </div>
+        </div>
+      </div>
+
+        <!--
+        <ion-card *ngIf="travels && travels.length <= 0 ">
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.travels.first-travel-title' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.travels.first-travel-subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            {{'titles.modules.travels.first-travel-content' | translate}}
+          </ion-card-content>
+          <ion-button class="f-right ion-margin" (click)="openModalAddTravel=true">{{'buttons.start' | translate}}</ion-button>
+        </ion-card>
+        <ion-card *ngIf="travels && travels.length > 0 ">
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.travels.add-travel-title' | translate}}</ion-card-title>
+
+          </ion-card-header>
+        
+          <ion-card-content style="padding-bottom:0px">
+            {{'titles.modules.travels.add-travel-content' | translate}}
+          </ion-card-content>
+          <ion-button class="f-right ion-margin" (click)="addTravel()">{{'buttons.create-travel' | translate}}</ion-button>
+        </ion-card>
+        -->
+
+      <!-- Travel History Section -->
+      <div class="history-section" style="margin-bottom: 100px;">
+        <div class="section-header tour-step-4">
+          <h2 class="section-title">
+            <ion-icon name="time" class="section-icon"></ion-icon>
+            {{'titles.modules.profile.history' | translate}}
+          </h2>
+        </div>
+
+        <!-- Loading State -->
+        <div class="history-list" *ngIf="!travels">
+          <div class="history-item skeleton" *ngFor="let item of [1,2,3]">
+            <div class="skeleton-content">
+              <ion-skeleton-text animated style="width: 70%; height: 20px; margin-bottom: 8px;"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 50%; height: 16px;"></ion-skeleton-text>
+            </div>
+            <ion-skeleton-text animated style="width: 80px; height: 24px; border-radius: 12px;"></ion-skeleton-text>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="travels && travels.length <= 0">
+          <ion-icon name="airplane-outline" class="empty-icon"></ion-icon>
+          <h3 class="empty-title">{{'titles.modules.travels.history.no-trips-yet' | translate}}</h3>
+          <p class="empty-subtitle">{{'titles.modules.travels.history.start-first-trip' | translate}}</p>
+        </div>
+
+        <!-- Travel List -->
+        <div class="history-list" *ngIf="travels && travels.length > 0">
+          <div class="history-item" 
+               [class.no-animate]="!shouldAnimateHistory"
+               *ngFor="let travel of travels">
+            
+            <!-- Botón de eliminación flotante -->
+            <ion-button 
+              fill="clear" 
+              color="danger" 
+              size="small" 
+              class="delete-travel-btn"
+              (click)="confirmDeleteTravelDialog(travel, $event)">
+              <ion-icon name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+
+            <div class="travel-content" (click)="openTravel(travel)">
+              <div class="travel-info">
+                <div class="travel-country">
+                  <ion-icon name="location" class="country-icon"></ion-icon>
+                  {{convertKey(travel.process_country.country) | translate}}
+                  <!-- Status dot sutil -->
+                  <div class="status-dot new" *ngIf="travel.process_status == 0" title="{{'titles.modules.travels.status.new' | translate}}"></div>
+                  <div class="status-dot progress" *ngIf="travel.process_status == 1" title="{{'titles.modules.travels.status.in-progress' | translate}}"></div>
+                  <div class="status-dot finished" *ngIf="travel.process_status == 2" title="{{'titles.modules.travels.status.finished' | translate}}"></div>
+                </div>
+                <div class="travel-dates" *ngIf="travel.process_start_date">
+                  <span *ngIf="travel.process_start_date && travel.process_start_date != ''">
+                    <ion-icon name="calendar-outline" class="date-icon"></ion-icon>
+                    {{travel.process_start_date | date: 'dd/MM/yyyy'}}
+                  </span>
+                  <span *ngIf="travel.process_end_date && travel.process_end_date != ''" class="date-separator">
+                    <ion-icon name="arrow-forward" class="arrow-icon"></ion-icon>
+                    {{travel.process_end_date | date: 'dd/MM/yyyy'}}
+                  </span>
+                  <!-- Status text sutil como parte de las fechas -->
+                  <span class="status-text new" *ngIf="travel.process_status == 0">
+                    <ion-icon name="add-circle" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.new' | translate}}
+                  </span>
+                  <span class="status-text progress" *ngIf="travel.process_status == 1">
+                    <ion-icon name="time" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.in-progress' | translate}}
+                  </span>
+                  <span class="status-text finished" *ngIf="travel.process_status == 2">
+                    <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
+                    {{'titles.modules.travels.status.finished' | translate}}
+                  </span>
+                </div>
+              </div>
+              <div class="travel-status">
+                <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- End Step 0 -->
+    <div *ngIf="currentStep == 1">
+
+      <!--
+        <ion-card *ngIf="isUploadingOther" @fadeIn>
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.process.step1.title' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.process.step1.subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <ion-item button (click)="showModalPicker('inputs.select-country.title','country')">
+              <ion-label *ngIf="currencyBlockSelected">{{convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
+              <ion-label *ngIf="!currencyBlockSelected">{{'titles.modules.process.step1.content' | translate}}</ion-label>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      -->
+
+
+      <!--
+      <ion-card id="card-step-2" *ngIf="isUploadingOther && currencyBlockSelected && currencyBlockSelected != ''" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>{{'titles.modules.process.step2.title' | translate}}</ion-card-title>
+          <ion-card-subtitle>{{'titles.modules.process.step2.subtitle' | translate}}</ion-card-subtitle>
+        </ion-card-header>
+      
+        <ion-card-content>
+          <ion-card color="primary" class="no-margin">
+            <ion-card-header>
+              <ion-card-subtitle>{{'titles.modules.process.step2.notification.subtitle' | translate}}</ion-card-subtitle>
+            </ion-card-header>
+          
+          </ion-card>
+          <ion-grid>
+            
+
+            <ion-row *ngIf="!imagesToUpload || imagesToUpload.length == 0">
+  
+              <ion-col size="12" class="ion-hide-lg-up" >
+   
+                <h3 class="text-center">{{'titles.modules.process.step2.file-input.take-picture' | translate}}</h3>
+  
+                <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
+                  <div class="image-place-holder">
+                    <ion-icon name="camera-outline" style="width: 50px;
+                    height: 50px;" ></ion-icon>
+        
+                </div>
+                </div>
+                <ion-note>{{'titles.modules.process.step2.file-input.take-picture-note' | translate}}
+                </ion-note>
+  
+  
+              </ion-col>
+     
+  
+              <ion-col size="12" >
+                <h3  class="text-center">{{'titles.modules.process.step2.file-input.upload-file' | translate}}</h3>
+                <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
+                  <input type="file" accept="image/jpeg,image/png,application/pdf" multiple="true" multiple="true" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
+            
+                  <div class="image-place-holder">
+                      <ion-icon name="cloud-upload-outline" style="width: 50px;
+                      height: 50px;" ></ion-icon>
+          
+                  </div>
+            
+                </div>
+                <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+  
+                <ion-note>{{'titles.modules.process.step2.file-input.upload-file-note' | translate}}
+                </ion-note>
+              </ion-col>
+  
+            </ion-row>
+  
+            <ion-row class="ion-margin-top" *ngIf="imagesToUpload && imagesToUpload.length > 0">
+  
+              <ion-col size="4" *ngFor="let image of imagesToUpload; index as i">
+  
+                <ion-button shape="round" color="danger" class="delete-image-button" (click)="deleteImageToUpload(i)">
+                  <ion-icon slot="icon-only" size="default" name="trash-outline"></ion-icon>
+                </ion-button>
+  
+                <ion-img class="image-to-upload" [src]="image.dataUrl"> </ion-img>
+    
+              </ion-col>
+              <ion-col size="4" style="display: flex; justify-content: center; align-items: center;">
+                <ion-button shape="round" class="add-image-button" (click)="takePhoto()">
+                  <ion-icon slot="icon-only" size="large" name="add-outline"></ion-icon>
+                </ion-button>
+              </ion-col>
+  
+            </ion-row>
+            
+  
+  
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+      -->
+
+
+
+    <ion-card  @fadeIn>
+      <ion-card-header>
+        <ion-card-title>{{'titles.modules.process.step1.title' | translate}}</ion-card-title>
+          <ion-card-subtitle>{{'titles.modules.process.step1.subtitle' | translate}}</ion-card-subtitle>
+
+      </ion-card-header>
+    
+
+      <ion-card-content>
+        <div class="badgesCountries " *ngIf="currentStep == 1 && extracts && extracts['bills'] && extracts['bills'].length > 0"  @fadeIn>
+          <ion-button size="small" (click)="selectCountry(iBill)"  [fill]="this.billPos == iBill ? 'solid':'outline'" *ngFor="let bill of extracts['bills']; index as iBill">{{convertKey(bill.country) | translate}}</ion-button>
+          <ion-button (click)="showModalPicker('inputs.select-country.title','add_country')" shape="round" class="ion-margin-start"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+          
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-card @fadeIn>
+      <ion-card-header>
+
+        <ion-card-title style="display: block !important;">{{'titles.modules.process.step1.content' | translate}} <ion-button style=" margin: 0;position: relative;top: -6px;" size="small" >{{ convertKey(currencyBlockSelected['country']) | translate}}</ion-button>             
+        </ion-card-title>
+        <ion-card-subtitle>{{'titles.modules.process.step2.subtitle' | translate}}</ion-card-subtitle>
+
+      </ion-card-header>
+    
+      <ion-card-content>
+        <ion-list *ngIf="!isUploadingOther" @fadeIn>
+          <ion-item *ngFor="let billElement of extracts['bills'][billPos].bill; index as i">
+          
+            <ion-label>
+              <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
+              <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{'errors.file-uploads.cannot-read-vendor' | translate}}</h3>
+
+              <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
+              <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
+              <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{extracts['bills'][billPos].currency}}</p>
+              <p style="color:red;" *ngIf="billElement.status == 500">{{'errors.file-uploads.try-again' | translate}}</p>
+            <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
+            <ion-note *ngIf="billElement.status == 0">{{'loadings.analysing' | translate}}...</ion-note>
+  
+            </ion-label>
+            <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+  
+  
+          </ion-item>
+        </ion-list>
+        <!--
+        <div *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+  
+          <ion-accordion-group class="ion-margin-top" [value]="billAccOpened">
+            <ion-accordion [value]="iBill" *ngFor="let bill of extracts['bills']; index as iBill">
+              <ion-item slot="header" color="light">
+                <ion-label>{{'global.words.country' | translate}}: {{convertKey(bill.country) | translate}}</ion-label>
+              </ion-item>
+              <div slot="content">
+                <ion-list >
+                  <ion-item *ngFor="let billElement of bill.bill; index as i">
+                  
+                    <ion-label>
+                      <h3 *ngIf="billElement.status == 500 ">{{billElement.original_name}}</h3>
+                      <h3  style="color:red;" *ngIf="billElement.status == 1 && !billElement.vendor || billElement.status == 1 && billElement.vendor == ''">{{'errors.file-uploads.cannot-read-vendor' | translate}}</h3>
+
+                      <h3 *ngIf="billElement.status == 1 && billElement.vendor && billElement.vendor != ''">{{billElement.vendor}}</h3>
+                      <p *ngIf="billElement.status == 1">{{billElement.date | date: 'dd/MM/yyyy'}} {{billElement.hour}}</p>
+                      <p *ngIf="billElement.status == 1">${{billElement.total | number}}  {{bill.currency}}</p>
+                      <p style="color:red;" *ngIf="billElement.status == 500">{{'errors.file-uploads.try-again' | translate}}</p>
+                    <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="billElement.status == 0"></ion-progress-bar>
+                    <ion-note *ngIf="billElement.status == 0">{{'loadings.analysing' | translate}}...</ion-note>
+          
+                    </ion-label>
+                    <ion-button color="danger" (click)="deleteBill(iBill,i, billElement.document_id)">
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+          
+          
+                  </ion-item>
+                </ion-list>
+              </div>
+            </ion-accordion>
+  
+          </ion-accordion-group>
+
+
+  
+        </div>
+        -->
+
+
+        <ion-grid *ngIf="isUploadingOther" @fadeIn>
+          <ion-row *ngIf="!imagesToUpload || imagesToUpload.length == 0">
+
+            <ion-col size="12" class="ion-hide-lg-up" >
+  
+              <h3 class="text-center">{{'titles.modules.process.step2.file-input.take-picture' | translate}}</h3>
+
+              <div style="margin: auto;" class="takePhoto" (click)="takePhoto()">
+                <div class="image-place-holder">
+                  <ion-icon name="camera-outline" style="width: 50px;
+                  height: 50px;" ></ion-icon>
+      
+              </div>
+              </div>
+              <ion-note>{{'titles.modules.process.step2.file-input.take-picture-note' | translate}}
+              </ion-note>
+
+
+            </ion-col>
+    
+
+            <ion-col size="12" >
+              <h3  class="text-center">{{'titles.modules.process.step2.file-input.upload-file' | translate}}</h3>
+              <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
+                <input type="file" accept="image/jpeg,image/png,application/pdf" multiple="true" multiple="true" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'bills')">
+          
+                <div class="image-place-holder">
+                    <ion-icon name="cloud-upload-outline" style="width: 50px;
+                    height: 50px;" ></ion-icon>
+        
+                </div>
+          
+              </div>
+              <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+
+              <ion-note>{{'titles.modules.process.step2.file-input.upload-file-note' | translate}}
+              </ion-note>
+            </ion-col>
+
+          </ion-row>
+          <ion-button *ngIf="extracts && extracts['bills'] && extracts['bills'][billPos].bill.length >0" color="light" expand="block" (click)="isUploadingOther=false">
+            {{'buttons.cancel' | translate}}
+            <ion-icon name="close-circle-outline" slot="end"></ion-icon>
+          </ion-button>
+
+          <ion-row class="ion-margin-top" *ngIf="imagesToUpload && imagesToUpload.length > 0">
+
+            <ion-col size="4" *ngFor="let image of imagesToUpload; index as i">
+
+              <ion-button shape="round" color="danger" class="delete-image-button" (click)="deleteImageToUpload(i)">
+                <ion-icon slot="icon-only" size="default" name="trash-outline"></ion-icon>
+              </ion-button>
+
+              <ion-img class="image-to-upload" [src]="image.dataUrl"> </ion-img>
+  
+            </ion-col>
+            <ion-col size="4" style="display: flex; justify-content: center; align-items: center;">
+              <ion-button shape="round" class="add-image-button" (click)="takePhoto()">
+                <ion-icon slot="icon-only" size="large" name="add-outline"></ion-icon>
+              </ion-button>
+            </ion-col>
+
+          </ion-row>
+        </ion-grid>
+        <div class="ion-padding-top d-flex"  @fadeIn>
+          <ion-button size="small" color="secondary" [disabled]="checkBillsErrors()" (click)="openUploading()" *ngIf="extracts && extracts['bills'] && extracts['bills'][billPos].bill.length >0 && !isUploadingOther">
+            {{'buttons.receipt' | translate}}
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+          </ion-button>
+          <ion-button size="small" color="danger" (click)="deleteAllReceiptsAlert()" *ngIf="extracts && extracts['bills'] && extracts['bills'].length > 0">
+            {{'buttons.delete-country' | translate}}
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+          </ion-button>
+
+        </div>
+      </ion-card-content>
+    </ion-card>
+    </div>
+
+    <div *ngIf="currentStep == 2" @fadeIn>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{'titles.modules.process.step3.title' | translate}}</ion-card-title>
+          <ion-card-subtitle>{{'titles.modules.process.step3.subtitle' | translate}}</ion-card-subtitle>
+        </ion-card-header>
+      
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-select label="{{'inputs.extract-type.label' | translate}}"  (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['type']">
+              <ion-select-option  value="credit">{{'inputs.extract-type.options.credit-card' | translate}}</ion-select-option>
+              <ion-select-option  value="debit">{{'inputs.extract-type.options.debit-card' | translate}}</ion-select-option>
+    
+            </ion-select>
+          </ion-item>
+          <ion-item button (click)="showModalPicker('inputs.select-currency.title','currency')">
+            <ion-label *ngIf="extracts['extract']['currency'] != ''">{{'global.words.currency' | translate}}: {{extracts['extract']['currency']}}</ion-label>
+            <ion-label *ngIf="extracts['extract']['currency'] == ''">{{'inputs.select-currency.title' | translate}}</ion-label>
+          </ion-item>
+          <!--
+          <ion-item>
+            <ion-select label="Moneda" placeholder="Seleccione una" (ionChange)="changeExtractType()" [(ngModel)]="extracts['extract']['currency']">
+              <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">{{currency.country}} ({{currency.code}})</ion-select-option>
+    
+            </ion-select>
+          </ion-item>
+          -->
+
+
+        </ion-card-content>
+      </ion-card>
+
+
+
+      <ion-card id="card-step-4" *ngIf="!this.extracts['extract']['file'] && this.extracts['extract']['file'] != '' && extracts['extract']['type'] != '' && extracts['extract']['currency'] != ''" @fadeIn>
+        <ion-card-header>
+          <ion-card-title>{{'titles.modules.process.step4.title' | translate}}</ion-card-title>
+          <ion-card-subtitle>{{'titles.modules.process.step4.subtitle' | translate}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+
+          <div class="ion-padding"  >
+            <div  style="margin: auto;" @fadeIn class="dropzone dropzoneMobile ion-margin" appDropFilesInput (fileDropped)="onFileDropped($event,'extracts')">
+              <input type="file" accept="image/jpeg,image/png,application/pdf" [disabled]="isUploading" #fileDrop id="fileDrop" (change)="fileBrowseHandler($event,'extracts')">
+        
+              <div class="image-place-holder">
+                  <ion-icon name="cloud-upload-outline" style="width: 50px;
+                  height: 50px;" ></ion-icon>
+    
+              </div>
+        
+        
+            </div>
+            <ion-progress-bar class="ion-margin-top" type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+    
+            <ion-note>{{'titles.modules.process.step4.file-input.upload-file-note' | translate}}
+            </ion-note>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      
+      <ion-list class="ion-padding" *ngIf="this.extracts['extract']['file'] && this.extracts['extract']['file'] !=''" @fadeIn>
+        <ion-list-header>
+          {{'titles.modules.process.step4.uploaded-files.title' | translate}}
+        </ion-list-header>
+
+        <ion-item >
+          <ion-label>
+            <h3 *ngIf="this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName'] || this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == '' ">{{this.extracts['extract']['original_name']}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] != ''  && this.extracts['extract']['bankName'] != 'undefined'">{{this.extracts['extract']['bankName']}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName'] == 'undefined'" class="color-danger">{{'errors.file-uploads.cannot-read-bank-name' | translate}}</h3>
+            <h3 *ngIf="this.extracts['extract']['status'] == 500 " class="color-danger">{{'errors.file-uploads.cannot-read-file' | translate}}</h3>
+            <p *ngIf="this.extracts['extract']['startDate'] && this.extracts['extract']['startDate'] != '' && this.extracts['extract']['endDate'] && this.extracts['extract']['endDate'] != ''"> {{this.extracts['extract']['startDate'] | date: 'dd/MM/yyyy'}} - {{this.extracts['extract']['endDate'] | date: 'dd/MM/yyyy'}}</p>
+          <ion-progress-bar style="margin-top: 10px;" type="indeterminate" *ngIf="this.extracts['extract']['status'] == 0"></ion-progress-bar>
+          <ion-note *ngIf="this.extracts['extract']['status'] == 0">{{'loadings.analysing' | translate}}...</ion-note>
+
+          </ion-label>
+          <ion-button color="danger" (click)="deleteExtract(0, this.extracts['extract']['document_id'])">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+
+        </ion-item>
+
+
+      </ion-list>
+    
+
+
+
+
+
+    </div>
+
+    <div *ngIf="currentStep == 3" @fadeIn>
+      <div class="ion-padding" *ngIf="!results">
+
+        <h3 class="text-center" >
+          {{'titles.modules.process.analysis.loading.title' | translate}}
+        </h3>
+        <p class="text-center">
+          {{'titles.modules.process.analysis.loading.subtitle' | translate}}...</p>
+        <ion-list >
+          <ion-item lines="none" >
+            <ion-progress-bar type="indeterminate"></ion-progress-bar>
+          </ion-item>
+        </ion-list>
+      </div>
+      <div class="ion-padding" *ngIf="results">
+
+        <h3 class="text-center">
+          {{'titles.modules.process.analysis.results.title' | translate}}
+        </h3>
+        <ion-accordion-group class="ion-margin-bottom" value="notMatched" *ngIf="results && results.notMatched && results.notMatched.length > 0 ">
+          <ion-accordion value="notMatched" >
+            <ion-item slot="header" color="danger">
+              <ion-label>{{'global.words.check' | translate}} {{countNotMatched()}} {{ countNotMatched() == 1 ? ('titles.modules.process.analysis.results.not-matched-title-singular' | translate) : ('titles.modules.process.analysis.results.not-matched-title-plural' | translate)}} {{'titles.modules.process.analysis.results.not-matched-complement' | translate}}:</ion-label>
+            </ion-item>
+            <div slot="content">
+
+              <ion-button color="dark" style="margin-top: 10px; margin-bottom: 10px;" expand="block" class="button-controll" (click)="deleteAllNotMatched()" >
+                {{'buttons.delete-all-not-matched' | translate}}
+                <ion-icon name="trash-outline" slot="end"></ion-icon>
+              </ion-button>
+
+              <ion-list *ngFor="let group of results.notMatched; index as igroup">
+       
+                <ion-item-divider class="bordered-divider" *ngIf="group.bill && group.bill.length > 0">
+                  <ion-label> {{convertKey(group.country) | translate}} </ion-label>
+                </ion-item-divider>
+                <ion-item *ngFor="let line of group.bill; index as iextract" >
+                  <ion-label class="no-margin-right">
+                    <h2 class="color-danger" *ngIf="line.reason && line.reason == 'vendor'">{{'errors.analysis.vendor-does-not-match' | translate}}</h2>
+                    <h2 class="bold"> {{line.vendor}}</h2>
+                  <ion-grid class="no-padding">
+                    <ion-row>
+                      <ion-col size="8" class="list-col">
+                        <p>{{'global.words.date' | translate}}: {{line.date | date:'dd/MM/yyyy'}} 
+                          <span [ngClass]="!line.date || line.date == '' ? 'color-danger' : ''"> {{!line.date || line.date == '' ? ('errors.analysis.reading-error' | translate) : ''}}</span>
+                          <span *ngIf="line.reason && line.reason == 'date'" class="color-danger"> {{'errors.analysis.does-not-match' | translate}} </span> 
+
+                        </p>
+                        <p>{{'errors.analysis.receipt-does-not-match' | translate}} <span *ngIf="line.reason && line.reason == 'value'" class="color-danger"> {{'errors.analysis.does-not-match' | translate}} </span> </p>
+                        <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
+                        <p *ngIf="line.exchange">{{'titles.modules.process.analysis.results.money-exchange' | translate}}</p>
+                        <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
+                      </ion-col>
+                      <ion-col size="4">
+                        <ion-icon class="d-block m-auto" size="large" name="close-circle" color="danger"></ion-icon>
+                        <p class="d-block m-auto text-center bold">{{'errors.analysis.extract-does-not-match' | translate}}</p>
+      
+                      </ion-col>
+                      <!--
+                      <ion-col style="display: flex;
+                      justify-content: space-around;
+                      align-items: center;flex-direction: column;">
+                        <ion-note>Coincide</ion-note>
+                        <ion-button *ngIf="line.match">
+                          <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+      
+                        </ion-button>
+      
+                      </ion-col>
+                      -->
+
+                    </ion-row>
+                  </ion-grid>
+
+                  <ion-button  color="danger" (click)="deleteNotMatched(igroup,iextract, line)">
+                    <ion-icon name="trash-outline" ></ion-icon>
+
+                  </ion-button>
+                  <!--
+                  <ion-button  color="primary" (click)="editLine(line)">
+                    {{'buttons.edit' | translate}}
+
+                  </ion-button>-->
+
+                  <ion-button  color="light" (click)="modalHelp=true">
+                    {{'buttons.help' | translate}}
+                    <ion-icon name="help-circle-outline" slot="end"></ion-icon>
+                  </ion-button>
+                  </ion-label>
+                  <!--
+                  <ion-button color="danger">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  -->
+      
+          
+          
+                </ion-item>
+      
+          
+              </ion-list>
+            </div>
+          </ion-accordion>
+
+        </ion-accordion-group>
+        <!--
+        <ion-accordion-group class="ion-margin-bottom" value="matched">
+          <ion-accordion value="notMatched" >
+            <ion-item slot="header" color="primary">
+              <ion-label>Revisar {{countMatched()}} {{countMatched() == 1 ? 'gasto coincide' : 'gastos coinciden'}} con el estado financiero:</ion-label>
+            </ion-item>
+            <div slot="content" class="ion-padding-top" *ngIf="results && results.matchedBills && results.matchedBills.length > 0 ">
+              <ion-list *ngFor="let group of results.matchedBills; index as igroup">
+       
+                <ion-item-divider class="bordered-divider">
+                  <ion-label> {{group.country}} </ion-label>
+                </ion-item-divider>
+                <ion-item *ngFor="let line of group.bill; index as iextract" >
+                  <ion-label class="no-margin-right">
+                    <h2 class="bold">{{line.date | date:'dd/MM/yyyy'}} {{line.vendor}}</h2>
+                  <ion-grid class="no-padding">
+                    <ion-row>
+                      <ion-col size="8" class="list-col">
+                        <p >Fecha: {{line.date | date:'dd/MM/yyyy'}} 
+                        </p>
+                        <p>Recibo</p>
+                        <ion-note>${{line.bill | number}} {{line.currencyBill}}</ion-note>
+                        <p *ngIf="line.exchange">Cambio de moneda</p>
+                        <ion-note *ngIf="line.exchange">${{line.exchangeValue | number}} {{line.currency}}</ion-note>
+                      </ion-col>
+                      <ion-col size="4">
+                        <ion-icon class="d-block m-auto" size="large" name="checkmark-circle-outline" color="primary"></ion-icon>
+                        <p class="d-block m-auto text-center bold">Coincide</p>
+      
+                      </ion-col>
+
+
+                    </ion-row>
+                  </ion-grid>
+
+                  <ion-button  color="danger" (click)="deleteNotMatched(igroup,iextract, line)">
+                    Eliminar
+
+                  </ion-button>
+
+                  </ion-label>
+
+          
+          
+                </ion-item>
+      
+          
+              </ion-list>
+            </div>
+          </ion-accordion>
+
+        </ion-accordion-group>
+
+
+        <ion-accordion-group class="ion-margin-bottom" *ngIf="results.notmatchedExtractLines && results.notmatchedExtractLines.lines && results.notmatchedExtractLines.lines.length > 0">
+          <ion-accordion value="notMatched" >
+            <ion-item slot="header" color="medium">
+              <ion-label>{{results.notmatchedExtractLines.lines.length}} {{results.notmatchedExtractLines.lines.length == 1 ? 'Linea del estado financiero no coincide' : 'Lineas del estado financiero no coinciden'}} con ningún recibo:</ion-label>
+            </ion-item>
+            <div slot="content">
+              <ion-list >
+
+                <ion-item *ngFor="let line of results.notmatchedExtractLines.lines; index as iextract" >
+
+                  <ion-label class="no-margin-right">
+                    
+                    <h4>{{line.date | date:'dd/MM/yyyy'}} {{line.description}}</h4>
+                    <p>{{results.notmatchedExtractLines.type == 'credit' ? 'Tj Credito' : 'Tj Debito'}} ${{line.amount | number}} {{results.notmatchedExtractLines.currency}}</p>
+
+                  </ion-label>
+
+          
+          
+                </ion-item>
+      
+          
+              </ion-list>
+            </div>
+          </ion-accordion>
+        
+
+          </ion-accordion-group>
+        -->
+
+
+
+
+
+
+
+      </div>
+      <!--
+            <div class="ion-padding" *ngIf="results && !checkResults">
+
+        <ion-card >
+          <ion-card-header>
+            <ion-card-title>{{'titles.modules.process.analysis.result-notification.title' | translate}} {{countNotMatched()}} {{countNotMatched() > 1 ? ('titles.modules.process.analysis.result-notification.not-matched-plural' | translate) : ('titles.modules.process.analysis.result-notification.not-matched-singular' | translate)}} {{'titles.modules.process.analysis.result-notification.not-matched-complement' | translate}}</ion-card-title>
+            <ion-card-subtitle>{{'titles.modules.process.analysis.result-notification.subtitle' | translate}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+  
+            <div class="ion-padding"  >
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-sm="6" class="d-flex flex-center">
+                    <ion-button  color="dark" class="button-controll"  (click)="checkResults=true" >
+                      {{'global.words.check' | translate}} {{countNotMatched()}} {{countNotMatched() > 1 ? ('global.words.bills' | translate) : ('global.words.bill' | translate)}}
+                      <ion-icon name="search" slot="end"></ion-icon>
+                    </ion-button>
+              
+                  </ion-col>
+                  <ion-col size="12" size-sm="6" class="d-flex flex-center">
+                    <ion-button  color="primary" class="button-controll"  (click)="nextStep()" >
+                      {{'buttons.skip-this-step' | translate}}
+                      <ion-icon name="flash" slot="end"></ion-icon>
+                    </ion-button>
+              
+                  </ion-col>
+
+                </ion-row>
+              </ion-grid>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+      </div>
+      -->
+
+ 
+
+      <!--
+            <div class="ion-padding">
+
+        <ion-accordion-group>
+          <ion-accordion [value]="i" *ngFor="let result of results; index as i">
+            <ion-item slot="header" color="primary">
+              <ion-label>{{result.name}}</ion-label>
+            </ion-item>
+            <div slot="content">
+              <ion-list >
+
+                <ion-item *ngFor="let line of result.lines; index as iline" >
+                  <ion-label class="no-margin-right">{{line.date}} {{line.description}}
+                  <ion-grid class="no-padding">
+                    <ion-row>
+                      <ion-col>
+                        <ion-note>Recibo</ion-note>
+                        <p class="ion-padding-top">${{line.bill | number}} {{line.currency}}</p>
+                      </ion-col>
+                      <ion-col>
+                        <ion-note>{{result.type}}</ion-note>
+                        <p class="ion-padding-top">${{line.extract | number}} {{line.currency}}</p>
+      
+                      </ion-col>
+                      <ion-col style="display: flex;
+                      justify-content: space-around;
+                      align-items: center;flex-direction: column;">
+                        <ion-note>Coincide</ion-note>
+                        <ion-button *ngIf="line.match">
+                          <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+      
+                        </ion-button>
+                        <ion-button *ngIf="!line.match" color="danger">
+                          <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      
+                        </ion-button>
+      
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                  <p class="color-danger" *ngIf="!line.match">Este gasto no coincide con tus extractos, rectificalo antes de continuar</p>
+
+
+                  <ion-button  color="primary" (click)="editLine(i,iline)">
+                    Editar
+
+                  </ion-button>
+                  <ion-button  color="danger" (click)="deleteLine(i,iline)">
+                    Eliminar
+
+                  </ion-button>
+                  </ion-label>
+
+      
+          
+          
+                </ion-item>
+      
+          
+              </ion-list>
+            </div>
+          </ion-accordion>
+
+        </ion-accordion-group>
+        
+  
+
+
+      </div>
+      -->
+
+
+
+    </div>
+
+    <div *ngIf="currentStep == 4" @fadeIn>
+
+      <div *ngIf="!sendingForm">
+
+        <!-- logged in-->
+        <div class="ion-padding" *ngIf="userSession">
+  
+          <h3 class="text-center" *ngIf="userSession">
+            {{'titles.modules.process.send-results.title' | translate}}
+          </h3>
+  
+        </div>
+        <div class="ion-padding" *ngIf="userSession">
+          <ion-item>
+            <ion-input label="{{'inputs.user-name.title' | translate}}" labelPlacement="floating" placeholder="{{'inputs.user-name.place-holder' | translate}}" (ionChange)="changeExportSettings()" [(ngModel)]="userName"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="{{'inputs.user-email.title' | translate}}" labelPlacement="floating" placeholder="{{'inputs.user-email.placeholder' | translate}}" (ionChange)="changeExportSettings()" [(ngModel)]="userEmail"></ion-input>
+          </ion-item>
+        </div>
+        <div class="ion-padding" *ngIf="userSession">
+          <ion-list>
+            <ion-list-header>
+              {{'inputs.export-format.title' | translate}}
+            </ion-list-header>
+            <ion-item>
+              <ion-checkbox (ionChange)="changeExportSettings()" [(ngModel)]="sendPdf">{{'inputs.export-format.send-pdf' | translate}}</ion-checkbox>
+      
+            </ion-item>
+            <ion-item>
+              <ion-checkbox (ionChange)="changeExportSettings()" [(ngModel)]="sendExcel">{{'inputs.export-format.send-excel' | translate}}</ion-checkbox>
+      
+            </ion-item>
+          </ion-list>
+        </div>
+
+        <!-- Not logged in-->
+        <div class="ion-padding" *ngIf="!userSession">
+  
+          <app-sig-in mainTitle = "titles.modules.login.to-continue" [backParams]="{back:'trips',trip:travelSelected._id,step:this.currentStep}"></app-sig-in>
+
+  
+        </div>
+        <!--
+        <div class="ion-padding">
+          <ion-item>
+            <ion-select label="Moneda de cambio" placeholder="Seleccione una" (ionChange)="changeExportSettings()" [(ngModel)]="currencyExchange">
+              <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">({{currency.code}}) {{currency.country}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+        </div>
+        -->
+
+  
+      </div>
+      <div *ngIf="sendingForm">
+        <div class="ion-padding">
+          <h3 class="text-center">
+            {{'loadings.sending-results' | translate}}...
+          </h3>
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+
+        </div>
+
+
+      </div>
+
+
+
+    </div>
+    <div *ngIf="currentStep == 5" @fadeIn>
+      <div class="ion-padding">
+        <div *ngIf="this.travelSelected['process_status'] != 2">
+          <h2 class="text-center">
+            {{'titles.modules.process.send-results.result-sent' | translate}}
+          </h2>
+          <ion-card color="primary" class="no-margin">
+            <ion-card-header>
+              <ion-card-subtitle>{{'titles.modules.process.send-results.error-reminder' | translate}}</ion-card-subtitle>
+            </ion-card-header>
+          
+          </ion-card>
+          <h3 class="text-center ion-padding-top">
+            {{'titles.modules.process.send-results.rating-invite' | translate}} Ikosten?
+          </h3>
+          <app-star-rating (sent)="finishProcess($event)"></app-star-rating>
+  
+        </div>
+        <div *ngIf="this.travelSelected['process_status'] == 2">
+          <ion-list>
+            <ion-list-header>
+              
+              {{'titles.modules.process.send-results.resend-title' | translate}}
+            </ion-list-header>
+
+            <p class="ion-margin-start">{{'titles.modules.process.send-results.resend-subtitle' | translate}}</p>
+            <ion-button class="ion-margin" expand="block" [disabled]="sendingForm" (click)="reSendResult()">{{'buttons.send' | translate}} <ion-spinner *ngIf="sendingForm" name="crescent"></ion-spinner> <ion-icon *ngIf="!sendingForm" slot="end" name="send-outline"></ion-icon></ion-button>
+
+          </ion-list>
+        </div>
+
+        <!--
+        <p class="text-center">Recuerda que para tu empresa es importante mantener la información de tus gastos durante el periodo contable
+        </p>
+        -->
+
+
+      </div>
+
+
+
+
+
+    </div>
+    <div *ngIf="currentStep == 8" @fadeIn>
+      <div class="ion-padding">
+
+        <h2 class="text-center bold">
+          ¡ESPERA!
+        </h2>
+        <h2 class="bold text-center"><span class="line-through">12 USD</span> -> <span class="color-danger">9.99 USD</span> </h2>
+
+        <h3 class="text-center ion-padding-top">
+          Haz ganado un DESCUENTO en tu membresía <span class="bold">Pro</span>!
+        </h3>
+        
+        <h2 class="text-center bold">Este descuento solo es válido por única vez
+        </h2>
+
+
+      </div>
+
+
+
+
+
+    </div>
+    <div *ngIf="currentStep == 9" @fadeIn>
+      <div class="ion-padding">
+
+        <h2 class="text-center bold">
+          Cuidado
+        </h2>
+        <h2 class="text-center">Tus datos serán eliminados permanentemente, <br>
+          <span class="bold">Deseas continuar?</span> </h2>
+
+
+
+      </div>
+
+
+
+
+
+    </div>
+    <div *ngIf="currentStep == 10" @fadeIn>
+      <div class="ion-padding">
+
+        <h2 class="text-center bold">
+          Tus datos se han eliminado
+
+        </h2>
+        <h2 class="text-center">Gracias por utilizar Kosten, nos vemos pronto!
+        </h2>
+
+
+
+      </div>
+
+
+
+
+
+    </div>
+  </div>
+
+  <!--modals-->
+  <ion-modal [isOpen]="openModalMemberships" (willDismiss)="onWillDismiss()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="onWillDismiss()">Cancelar</ion-button>
+          </ion-buttons>
+          <ion-title>Elige tu plan</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-sm="6">
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>4.99 USD/mes</ion-card-title>
+                  <ion-card-subtitle>Basic </ion-card-subtitle>
+                </ion-card-header>
+              
+                <ion-card-content>
+                  <ion-list>
+                    <ion-item lines="none">
+                      4 procesos 
+
+                    </ion-item>
+                    <ion-item lines="none">
+                      forma de pago de pago en efectivo, debito y credito
+
+                    </ion-item>
+                    <ion-item lines="none">
+                      Exportar a Excel y PDF
+
+                    </ion-item>
+                    <ion-item lines="none">
+                      Guarda el historial
+
+                    </ion-item>
+                  </ion-list>
+        
+                </ion-card-content>
+                <div class="ion-padding">
+                  <ion-button expand="block">Elegir</ion-button>
+
+                </div>
+              </ion-card>
+            </ion-col>
+            <ion-col size="12" size-sm="6">
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>12 USD/mes</ion-card-title>
+                  <ion-card-subtitle>Pro </ion-card-subtitle>
+                </ion-card-header>
+              
+                <ion-card-content>
+                  <ion-list>
+                    <ion-item lines="none">
+                      Todo lo de Basic +
+
+                    </ion-item>
+                    <ion-item lines="none">
+                      procesos ilimitados
+
+                    </ion-item>
+                    <ion-item lines="none">
+                      Exportar en más de una moneda
+
+                    </ion-item>
+
+                  </ion-list>
+                </ion-card-content>
+                <div class="ion-padding">
+                  <ion-button expand="block">Elegir</ion-button>
+
+                </div>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="isEdditingLine" (willDismiss)="onWillDismissEditLine()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start" >
+            <ion-button color="danger" (click)="isEdditingLine=false">{{'buttons.cancel' | translate}}</ion-button>
+          </ion-buttons>
+          <ion-title>{{'titles.modules.process.edit-receipts.title' | translate}}</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+        <ion-list [inset]="true">
+          <ion-list-header>
+            {{'titles.modules.process.edit-receipts.section-edit-receipt-title' | translate}}
+          </ion-list-header>
+          <ion-img class="viewer-image" *ngIf="editLineReceipt && isImage(editLineReceipt.type)"
+          [src]="sanitizeImage(editLineReceipt.blob)"
+  
+          ></ion-img>
+        
+          <!--
+          <pdf-viewer *ngIf="editLineReceipt && isPdf(editLineReceipt.type)" 
+          [src]="'data:application/pdf;base64,'+editLineReceipt.blob"
+          [rotation]="0"
+          [original-size]="false"
+          [show-all]="true"
+          [fit-to-page]="false"
+          [zoom]="1"
+          [zoom-scale]="'page-width'"
+          [render-text]="true"
+          [external-link-target]="'blank'"
+          [autoresize]="true"
+          [show-borders]="false"
+          style="display: block; height: 300px;"
+          ></pdf-viewer>
+          -->
+
+
+          <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;">
+            <ion-label>{{'global.words.date' | translate}}: <span *ngIf="editLineReason == 'date'" class="color-danger">{{'errors.analysis.does-not-match' | translate}}</span></ion-label>
+              <ion-chip class="chip-date" >
+                {{editLineDate | date: 'dd/MM/yyyy'}}
+              <ion-ripple-effect></ion-ripple-effect>
+
+            </ion-chip>
+
+          </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'date'"><ion-icon name="alert-circle-outline"></ion-icon>{{'errors.analysis.date-does-not-match' | translate}}</p>
+
+          <ion-item *ngIf="toggleDate">
+            <ion-datetime style="width: 100%; margin: auto;" id="dateLine" [locale]="dateLocale"  [(ngModel)]="editLineDate" presentation="date"></ion-datetime>
+
+          </ion-item>
+
+          <ion-item (click)="toggleTime = !toggleTime; toggleDate=false;">
+            <ion-label>{{'global.words.hour' | translate}}:</ion-label>
+              <ion-chip class="chip-date" >
+                {{editLineTime | date: 'hh:mm aa'}}
+              <ion-ripple-effect></ion-ripple-effect>
+
+            </ion-chip>
+
+          </ion-item>
+          <ion-item *ngIf="toggleTime">
+            <ion-datetime style="width: 100%; margin: auto;" [locale]="dateLocale"  [(ngModel)]="editLineTime" id="hourLine" presentation="time"></ion-datetime>
+
+          </ion-item>
+
+          <ion-item>
+            <ion-input label="{{'inputs.edit-line-vendor.title' | translate}}"  labelPlacement="floating" placeholder="{{'inputs.edit-line-vendor.placeholder' | translate}}" [(ngModel)]="editLineDescription"></ion-input>
+          </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'vendor'"><ion-icon name="alert-circle-outline"></ion-icon>{{'errors.analysis.vendor-does-not-match' | translate}}</p>
+
+          <ion-item>
+            <ion-input label="{{'inputs.edit-line-bill-value.title' | translate}}" labelPlacement="floating"  type="number" min="0" placeholder="{{'inputs.edit-line-bill-value.placeholder' | translate}}" [(ngModel)]="editLineBill"></ion-input>
+
+          </ion-item>
+          <p class="color-danger ion-padding-start" style="margin-top: 5px; margin-left: 0px; margin-bottom: 0px;" *ngIf="editLineReason == 'value'"><ion-icon name="alert-circle-outline"></ion-icon>{{'errors.analysis.value-does-not-match' | translate}}</p>
+
+
+          <ion-item>
+            <ion-select label="{{'inputs.bill-currency.title' | translate}}" placeholder="{{'inputs.bill-currency.placeholder' | translate}}"  [(ngModel)]="editLineCurrency">
+              <ion-select-option *ngFor="let currency of currencies"  [value]="currency.code">{{convertKey(currency.country) | translate}} ({{currency.code}})</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+
+
+
+
+        </ion-list>
+
+        <!--
+        <ion-list [inset]="true">
+          <ion-list-header>
+            Editar Lineas de Extracto
+          </ion-list-header>
+          <ion-img class="viewer-image" *ngIf="editLineExtract && isImage(editLineExtract.type)"
+          [src]="sanitizeImage(editLineExtract.blob)"
+  
+          ></ion-img>
+      
+          <pdf-viewer *ngIf="editLineExtract && isPdf(editLineExtract.type)" 
+          [src]="'data:application/pdf;base64,'+editLineExtract.blob"
+          [rotation]="0"
+          [original-size]="false"
+          [show-all]="true"
+          [fit-to-page]="false"
+          [zoom]="1"
+          [zoom-scale]="'page-width'"
+          [render-text]="true"
+          [external-link-target]="'blank'"
+          [autoresize]="true"
+          [show-borders]="false"
+          style="display: block; height: 300px;"
+          ></pdf-viewer>
+          
+
+
+          <ion-accordion-group class="ion-margin-bottom ion-margin-top" >
+
+            <ion-accordion  *ngFor="let line of extracts.extract.lines; index as i">
+              <ion-item slot="header" color="light">
+                <ion-label>
+                  <h4>{{line.date}} {{line.description}}</h4>
+                  <p>${{line.amount | number}}</p>
+                </ion-label>
+              </ion-item>
+              <div slot="content" class="ion-padding-top ion-padding-bottom">
+                <ion-list>
+                  <ion-item (click)="toggleDatesExtracts[i] = !toggleDatesExtracts[i]">
+                    <ion-label>Fecha:</ion-label>
+                      <ion-chip class="chip-date" *ngIf="extracts.extract.lines[i].date && extracts.extract.lines[i].date != ''">
+                        {{extracts.extract.lines[i].date | date: 'dd/MM/yyyy'}}
+                        <ion-ripple-effect></ion-ripple-effect>
+        
+                      </ion-chip>
+                      <ion-chip class="chip-date" *ngIf="!extracts.extract.lines[i].date || extracts.extract.lines[i].date == ''">
+                        No se pudo leer
+                        <ion-ripple-effect></ion-ripple-effect>
+        
+                      </ion-chip>
+        
+                  </ion-item>
+                  <ion-item *ngIf="toggleDatesExtracts[i]">
+                    <ion-datetime style="width: 100%; margin: auto;" (ionChange)="changeDateExtractLine(i)"  [(ngModel)]="extracts.extract.lines[i].date" presentation="date"></ion-datetime>
+        
+                  </ion-item>
+                  <ion-item>
+                    <ion-input label="Descripcion" labelPlacement="floating" placeholder="Ingresa la descripcion" [(ngModel)]="extracts.extract.lines[i].description"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-input label="Valor" labelPlacement="floating" type="number" min="0" placeholder="Ingresa valor en el extracto" [(ngModel)]="extracts.extract.lines[i].amount"></ion-input>
+                  </ion-item>
+                </ion-list>
+              </div>
+            </ion-accordion>
+  
+          </ion-accordion-group>
+          
+          
+
+        </ion-list>
+        -->
+
+        <div class="list-spacer"></div>
+
+
+      </ion-content>
+      <ion-footer class="d-flex flex-justify-space-between" style="padding: 5px;">
+
+        <ion-button color="danger" class="button-controll" style="float:right" (click)="this.isEdditingLine=false" >
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          {{'buttons.close' | translate}}
+        </ion-button>
+
+        <ion-button [disabled]="this.editLineDescription =='' 
+          || !this.editLineBill
+          || this.editLineBill <=0" color="primary" class="button-controll" style="float:right" (click)="finishEditLine()" >
+          {{'buttons.confirm' | translate}}
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        
+
+      
+
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="modalHelp" (willDismiss)="onWillDismissModalHelp()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-buttons slot="start" >
+            <ion-button color="danger" (click)="modalHelp=false">{{'buttons.close' | translate}}</ion-button>
+          </ion-buttons>
+          <ion-title>{{'global.words.help' | translate}}</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+
+        <div class="ion-padding">
+          <ion-img
+            style="max-width: 50%;"
+            src="../../../assets/images/Identificador[Fondo Blanco].png"
+            alt="ikosten logo"
+          ></ion-img>
+          <ion-list class="ion-margin-top">
+            <ion-list-header>
+              {{'titles.modules.process.help.title' | translate}}:
+            </ion-list-header>
+            <ul class="helpList">
+              <li>{{'titles.modules.process.help.list-1' | translate}}</li>
+              <li>{{'titles.modules.process.help.list-2' | translate}}</li>
+              <li>{{'titles.modules.process.help.list-3' | translate}}</li>
+              <li>{{'titles.modules.process.help.list-4' | translate}}</li>
+              <li>{{'titles.modules.process.help.list-5' | translate}}</li>
+
+            </ul>
+            <ion-list-header>
+              {{'titles.modules.process.help.complement' | translate}}
+            </ion-list-header>
+
+            <ion-grid>
+              <ion-row>
+                <ion-col size="6" class="d-flex flex-center">
+                  <ion-button  color="light" class="button-controll"  (click)="modalHelp=false" >
+                    {{'buttons.close' | translate}}
+                  </ion-button>
+                </ion-col>
+                <ion-col size="6" class="d-flex flex-center">
+                  <ion-button  color="primary" class="button-controll"  (click)="skipRevision()" >
+                    {{'buttons.skip-revision' | translate}}
+                    <ion-icon name="flash" slot="end"></ion-icon>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+
+
+          </ion-list>
+        </div>
+
+
+
+      </ion-content> 
+      <!--
+            <ion-footer class="d-flex flex-justify-space-between" style="padding: 5px;">
+
+        <ion-button color="danger" class="button-controll" style="float:right" (click)="this.isEdditingLine=false" >
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cerrar
+        </ion-button>
+
+        <ion-button [disabled]="this.editLineDescription =='' 
+          || !this.editLineBill
+          || this.editLineBill <=0" color="primary" class="button-controll" style="float:right" (click)="finishEditLine()" >
+          Confirmar
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        
+
+      
+
+      </ion-footer>
+      -->
+
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="openModalAddTravel" (willDismiss)="onWillDismissAddTravel()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="onWillDismissAddTravel()" color="primary">{{'buttons.cancel' | translate}}</ion-button>
+          </ion-buttons>
+          <ion-title>{{'titles.modules.travels.create.title' | translate}}</ion-title>
+
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+        <div >
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{'titles.modules.travels.create.complement' | translate}}</ion-card-title>
+            </ion-card-header>
+          
+            <ion-card-content>
+              <ion-item button (click)="showModalPicker('inputs.select-country.title','country')">
+                <ion-label *ngIf="currencyBlockSelected">{{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})</ion-label>
+                <ion-label *ngIf="!currencyBlockSelected">{{'inputs.select-country.title' | translate}}</ion-label>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{'titles.modules.travels.create.date-travel-complement' | translate}}</ion-card-title>
+            </ion-card-header>
+          
+            <ion-card-content>
+              <ion-item (click)="toggleDate = !toggleDate; toggleTime=false;scrollToTarget('dateLine');">
+                <ion-label>{{'global.words.date' | translate}}:</ion-label>
+                  <ion-chip class="chip-date" >
+                    {{todayDate | date: 'dd/MM/yyyy'}}
+                  <ion-ripple-effect></ion-ripple-effect>
+    
+                </ion-chip>
+    
+              </ion-item>    
+              <ion-item *ngIf="toggleDate">
+                <ion-datetime style="width: 100%; margin: auto;"  id="dateLine" [locale]="dateLocale"  [(ngModel)]="todayDate" presentation="date"></ion-datetime>
+    
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+
+    
+        </div>
+        
+
+      </ion-content>
+      <ion-footer class="d-flex flex-center " style="padding: 10px 5px 20px 5px;">
+
+        <ion-button [disabled]="!this.currencyBlockSelected
+        || !todayDate" color="primary" class="button-controll" (click)="createProcess()" >
+        {{'buttons.create-travel' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+  <ion-modal [isOpen]="showAlertLogin" (willDismiss)="showAlertLogin=false;">
+    <ng-template>
+      <ion-header [translucent]="true">
+        <ion-toolbar class="spacer-toolbar" *ngIf="platform.is('ios') && !this.platform.is('mobileweb')">
+
+        </ion-toolbar>
+        <ion-toolbar color="primary">
+          <ion-buttons slot="start" >
+            <ion-button color="light" (click)="showAlertLogin=false">{{'buttons.close' | translate}}</ion-button>
+          </ion-buttons>
+          <ion-title>{{'titles.modules.login-warning.title' | translate}}</ion-title>
+ 
+        </ion-toolbar>
+      </ion-header>
+      <ion-content >
+
+        <div class="ion-padding">
+          <ion-img
+            style="max-width: 50%;"
+            src="../../../assets/images/Identificador[Fondo Blanco].png"
+            alt="ikosten logo"
+          ></ion-img>
+          <ion-list class="ion-margin-top">
+            <ion-list-header>
+              {{'titles.modules.login-warning.title-complement' | translate}}
+            </ion-list-header>
+            <div class="ion-margin-start ion-margin-bottom">
+              <p>{{'titles.modules.login-warning.content-1' | translate}}</p>
+              <p>{{'titles.modules.login-warning.content-2' | translate}}</p>
+            </div>
+            <ion-button expand="block" color="primary" class="ion-margin-top"  (click)="openLogin()" >
+              {{'buttons.sign-in' | translate}}
+            </ion-button>
+
+
+          </ion-list>
+        </div>
+
+
+
+      </ion-content> 
+      <!--
+            <ion-footer class="d-flex flex-justify-space-between" style="padding: 5px;">
+
+        <ion-button color="danger" class="button-controll" style="float:right" (click)="this.isEdditingLine=false" >
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Cerrar
+        </ion-button>
+
+        <ion-button [disabled]="this.editLineDescription =='' 
+          || !this.editLineBill
+          || this.editLineBill <=0" color="primary" class="button-controll" style="float:right" (click)="finishEditLine()" >
+          Confirmar
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+        
+
+      
+
+      </ion-footer>
+      -->
+
+    </ng-template>
+  </ion-modal>
+
+  <app-country-picker (optionSelected)="pickerOptionSelected($event)" (dismiss)="pickerDismissed()" [selectedOption]="currencyBlockSelected" [isModalOpen]="showPicker" [modalTitle]="pickerTitle" [type]="pickerType" [options]="pickerOptions" [temp]="pickerOptions"></app-country-picker>
+
+
+  <!-- alerts -->
+  <!-- delete bill -->
+  <ion-alert
+  [isOpen]="isAlertDeleteExtract"
+  header="{{'alerts.delete-extract.title' | translate}}"
+  subHeader="{{'alerts.delete-extract.subtitle' | translate}}"
+  [buttons]="deleteExtractAlertButtons"
+  (didDismiss)="dismissDeleteExtract()"
+  ></ion-alert>
+  <!-- delete line -->
+
+  <ion-alert 
+    [isOpen]="isDeletingLine"
+    header="{{'alerts.delete-line.title' | translate}}"
+    subHeader="{{'alerts.delete-line.subtitle' | translate}}"
+    [buttons]="deleteLineAlertButtons"
+    (didDismiss)="dismissDeleteLine()"
+    ></ion-alert>
+
+    <ion-alert 
+    [isOpen]="isDeletingAllNotMatched"
+    header="{{'alerts.delete-all-not-matched.title' | translate}}"
+    subHeader="{{'alerts.delete-all-not-matched.subtitle' | translate}}"
+    [buttons]="deleteAllNotMatchedAlertButtons"
+    (didDismiss)="dismissDeleteAllNotMatched()"
+    ></ion-alert>
+  
+  
+  <!-- founds alert -->
+  <ion-alert 
+    [isOpen]="showAlertFounds"
+    header="{{'alerts.founds.title' | translate}} {{countNotMatched() + (countNotMatched() == 1 ? ('alerts.founds.complement-singular' | translate) : ('alerts.founds.complement-plural' | translate))}}"
+    subHeader="{{'alerts.founds.subtitle' | translate}}"
+    [buttons]="alertButtons"
+    (didDismiss)="dismissAlertFounds()"
+    ></ion-alert>
+
+
+  <!-- re send alert -->
+  <ion-alert 
+  [isOpen]="showAlertResend"
+  header="{{'alerts.resend.title' | translate}}"
+  subHeader="{{'alerts.resend.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  (didDismiss)="showAlertResend = false;"
+  ></ion-alert>
+
+  <!-- founds alert -->
+  <ion-alert 
+  [isOpen]="showAlertFoundsMatched"
+  header="{{'alerts.no-matched-bills.title' | translate}}"
+  subHeader="{{'alerts.no-matched-bills.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  (didDismiss)="dismissAlertFoundsNotMatched()"
+  ></ion-alert>
+
+    
+  <!-- restart alert -->
+  <ion-alert 
+  [isOpen]="showAlertRestart"
+  header="{{'alerts.restart-process.title' | translate}}"
+  subHeader="{{'alerts.restart-process.subtitle' | translate}}"
+  [buttons]="alertRestartButtons"
+  (didDismiss)="dismissAlertRestart()"
+  ></ion-alert>
+
+  <!-- time alert -->
+  <ion-alert 
+  [isOpen]="showAlertTime"
+  header="{{'alerts.time-warning.title' | translate}}"
+  subHeader="{{'alerts.time-warning.subtitle' | translate}}"
+  [buttons]="['buttons.accept' | translate]"
+  (didDismiss)="showAlertTime=false"
+  ></ion-alert>
+
+  <!-- delete extract -->
+  <ion-alert *ngIf="this.extracts "
+    [isOpen]="isAlertDeleteBill"
+    header="{{'alerts.delete-bill.title' | translate}}"
+    subHeader="{{'alerts.delete-bill.subtitle' | translate}}"
+    [buttons]="deleteBillAlertButtons"
+    (didDismiss)="dismissDeleteBill()"
+    ></ion-alert>
+
+  <!-- delete all -->
+  <ion-alert
+  [isOpen]="isAlertDeleteAll"
+  header="{{'alerts.delete-all-bills.title' | translate}}"
+  subHeader="{{'alerts.delete-all-bills.subtitle' | translate}}"
+  [buttons]="deleteAllAlertButtons"
+  (didDismiss)="dismissDeleteAll()"
+  ></ion-alert>
+
+    <!-- Restart Analysis -->
+    <ion-alert 
+    [isOpen]="isAlertGoBack"
+    header="{{'alerts.go-back-analysis.title' | translate}}"
+    subHeader="{{'alerts.go-back-analysis.subtitle' | translate}}"
+    [buttons]="goBackAlertButtons"
+    (didDismiss)="isAlertGoBack=false"
+    ></ion-alert>
+
+    <!-- Delete Travel Confirmation -->
+    <ion-alert 
+    [isOpen]="showAlertDeleteTravel"
+    header="{{'alerts.delete-travel.title' | translate}}"
+    subHeader="{{'alerts.delete-travel.subtitle' | translate}}"
+    [buttons]="deleteTravelAlertButtons"
+    (didDismiss)="showAlertDeleteTravel=false"
+    ></ion-alert>
+
+  <!-- action buttons -->
+   <!--
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
+    <ion-fab-button size="small" class="action-fab-button" (click)="addTravel()">
+      <ion-icon name="add"></ion-icon>
+      <ion-label>{{'buttons.trip' | translate}}</ion-label>
+      
+    </ion-fab-button>
+  </ion-fab>
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="currentStep == 0">
+    <ion-fab-button size="small" class="action-fab-button" (click)="addTravel()">
+      <ion-icon name="add"></ion-icon>
+      <ion-label>{{'buttons.trip' | translate}}</ion-label>
+      
+    </ion-fab-button>
+  </ion-fab>
+  -->
+
+
+</ion-content>
+<ion-footer class="responsive_footer">
+
+  <!--
+    <div class="ion-padding d-flex flex-center" *ngIf="currentStep == 0">
+    <ion-button [disabled]="loadingButtons"  color="primary" class="button-controll" style="float:right" (click)="createProcess()" *ngIf="currentStep == 0 ">
+      Iniciar
+      <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+    </ion-button>
+
+  </div>
+  -->
+
+    <div class="ion-padding d-flex flex-justify-space-between" *ngIf="currentStep > 1 || currentStep == 1 && !isUploadingOther || currentStep == 1 && isUploadingOther && extracts && extracts['bills'] && extracts['bills'][billPos].bill.length <=0">
+
+      
+      <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf="currentStep == 1">
+        {{'buttons.back' | translate}}
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      </ion-button>
+      
+
+
+      <!--
+            <ion-button color="danger" [disabled]="isUploading" class="button-controll" (click)="cancelUploading()" *ngIf="currentStep == 1 && isUploadingOther == true">
+        Cancelar
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+      </ion-button>
+      -->
+
+
+      <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf=" currentStep ==2 || currentStep == 4">
+        {{'buttons.back' | translate}}
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      </ion-button>
+
+      <ion-button color="light" class="button-controll" (click)="isAlertGoBack = true" *ngIf=" currentStep ==3 ">
+        {{'buttons.back' | translate}}
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      </ion-button>
+
+      <!--
+      <ion-button color="light" class="button-controll" (click)="isSettingBill = false" *ngIf="currentStep == 1 && isSettingBill ==true && !imageToUpload">
+        Atrás
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      </ion-button>
+      -->
+
+
+      <ion-button [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 500" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 2 ">
+        {{'buttons.next' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <ion-button [disabled]="!this.extracts || this.extracts && !this.extracts.bills ||  this.extracts && this.extracts.bills && this.extracts.bills[billPos] && this.extracts.bills[billPos].length<=0 || checkBillsErrors() " color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf="currentStep == 1 && !imagesToUpload || currentStep == 1 && imagesToUpload && imagesToUpload.length ==0">
+        {{'buttons.next' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <ion-button [disabled]="!imagesToUpload || imagesToUpload.length==0" color="primary" class="button-controll" style="float:right" (click)="uploadImagesBase64()" *ngIf="currentStep == 1 && imagesToUpload && imagesToUpload.length>0">
+        {{'buttons.next' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <ion-button [disabled]="!this.results" color="primary" class="button-controll" style="float:right" (click)="nextStep()" *ngIf=" currentStep == 3">
+        {{'buttons.next' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <!--
+            <ion-button [disabled]="!currencyBlockSelected || currencyBlockSelected == '' || !imagesToUpload || imagesToUpload.length <= 0" color="primary" class="button-controll" style="float:right" (click)="uploadImagesBase64()" *ngIf="currentStep == 1 && isUploadingOther ">
+        Finalizar
+        <ion-icon name="checkmark-outline" slot="end"></ion-icon>
+      </ion-button>
+      -->
+
+
+     
+      <!--
+            <ion-button [disabled]="checkUploadStatus() " color="primary" class="button-controll" style="float:right" (click)="nextConfirmData()" *ngIf="currentStep == 1 && !imageToUpload && isUploadingOther ==false">
+        Siguiente
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+      -->
+
+
+      <ion-button [disabled]="!this.extracts[this.currentExtract]['bills'] || !this.extracts[this.currentExtract]['bills'][currentBill] || this.extracts[this.currentExtract]['bills'][currentBill]['status'] == 0 || this.extracts[this.currentExtract]['bills'][currentBill]['currency'] == ''" color="primary" class="button-controll" style="float:right" (click)="confirmData()" *ngIf="currentStep == 1 && isSettingBill ==true">
+        {{'buttons.confirm' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <!-- 
+      <ion-button [disabled]="!results || results && results.length <=0" color="primary" class="button-controll" (click)="nextStep()" *ngIf="currentStep == 3">
+        Exportar
+        <ion-icon name="cloud-download-outline" slot="end"></ion-icon>
+      </ion-button>
+      -->
+
+
+      <ion-button [disabled]="!userName || userName == '' ||!userEmail || userEmail =='' || !sendPdf && !sendExcel || sendingForm || !userSession" color="primary" class="button-controll" (click)="sendResult()" *ngIf="currentStep == 4">
+        {{'buttons.send' | translate}}
+        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+      <ion-button color="light" class="button-controll" (click)="currentStep =0;" *ngIf="currentStep == 5 && travelSelected['process_status'] == 2">
+        {{'buttons.exit' | translate}}
+        <ion-icon name="close-outline" slot="end"></ion-icon>
+      </ion-button>
+
+      <!--
+      <ion-button color="danger" class="button-controll" (click)="nextStep()" *ngIf="currentStep == 5">
+        Eliminar
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+      </ion-button>
+      -->
+
+      <ion-button color="primary" class="button-controll" (click)="showMemberships()" *ngIf="currentStep == 6">
+        Si, guardar
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+      </ion-button>
+      <ion-button color="danger" class="button-controll" (click)="nextStep()" *ngIf="currentStep == 8">
+        No lo quiero
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+      </ion-button>
+      <ion-button color="primary" class="button-controll" (click)="showCheckout()" *ngIf="currentStep == 8">
+        Aceptar
+        <ion-icon name="cart-outline" slot="start"></ion-icon>
+      </ion-button>
+      <ion-button color="light" class="button-controll" (click)="backStep()" *ngIf="currentStep == 9">
+        Cancelar
+      </ion-button>
+      <ion-button color="danger" class="button-controll" (click)="nextStep()" *ngIf="currentStep == 9">
+        Eliminar
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+      </ion-button>
+      <ion-button color="primary" class="button-controll" (click)="flushData()" *ngIf="currentStep == 10">
+        Reiniciar
+        <ion-icon name="arrow-undo-outline" slot="start"></ion-icon>
+      </ion-button>
+
+    </div>
+</ion-footer>

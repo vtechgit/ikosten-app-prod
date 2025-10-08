@@ -181,4 +181,27 @@ export class ApiService {
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
+
+  // Check upload limit
+  checkUploadLimit(userId: string, filesToUpload: number): Observable<any> {
+    console.log('🔍 Verificando límite de subida para usuario:', userId);
+    console.log('📁 Archivos a subir:', filesToUpload);
+    
+    return this.http.post(
+      `${this.endpoint}/limitations/validateUploadLimit`, 
+      { 
+        user_id: userId, 
+        files_to_upload: filesToUpload 
+      },
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      tap((response) => {
+        console.log('✅ Validación de límite exitosa:', response);
+      }),
+      catchError((error) => {
+        console.error('❌ Error validando límite:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

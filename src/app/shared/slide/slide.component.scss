@@ -131,3 +131,69 @@ ion-menu ion-content {
     align-items: center;
     justify-content: center;
   }
+
+  // Estilo especial para el botón de Upgrade
+  .upgrade-item {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    margin-left: 8px;
+    margin-right: 8px;
+    --background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+    --color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    ion-icon {
+      font-size: 24px;
+      color: white !important;
+      --ion-color-base: white !important;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    ion-label {
+      font-weight: 700;
+      font-size: 15px;
+      color: white;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
