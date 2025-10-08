@@ -34,13 +34,16 @@
       
 
     </ion-content>
-    <ion-footer  color="light" style="padding: 10px 5px 20px 5px;" class="d-flex flex-end"  *ngIf="this.selected">
-
-      <ion-button color="primary" class="button-controll" (click)="confirmOptionSelected()" >
+    <ion-footer color="light" style="padding: 10px 5px 20px 5px;">
+      <ion-button 
+        *ngIf="this.selected"
+        expand="block"
+        color="primary" 
+        class="button-controll" 
+        (click)="confirmOptionSelected()">
         {{'buttons.confirm' | translate}}
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
-
     </ion-footer>
   </ng-template>
 </ion-modal>

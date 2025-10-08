@@ -79,6 +79,22 @@ export class CountryPickerComponent  implements OnInit {
     this.searchText = '';
     this.options = this.temp;
   }
+
+  cancelSelection(){
+    console.log('🚫 Cancelando selección de país');
+    
+    // Limpiar selección
+    this.selected = undefined;
+    this.searchText = '';
+    this.options = this.temp;
+    
+    // Cerrar modal
+    this.isModalOpen = false;
+    
+    // Emitir evento de dismiss
+    this.dismiss.emit(true);
+  }
+
   onWillDismiss(){
     this.searchText ='';
     this.selectedOption = undefined;

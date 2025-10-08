@@ -14,7 +14,7 @@
       <form [formGroup]="loginForm" class="login-form">
         <div class="form-fields">
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="email.hasError('required') || email.hasError('email')">
+            <ion-item class="custom-input" [class.error]="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
               <ion-input 
                 label="{{'inputs.email.title' | translate}}" 
                 type="email" 
@@ -25,13 +25,13 @@
               </ion-input>
               <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="email.hasError('required') || email.hasError('email')">
+            <div class="error-message" *ngIf="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
               {{'inputs.email.title' | translate}} {{'errors.inputs.invalid' | translate}}
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="password.hasError('required')">
+            <ion-item class="custom-input" [class.error]="(password.touched || password.dirty || submitted) && password.hasError('required')">
               <ion-input 
                 label="{{'inputs.password.title' | translate}}" 
                 type="password" 
@@ -42,7 +42,7 @@
               </ion-input>
               <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="password.hasError('required')">
+            <div class="error-message" *ngIf="(password.touched || password.dirty || submitted) && password.hasError('required')">
               {{'inputs.password.title' | translate}} {{'errors.inputs.is-required.f' | translate}}
             </div>
           </div>

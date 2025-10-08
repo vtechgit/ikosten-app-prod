@@ -1072,6 +1072,36 @@ ion-header.header-primary {
       }
     }
     
+    // Loading Section
+    .loading-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem 2rem;
+      margin: 2rem 1rem;
+      min-height: 300px;
+      
+      .loading-content {
+        text-align: center;
+        animation: fadeIn 0.3s ease-in;
+        
+        ion-spinner {
+          width: 48px;
+          height: 48px;
+          --color: var(--ion-color-primary);
+          margin-bottom: 1rem;
+        }
+        
+        .loading-text {
+          font-size: 1rem;
+          color: var(--ion-color-medium);
+          margin: 0;
+          font-weight: 500;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+      }
+    }
+    
     // Receipts List Section
     .receipts-section {
       margin: 0 1rem 2rem 1rem;
@@ -1583,6 +1613,16 @@ ion-header.header-primary {
   }
   50% {
     transform: scale(1.1);
+  }
+}
+
+// Fade in animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

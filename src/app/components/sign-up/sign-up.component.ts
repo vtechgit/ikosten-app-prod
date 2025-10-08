@@ -24,6 +24,7 @@ export class SignUpComponent  implements OnInit {
   showAlertAlreadyExist:boolean=false;
   availableCountries = [];
   loading:boolean=false;
+  submitted:boolean=false;
 
   registerForm:FormGroup;
   utm_lead:string;
@@ -83,6 +84,7 @@ export class SignUpComponent  implements OnInit {
   }
 
   onSubmit(){
+    this.submitted = true;
     this.registerForm.markAllAsTouched();
 
       if (this.registerForm.valid){

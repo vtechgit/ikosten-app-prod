@@ -663,6 +663,8 @@
 	"titles.modules.receipts.no-receipts-subtitle": "Comienza subiendo tu primer recibo seleccionando un país",
 	"alerts.delete-receipt.title": "¿Eliminar Recibo?",
 	"alerts.delete-receipt.subtitle": "Este recibo será eliminado permanentemente",
+	"alerts.delete-all-receipts.title": "¿Eliminar Todos los Recibos?",
+	"alerts.delete-all-receipts.subtitle": "Todos los recibos de este país serán eliminados permanentemente. Esta acción no se puede deshacer.",
 	"trial.modal.header": "¡Desbloquea Subidas Ilimitadas!",
 	"trial.banner.title": "¡Prueba Gratis por 7 Días!",
 	"trial.banner.subtitle": "Cancela en cualquier momento",

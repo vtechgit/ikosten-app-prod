@@ -23,7 +23,7 @@
       <form [formGroup]="registerForm" class="register-form">
         <div class="form-fields">
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="name.hasError('required')">
+            <ion-item class="custom-input" [class.error]="(name.touched || name.dirty || submitted) && name.hasError('required')">
               <ion-input 
                 label="{{'inputs.user-name.title' | translate}}" 
                 type="text" 
@@ -34,13 +34,13 @@
               </ion-input>
               <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="name.hasError('required')">
+            <div class="error-message" *ngIf="(name.touched || name.dirty || submitted) && name.hasError('required')">
               {{'inputs.user-name.title' | translate}} {{'errors.inputs.is-required' | translate}}
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="email.hasError('required') || email.hasError('email')">
+            <ion-item class="custom-input" [class.error]="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
               <ion-input 
                 label="{{'inputs.email.title' | translate}}" 
                 type="email" 
@@ -51,13 +51,13 @@
               </ion-input>
               <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="email.hasError('required') || email.hasError('email')">
+            <div class="error-message" *ngIf="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
               {{'inputs.email.title' | translate}} {{'errors.inputs.invalid' | translate}}
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="countrySelect.hasError('required')">
+            <ion-item class="custom-input" [class.error]="(countrySelect.touched || countrySelect.dirty || submitted) && countrySelect.hasError('required')">
               <ion-select 
                 label="{{'global.words.country' | translate}}"
                 name="registerCountry" 
@@ -69,13 +69,13 @@
               </ion-select>
               <ion-icon name="location-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="countrySelect.hasError('required') && countrySelect.touched">
+            <div class="error-message" *ngIf="(countrySelect.touched || countrySelect.dirty || submitted) && countrySelect.hasError('required')">
               {{'global.words.country' | translate}} {{'errors.inputs.is-required' | translate}}
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="phone.hasError('required')">
+            <ion-item class="custom-input" [class.error]="(phone.touched || phone.dirty || submitted) && phone.hasError('required')">
               <ion-input 
                 label="{{'inputs.phone-number.title' | translate}}" 
                 type="tel" 
@@ -86,13 +86,13 @@
               </ion-input>
               <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="phone.hasError('required')">
+            <div class="error-message" *ngIf="(phone.touched || phone.dirty || submitted) && phone.hasError('required')">
               {{'inputs.phone-number.title' | translate}} {{'errors.inputs.is-required' | translate}}
             </div>
           </div>
 
           <div class="input-group">
-            <ion-item class="custom-input" [class.error]="password.hasError('required')">
+            <ion-item class="custom-input" [class.error]="(password.touched || password.dirty || submitted) && password.hasError('required')">
               <ion-input 
                 label="{{'inputs.password.title' | translate}}" 
                 type="password" 
@@ -104,10 +104,10 @@
               </ion-input>
               <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
             </ion-item>
-            <div class="error-message" *ngIf="password.hasError('required')">
+            <div class="error-message" *ngIf="(password.touched || password.dirty || submitted) && password.hasError('required')">
               {{'inputs.password.title' | translate}} {{'errors.inputs.is-required.f' | translate}}
             </div>
-            <div class="error-message" *ngIf="password.hasError('minlength')">
+            <div class="error-message" *ngIf="(password.touched || password.dirty || submitted) && password.hasError('minlength')">
               La contraseña debe tener al menos 6 caracteres
             </div>
           </div>

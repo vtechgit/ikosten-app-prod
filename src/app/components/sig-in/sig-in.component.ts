@@ -45,6 +45,7 @@ export class SigInComponent  implements OnInit {
 
   showAlertNotFound:boolean=false;
   showAlertInvalidCreeds:boolean=false;
+  submitted:boolean=false;
 
   constructor(
     private api: ApiService, 
@@ -442,6 +443,7 @@ export class SigInComponent  implements OnInit {
     console.log('🔍 Estado del email:', this.email?.value, 'Errores:', this.email?.errors);
     console.log('🔍 Estado del password:', this.password?.value ? '[PRESENT]' : '[MISSING]', 'Errores:', this.password?.errors);
     
+    this.submitted = true;
     this.isLoading = true;
     this.loginForm.markAllAsTouched();
     console.log('🔄 Formulario marcado como tocado, validez:', this.loginForm.valid);
@@ -675,18 +677,47 @@ export class SigInComponent  implements OnInit {
   }
 
   private navigateAfterLogin() {
-    this.isLoginGoogle = false;
+    // NO resetear isLoginGoogle aquí para evitar mostrar el formulario de email/password
+    // La navegación limpiará el componente de todas formas
+    // this.isLoginGoogle = false;
     this.isLoading = false;
 
     // Verificar si el usuario ha completado el onboarding
     const currentUser = this.authService.getCurrentUser();
-    console.log('🔍 Verificando onboarding para usuario:', currentUser);
+    console.log('🔍 navigateAfterLogin - Usuario actual completo:', JSON.stringify(currentUser, null, 2));
+    console.log('🔍 navigateAfterLogin - onboarding_completed valor:', currentUser?.onboarding_completed);
+    console.log('🔍 navigateAfterLogin - Tipo de onboarding_completed:', typeof currentUser?.onboarding_completed);
+    console.log('🔍 navigateAfterLogin - Es exactamente false?:', currentUser?.onboarding_completed === false);
+    console.log('🔍 navigateAfterLogin - Es exactamente true?:', currentUser?.onboarding_completed === true);
+    console.log('🔍 navigateAfterLogin - Es undefined?:', currentUser?.onboarding_completed === undefined);
+    console.log('🔍 navigateAfterLogin - Es null?:', currentUser?.onboarding_completed === null);
     
-    if (currentUser && !currentUser.onboarding_completed) {
-      console.log('🎯 Usuario no ha completado onboarding, redirigiendo...');
+    // Verificar también desde localStorage directamente
+    const storedUser = localStorage.getItem('ikosten_user_data');
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        console.log('🔍 navigateAfterLogin - Usuario en localStorage completo:', JSON.stringify(parsed, null, 2));
+        console.log('🔍 navigateAfterLogin - onboarding en localStorage:', parsed.onboarding_completed);
+      } catch (e) {
+        console.error('❌ Error parseando datos de localStorage:', e);
+      }
+    } else {
+      console.warn('⚠️ No hay datos en localStorage con key "ikosten_user_data"');
+    }
+    
+    // Verificar onboarding - considerar undefined, null y false como "no completado"
+    const hasCompletedOnboarding = currentUser?.onboarding_completed === true;
+    
+    console.log('🔍 navigateAfterLogin - hasCompletedOnboarding (calculado):', hasCompletedOnboarding);
+    
+    if (currentUser && !hasCompletedOnboarding) {
+      console.log('🎯 Usuario no ha completado onboarding (o es undefined/null/false), redirigiendo a /onboarding...');
       window.location.href = '/onboarding';
       return;
     }
+
+    console.log('✅ Usuario ha completado onboarding, navegando normalmente');
 
     // Si tiene backParams, navegar según los parámetros
     if (this.backParams && this.backParams.back && this.backParams.back !== '') {

@@ -613,7 +613,7 @@
 	"alerts.delete-receipt.title": "Delete Receipt?",
 	"alerts.delete-receipt.subtitle": "This receipt will be permanently deleted",
 	"alerts.delete-all-receipts.title": "Delete All Receipts?",
-	"alerts.delete-all-receipts.subtitle": "All receipts from this country will be permanently deleted",
+	"alerts.delete-all-receipts.subtitle": "All receipts from this country will be permanently deleted. This action cannot be undone.",
 	"titles.modules.receipts.my-receipts": "My Receipts",
 	"titles.modules.receipts.upload-title": "Upload Your Receipts",
 	"titles.modules.receipts.upload-subtitle": "Organize your receipts by country and keep them always available",

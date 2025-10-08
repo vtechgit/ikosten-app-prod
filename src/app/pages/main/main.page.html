@@ -65,8 +65,16 @@
       </div>
     </div>
 
+    <!-- Loading Receipts -->
+    <div class="loading-section" *ngIf="isLoadingReceipts">
+      <div class="loading-content">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p class="loading-text">{{ 'loadings.loading-receipts' | translate }}</p>
+      </div>
+    </div>
+
     <!-- Receipts Section -->
-    <div class="receipts-section" *ngIf="currentCountryData">
+    <div class="receipts-section" *ngIf="currentCountryData && !isLoadingReceipts">
       
       <!-- Botón para eliminar todos los recibos -->
       <div class="section-actions" *ngIf="hasReceipts() && !isUploadingOther">
@@ -233,11 +241,11 @@
         </div>
 
         <ion-button
-          *ngIf="hasReceipts()"
+          *ngIf="hasReceipts() || isAddingNewCountry"
           expand="block"
           fill="outline"
           color="primary"
-          (click)="isUploadingOther=false">
+          (click)="hasReceipts() ? isUploadingOther=false : cancelAddNewCountry()">
           {{ 'buttons.cancel' | translate }}
         </ion-button>
       </div>

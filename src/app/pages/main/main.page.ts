@@ -86,6 +86,7 @@ export class MainPage implements OnInit {
   uploadingFiles: any[] = []; // Array para trackear archivos en upload
   isUploading: boolean = false;
   isUploadingOther: boolean = true;
+  isAddingNewCountry: boolean = false;
   uploadMessage: string = 'Subir archivo';
   imageMimes: string[] = ['image/png', 'image/jpeg'];
   pdfMimes: string[] = ['application/pdf'];
@@ -210,23 +211,15 @@ export class MainPage implements OnInit {
   }
 
   translateWords() {
+    // Cargar currencies
     this.loadCurrencies();
     
+    // Ya no es necesario traducir los botones aquí
+    // Los alerts ahora se traducen dinámicamente cuando se abren
+    
+    // Mantener la traducción del botón accept si se usa en otro lugar
     this.translate.get('buttons.accept').subscribe((text: string) => {
       this.alertButtons[0] = text;
-    });
-    
-    this.translate.get('buttons.delete').subscribe((text: string) => {
-      this.deleteReceiptAlertButtons[1].text = text;
-    });
-    
-    this.translate.get('buttons.cancel').subscribe((text: string) => {
-      this.deleteReceiptAlertButtons[0].text = text;
-      this.deleteAllReceiptsAlertButtons[0].text = text;
-    });
-
-    this.translate.get('buttons.delete-all').subscribe((text: string) => {
-      this.deleteAllReceiptsAlertButtons[1].text = text;
     });
   }
 
@@ -745,6 +738,7 @@ export class MainPage implements OnInit {
         this.userCountries.push(newCountry);
         this.selectCountry(this.userCountries.length - 1);
       }
+      this.isAddingNewCountry = false;
     } else if (this.pickerType === 'add_country') {
       // Agregar nuevo país
       const existingCountryIndex = this.userCountries.findIndex(
@@ -754,8 +748,9 @@ export class MainPage implements OnInit {
       if (existingCountryIndex >= 0) {
         // País ya existe, seleccionarlo
         this.selectCountry(existingCountryIndex);
+        this.isAddingNewCountry = false;
       } else {
-        // País nuevo, agregarlo
+        // País nuevo, agregarlo y marcar que estamos agregando
         const newCountry = {
           country: event.country,
           country_translate_key: event.country_translate_key,
@@ -764,7 +759,28 @@ export class MainPage implements OnInit {
         this.userCountries.push(newCountry);
         this.selectCountry(this.userCountries.length - 1);
         this.currencyBlockSelected = event;
+        this.isAddingNewCountry = true;
+        this.isUploadingOther = true;
       }
+    }
+  }
+
+  cancelAddNewCountry() {
+    if (this.isAddingNewCountry) {
+      // Remover el último país agregado (que no tiene recibos)
+      const lastCountryIndex = this.userCountries.length - 1;
+      if (lastCountryIndex >= 0 && this.userCountries[lastCountryIndex].receipts.length === 0) {
+        this.userCountries.pop();
+      }
+      
+      // Volver al país anterior o al primero
+      if (this.userCountries.length > 0) {
+        const previousIndex = Math.max(0, this.userCountries.length - 1);
+        this.selectCountry(previousIndex);
+      }
+      
+      this.isAddingNewCountry = false;
+      this.isUploadingOther = false;
     }
   }
 
@@ -791,6 +807,23 @@ export class MainPage implements OnInit {
 
   deleteReceipt(receiptId: string) {
     this.receiptToDelete = receiptId;
+    
+    // Traducir los botones dinámicamente antes de mostrar el alert
+    this.deleteReceiptAlertButtons = [
+      {
+        text: this.translate.instant('buttons.cancel'),
+        role: 'cancel',
+        handler: () => {}
+      },
+      {
+        text: this.translate.instant('buttons.delete'),
+        role: 'confirm',
+        handler: () => {
+          this.confirmDeleteReceipt();
+        }
+      }
+    ];
+    
     this.isAlertDeleteReceipt = true;
   }
 
@@ -826,6 +859,24 @@ export class MainPage implements OnInit {
       alert(this.translate.instant('errors.no-receipts-to-delete'));
       return;
     }
+    
+    // Traducir los botones dinámicamente antes de mostrar el alert
+    this.deleteAllReceiptsAlertButtons = [
+      {
+        text: this.translate.instant('buttons.cancel'),
+        role: 'cancel',
+        handler: () => {}
+      },
+      {
+        text: this.translate.instant('buttons.delete-all'),
+        role: 'confirm',
+        cssClass: 'alert-button-danger',
+        handler: () => {
+          this.confirmDeleteAllReceipts();
+        }
+      }
+    ];
+    
     this.isAlertDeleteAllReceipts = true;
   }
 
