@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { PaymentService } from './payment.service';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
@@ -36,6 +37,7 @@ export class AuthService {
 
   constructor(
     private apiService: ApiService,
+    private paymentService: PaymentService,
     private router: Router,
     private toastController: ToastController
   ) {
@@ -235,9 +237,13 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     // Cancelar cualquier renovación programada
     this.cancelTokenRefresh();
+    
+    // Cerrar sesión en PaymentService
+    await this.paymentService.logoutUser();
+    console.log('👋 Usuario desconectado de PaymentService');
     
     this.apiService.clearAuthData();
     this.currentUserSubject.next(null);
@@ -287,7 +293,7 @@ export class AuthService {
     return currentUser.company_id === companyId;
   }
 
-  private setAuthData(authData: AuthResponse): void {
+  private async setAuthData(authData: AuthResponse): Promise<void> {
     try {
       // Guardar tokens
       this.apiService.setToken(authData.tokens.accessToken);
@@ -296,6 +302,12 @@ export class AuthService {
       // Guardar datos de usuario
       this.apiService.setUserData(authData.user);
       this.currentUserSubject.next(authData.user);
+      
+      // Identificar usuario en PaymentService para In-App Purchases
+      if (authData.user && authData.user.id) {
+        await this.paymentService.identifyUser(authData.user.id);
+        console.log('👤 Usuario identificado en PaymentService después del login');
+      }
       
     } catch (error) {
       console.error('Error en setAuthData:', error);

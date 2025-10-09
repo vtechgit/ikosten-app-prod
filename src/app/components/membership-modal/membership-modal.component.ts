@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { Platform } from '@ionic/angular';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { PaymentService, PaymentProduct } from '../../services/payment.service';
 import { IPayPalConfig, ICreateSubscriptionRequest } from 'ngx-paypal';
 
 @Component({
@@ -20,11 +22,18 @@ export class MembershipModalComponent implements OnChanges {
   membershipPlans: any[] = [];
   isLoadingMemberships: boolean = false;
   
-  // PayPal checkout
+  // In-App Purchase products (para iOS/Android)
+  inAppProducts: PaymentProduct[] = [];
+  isLoadingProducts: boolean = false;
+  
+  // PayPal checkout (para web)
   currentStep: 'plans' | 'checkout' = 'plans'; // Control de pasos
   membershipSelected: any = null;
   payPalConfig?: IPayPalConfig;
   userSession: any;
+  
+  // Platform detection
+  isNativePlatform: boolean = false;
   
   // Trial tracking
   modalOpenTime: number = 0;
@@ -57,10 +66,15 @@ export class MembershipModalComponent implements OnChanges {
   constructor(
     private api: ApiService,
     private authService: AuthService,
+    private paymentService: PaymentService,
+    private platform: Platform,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private translate: TranslateService
-  ) {}
+  ) {
+    this.isNativePlatform = this.platform.is('ios') || this.platform.is('android');
+    console.log('💳 MembershipModal: Plataforma nativa:', this.isNativePlatform);
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     // Cuando el modal se abre, cargar las membresías
@@ -99,6 +113,11 @@ export class MembershipModalComponent implements OnChanges {
         this.membershipPlans = res['body'] || res;
         this.isLoadingMemberships = false;
         this.cdr.detectChanges();
+        
+        // Si es plataforma nativa, cargar productos de In-App Purchase
+        if (this.isNativePlatform) {
+          this.loadInAppProducts();
+        }
       },
       error: (err) => {
         console.error('❌ Error cargando membresías:', err);
@@ -106,6 +125,37 @@ export class MembershipModalComponent implements OnChanges {
         this.isLoadingMemberships = false;
       }
     });
+  }
+
+  private async loadInAppProducts() {
+    console.log('🔄 Cargando productos de In-App Purchase...');
+    this.isLoadingProducts = true;
+    
+    try {
+      // Extraer los IDs de productos de las membresías
+      const productIds = this.membershipPlans
+        .filter(plan => plan.membership_in_app_product_id) // Solo planes con ID configurado
+        .map(plan => plan.membership_in_app_product_id);
+      
+      if (productIds.length === 0) {
+        console.warn('⚠️ No hay productos configurados para In-App Purchase');
+        this.isLoadingProducts = false;
+        return;
+      }
+      
+      console.log('📦 IDs de productos a cargar:', productIds);
+      
+      // Obtener productos desde la tienda
+      this.inAppProducts = await this.paymentService.getProducts(productIds);
+      
+      console.log('✅ Productos de In-App Purchase cargados:', this.inAppProducts);
+      this.isLoadingProducts = false;
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('❌ Error cargando productos de In-App Purchase:', error);
+      this.isLoadingProducts = false;
+      this.cdr.detectChanges();
+    }
   }
 
   closeModal() {
@@ -149,11 +199,117 @@ export class MembershipModalComponent implements OnChanges {
       return;
     }
 
-    // Abrir el checkout de PayPal
-    this.openCheckout(selectedPlan);
+    // Decidir qué método de pago usar según la plataforma
+    if (this.isNativePlatform) {
+      // Usar In-App Purchase en iOS/Android
+      this.purchaseWithInApp(selectedPlan);
+    } else {
+      // Usar PayPal en web
+      this.openCheckout(selectedPlan);
+    }
   }
 
+  /**
+   * Compra usando In-App Purchase (iOS/Android)
+   */
+  async purchaseWithInApp(membership: any) {
+    console.log('💰 Iniciando compra con In-App Purchase:', membership);
+    
+    // Verificar que el plan tenga un product ID configurado
+    if (!membership.membership_in_app_product_id) {
+      console.error('❌ El plan no tiene un product ID configurado para In-App Purchase');
+      this.showAlertError = true;
+      return;
+    }
+    
+    try {
+      // Mostrar loading
+      this.isLoadingMemberships = true;
+      
+      // Iniciar compra
+      const result = await this.paymentService.purchaseProduct(membership.membership_in_app_product_id);
+      
+      this.isLoadingMemberships = false;
+      
+      if (result.success) {
+        console.log('✅ Compra exitosa:', result);
+        
+        // Registrar la compra en el backend
+        this.api.create('purchasedMemberships/new', {
+          order_id: result.transactionId,
+          subscription_id: result.transactionId,
+          lead_id: this.userSession.id,
+          payer_id: this.userSession.id,
+          value: membership.membership_price,
+          membership_plan_id: membership._id,
+          plan_id: membership.membership_in_app_product_id,
+          error: '',
+          currency: membership.membership_currency,
+          description: membership.membership_title,
+          prod_id: membership.membership_prod_id,
+          membership_status: 'active',
+          recurring: membership.membership_recurring,
+          source: this.platform.is('ios') ? 'app_store' : 'google_play'
+        }).subscribe({
+          next: (purchasedMembershipsResponse) => {
+            console.log('✅ Membership purchased:', purchasedMembershipsResponse);
+            
+            // Actualizar el usuario con el nuevo rol
+            this.api.update('leads/' + this.userSession.id, {
+              lead_role: membership.membership_role
+            }).subscribe({
+              next: (res) => {
+                console.log('✅ User updated:', res);
+                
+                // Actualizar sesión local
+                this.userSession.lead_role = membership.membership_role;
+                this.userSession.role = membership.membership_role;
+                localStorage.setItem('userSession', JSON.stringify(this.userSession));
+                
+                // Actualizar AuthService
+                this.authService.updateCurrentUser(this.userSession);
+                console.log('🔄 AuthService actualizado con el nuevo rol del usuario');
+                
+                // Mostrar alerta de éxito
+                this.showAlertSuccess = true;
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.error('❌ Error actualizando usuario:', err);
+                this.showAlertError = true;
+              }
+            });
+          },
+          error: (err) => {
+            console.error('❌ Error registrando compra:', err);
+            this.showAlertError = true;
+          }
+        });
+      } else {
+        console.error('❌ Compra fallida:', result.error);
+        
+        // Si el usuario canceló, no mostrar error
+        if (result.error && !result.error.includes('cancelada')) {
+          this.showAlertError = true;
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error en compra con In-App Purchase:', error);
+      this.isLoadingMemberships = false;
+      this.showAlertError = true;
+    }
+  }
+
+  /**
+   * Abre el checkout de PayPal (solo web)
+   */
   openCheckout(membership: any) {
+    if (this.isNativePlatform) {
+      console.warn('⚠️ openCheckout llamado en plataforma nativa, usando In-App Purchase en su lugar');
+      this.purchaseWithInApp(membership);
+      return;
+    }
+    
     this.membershipSelected = membership;
     this.currentStep = 'checkout'; // Cambiar al paso de checkout
 
@@ -268,6 +424,23 @@ export class MembershipModalComponent implements OnChanges {
     this.closeModal();
     // Recargar la página para reflejar los cambios
     window.location.reload();
+  }
+
+  /**
+   * Obtiene el precio formateado de In-App Purchase para un plan
+   * Si no está disponible, retorna el precio por defecto del backend
+   */
+  getFormattedPrice(membership: any): string {
+    if (this.isNativePlatform && membership.membership_in_app_product_id) {
+      const product = this.inAppProducts.find(
+        p => p.id === membership.membership_in_app_product_id
+      );
+      if (product) {
+        return product.price;
+      }
+    }
+    // Fallback al precio del backend
+    return `$${membership.membership_price} ${membership.membership_currency}`;
   }
 
   /**

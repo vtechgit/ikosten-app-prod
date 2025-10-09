@@ -147,6 +147,31 @@
         }
       }
 
+      .plan-price {
+        text-align: center;
+        margin: 1.5rem 0 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(56, 128, 255, 0.08) 0%, rgba(56, 128, 255, 0.03) 100%);
+        border-radius: 8px;
+
+        .price-amount {
+          margin: 0 0 0.25rem 0;
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--ion-color-primary);
+          letter-spacing: -0.5px;
+        }
+
+        .price-period {
+          margin: 0;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: var(--ion-color-medium);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
       .upgrade-button {
         margin-top: 0.5rem;
         font-weight: 600;

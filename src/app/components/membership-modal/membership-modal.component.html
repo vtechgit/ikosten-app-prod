@@ -73,13 +73,26 @@
                 </ion-item>
               </ion-list>
               
+              <!-- Precio -->
+              <div class="plan-price">
+                <h3 class="price-amount">{{ getFormattedPrice(plan) }}</h3>
+                <p class="price-period" *ngIf="plan.membership_recurring === 'month'">
+                  {{ 'global.words.per-month' | translate }}
+                </p>
+                <p class="price-period" *ngIf="plan.membership_recurring === 'year'">
+                  {{ 'global.words.per-year' | translate }}
+                </p>
+              </div>
+              
               <ion-button 
                 expand="block" 
                 color="primary" 
                 class="upgrade-button" 
+                [disabled]="isLoadingMemberships"
                 (click)="selectPlan(plan._id)">
-                <ion-icon name="rocket-outline" slot="start"></ion-icon>
-                {{ 'trial.button.start-trial' | translate }}
+                <ion-spinner name="crescent" *ngIf="isLoadingMemberships"></ion-spinner>
+                <ion-icon name="rocket-outline" slot="start" *ngIf="!isLoadingMemberships"></ion-icon>
+                <span *ngIf="!isLoadingMemberships">{{ 'trial.button.start-trial' | translate }}</span>
               </ion-button>
             </ion-card-content>
           </ion-card>
