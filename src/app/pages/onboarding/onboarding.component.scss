@@ -1,6 +1,8 @@
 .onboarding-container {
   min-height: 100vh;
   background: #ffffff;
+  width: 100%;
+  max-width: 100%;
   
   ion-content {
     --background: #ffffff;
@@ -38,6 +40,10 @@
       .footer-content {
         padding: 1rem 1.5rem;
         padding-bottom: env(safe-area-inset-bottom, 1rem);
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
         
         .continue-button {
           --border-radius: 20px;
@@ -72,6 +78,50 @@
   // Ajustar el contenido para que no se oculte detrás del footer
   ion-content {
     --padding-bottom: 120px;
+  }
+}
+
+// Welcome Section - Mismo estilo que en main con fondo azul
+.header-section {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding: 3rem 2rem 2.5rem 2rem;
+  color: white;
+
+  .header-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+
+    ion-icon {
+      font-size: 3rem;
+      color: white;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: white;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -378,5 +428,55 @@
     .card-features ion-chip {
       --background: var(--ion-color-secondary);
     }
+  }
+}
+
+// Estilos para Desktop - Centrar y limitar ancho del contenido
+@media (min-width: 768px) {
+  .onboarding-container {
+    ion-content {
+      .header-section,
+      .category-section {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+
+    // Ajustar el footer para que coincida con el ancho del contenido
+    ion-footer {
+      ion-toolbar {
+        .footer-content {
+          max-width: 1200px;
+          padding-left: 2rem;
+          padding-right: 2rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          .continue-button {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+          }
+
+          .continue-hint {
+            max-width: 400px;
+          }
+        }
+      }
+    }
+  }
+
+  .category-section {
+    padding: 0; // Eliminar padding duplicado
+  }
+
+  .category-cards {
+    max-width: 100%; // Usar todo el ancho disponible del contenedor padre
+    margin-left: auto;
+    margin-right: auto;
   }
 }

@@ -43,7 +43,7 @@ export class MembershipsPage implements OnInit {
       text: 'buttons.accept',
       role: 'cancel',
       handler: () => {
-        window.location.href = '/';
+        this.router.navigate(['/customer/trips']);
         
       },
     },
@@ -247,7 +247,7 @@ export class MembershipsPage implements OnInit {
   }
   closeModalCheckout(){
     if(this.showAlertSuccess == true){
-      window.location.href = '/';
+      this.router.navigate(['/customer/trips']);
     }
     this.showPaymentcheckout = false;
   }
@@ -305,10 +305,22 @@ export class MembershipsPage implements OnInit {
                   console.log('lead',res);
                   this.userSession.lead_role = membership.membership_role;
                   this.userSession.lead_paypal_customer_id = details.subscriber.payer_id;
-                  localStorage.setItem('userSession', JSON.stringify(this.userSession));
-                  this.showAlertSuccess = true;
-                  this.cd.detectChanges();
-                  console.log('showPaymentcheckout',this.showPaymentcheckout);
+                  
+                  // Actualizar el usuario en el AuthService para mantener la sesión sincronizada
+                  this.api.read('leads/'+this.userSession._id).subscribe(updatedUserResponse => {
+                    if(updatedUserResponse['body']) {
+                      localStorage.setItem('userSession', JSON.stringify(updatedUserResponse['body']));
+                      this.userSession = updatedUserResponse['body'];
+                    }
+                    this.showAlertSuccess = true;
+                    this.cd.detectChanges();
+                    console.log('showPaymentcheckout',this.showPaymentcheckout);
+                  }, error => {
+                    // Si falla la actualización, usar los datos locales
+                    localStorage.setItem('userSession', JSON.stringify(this.userSession));
+                    this.showAlertSuccess = true;
+                    this.cd.detectChanges();
+                  });
 
 
                 })
@@ -357,8 +369,7 @@ export class MembershipsPage implements OnInit {
 
   }
   onDissmissAlertSuccess(){
-   // this.router.navigate(['/customer/trips']);
-   window.location.href = '/';
+   this.router.navigate(['/customer/trips']);
   }
 
 }

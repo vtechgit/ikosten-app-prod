@@ -66,6 +66,7 @@
 	"buttons.close": "Schließen Sie",
 	"buttons.close-session": "Abmelden",
 	"buttons.confirm": "Bestätigen Sie",
+	"buttons.continue": "Fortsetzen",
 	"buttons.create-travel": "Reise erstellen",
 	"buttons.delete": "Löschen",
 	"buttons.delete-account": "Konto löschen",
@@ -682,5 +683,19 @@
 	"trial.guarantee": "Jederzeit kündbar. Keine Fragen gestellt, kein Ärger.",
 	"trial.modal.header": "Unbegrenzte Uploads freischalten!",
 	"trial.plans.header": "Wählen Sie Ihren Plan und beginnen Sie heute",
-	"trial.plans.subtitle": "7 Tage kostenlos, dann kündigen oder ohne Verpflichtung fortfahren"
+	"trial.plans.subtitle": "7 Tage kostenlos, dann kündigen oder ohne Verpflichtung fortfahren",
+	"titles.modules.onboarding.welcome-title": "Hallo {{name}}!",
+	"titles.modules.onboarding.default-user": "Benutzer",
+	"titles.modules.onboarding.welcome-subtitle": "Sagen Sie uns, wie Sie iKosten nutzen möchten, um Ihre Erfahrung zu personalisieren",
+	"titles.modules.onboarding.section-title": "Wie planen Sie iKosten zu nutzen?",
+	"titles.modules.onboarding.select-option-hint": "Wählen Sie eine Option zum Fortfahren",
+	"titles.modules.onboarding.travel.title": "Ich möchte es für Reisen nutzen",
+	"titles.modules.onboarding.travel.description": "Verwalten Sie Ihre Reiseausgaben, planen Sie Budgets für Ihre Abenteuer und behalten Sie die Kontrolle über alle Ihre Ausgaben, während Sie die Welt erkunden.",
+	"titles.modules.onboarding.travel.feature1": "Organisierte Reisen",
+	"titles.modules.onboarding.travel.feature2": "Ausgabenkontrolle",
+	"titles.modules.onboarding.travel.feature3": "Reisekostenabrechnungen einreichen",
+	"titles.modules.onboarding.finance.title": "Ich möchte es für meine Finanzen nutzen",
+	"titles.modules.onboarding.finance.description": "Kontrollieren Sie Ihre persönlichen Finanzen, erfassen Sie Einnahmen und Ausgaben und behalten Sie einen vollständigen Überblick über Ihre wirtschaftliche Situation.",
+	"titles.modules.onboarding.finance.feature1": "Persönliche Finanzen",
+	"titles.modules.onboarding.finance.feature2": "Ausgabenverfolgung"
 }

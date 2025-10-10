@@ -7,7 +7,8 @@ import {ApiService} from "./services/api.service";
 import {AuthService} from "./services/auth.service";
 import {PaymentService} from "./services/payment.service";
 import { Device } from '@capacitor/device';
-import { ActivatedRoute } from '@angular/router'; 
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'; 
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent implements OnInit  {
 
   availableLanguage:any;
   isLogged:boolean=false;
+  isOnboarding:boolean=false;
 
   constructor(
     public platform: Platform,
@@ -26,7 +28,8 @@ export class AppComponent implements OnInit  {
     private api:ApiService,
     private authService:AuthService,
     private paymentService:PaymentService,
-    private activatedRoute:ActivatedRoute  
+    private activatedRoute:ActivatedRoute,
+    private router: Router
   ) {
     this.activatedRoute.queryParams.subscribe(params=>{
 
@@ -152,6 +155,17 @@ export class AppComponent implements OnInit  {
       // Verificar el estado inicial usando el nuevo sistema
       this.isLogged = this.authService.isLoggedIn();
       console.log('🔍 Estado inicial de autenticación:', this.isLogged);
+
+      // Detectar si el usuario está en la ruta de onboarding
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe((event: NavigationEnd) => {
+        this.isOnboarding = event.url.includes('/onboarding');
+        console.log('🎯 Ruta actual:', event.url, '| Onboarding activo:', this.isOnboarding);
+      });
+
+      // Verificar estado inicial de la ruta
+      this.isOnboarding = this.router.url.includes('/onboarding');
     }
 
 

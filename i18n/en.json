@@ -58,6 +58,7 @@
 	"buttons.close": "Close",
 	"buttons.close-session": "Close Session",
 	"buttons.confirm": "Confirm",
+	"buttons.continue": "Continue",
 	"buttons.create-travel": "Create Trip",
 	"buttons.delete": "Delete",
 	"buttons.delete-all": "Delete all",
@@ -685,5 +686,19 @@
 	"trial.plans.header": "Choose your plan and start today",
 	"trial.plans.subtitle": "7 days free, then cancel or continue with no commitment",
 	"trial.button.start-trial": "Start Free Trial",
-	"trial.guarantee": "Cancel anytime. No questions asked, no hassle."
+	"trial.guarantee": "Cancel anytime. No questions asked, no hassle.",
+	"titles.modules.onboarding.welcome-title": "Hello {{name}}!",
+	"titles.modules.onboarding.default-user": "User",
+	"titles.modules.onboarding.welcome-subtitle": "Tell us how you want to use iKosten to personalize your experience",
+	"titles.modules.onboarding.section-title": "How do you plan to use iKosten?",
+	"titles.modules.onboarding.select-option-hint": "Select an option to continue",
+	"titles.modules.onboarding.travel.title": "I want to use it for travel",
+	"titles.modules.onboarding.travel.description": "Manage your travel expenses, plan budgets for your adventures, and keep control of all your spending while exploring the world.",
+	"titles.modules.onboarding.travel.feature1": "Organized trips",
+	"titles.modules.onboarding.travel.feature2": "Expense control",
+	"titles.modules.onboarding.travel.feature3": "Submit my travel expenses",
+	"titles.modules.onboarding.finance.title": "I want to use it for my finances",
+	"titles.modules.onboarding.finance.description": "Control your personal finances, record income and expenses, and maintain complete tracking of your financial situation.",
+	"titles.modules.onboarding.finance.feature1": "Personal finances",
+	"titles.modules.onboarding.finance.feature2": "Expense tracking"
 }

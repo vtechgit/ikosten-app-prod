@@ -58,6 +58,7 @@
 	"buttons.close": "Cerrar",
 	"buttons.close-session": "Cerrar Sesión",
 	"buttons.confirm": "Confirmar",
+	"buttons.continue": "Continuar",
 	"buttons.create-travel": "Crear Viaje",
 	"buttons.delete": "Eliminar",
 	"buttons.delete-all": "Eliminar todos",
@@ -683,6 +684,20 @@
 	"trial.plans.header": "Elige tu plan y comienza hoy",
 	"trial.plans.subtitle": "7 días gratis, luego cancela o continúa sin compromisos",
 	"trial.button.start-trial": "Iniciar Prueba Gratis",
-	"trial.guarantee": "Cancela en cualquier momento. Sin preguntas, sin complicaciones."
+	"trial.guarantee": "Cancela en cualquier momento. Sin preguntas, sin complicaciones.",
+	"titles.modules.onboarding.welcome-title": "¡Hola {{name}}!",
+	"titles.modules.onboarding.default-user": "Usuario",
+	"titles.modules.onboarding.welcome-subtitle": "Cuéntanos cómo quieres usar iKosten para personalizar tu experiencia",
+	"titles.modules.onboarding.section-title": "¿Cómo planeas usar iKosten?",
+	"titles.modules.onboarding.select-option-hint": "Selecciona una opción para continuar",
+	"titles.modules.onboarding.travel.title": "Quiero usarlo para viajar",
+	"titles.modules.onboarding.travel.description": "Gestiona tus gastos de viaje, planifica presupuestos para tus aventuras y mantén control de todos tus gastos mientras exploras el mundo.",
+	"titles.modules.onboarding.travel.feature1": "Viajes organizados",
+	"titles.modules.onboarding.travel.feature2": "Control de gastos",
+	"titles.modules.onboarding.travel.feature3": "Presentar mis viáticos",
+	"titles.modules.onboarding.finance.title": "Quiero usarlo para mis finanzas",
+	"titles.modules.onboarding.finance.description": "Controla tus finanzas personales, registra ingresos y gastos, y mantén un seguimiento completo de tu situación económica.",
+	"titles.modules.onboarding.finance.feature1": "Finanzas personales",
+	"titles.modules.onboarding.finance.feature2": "Registro de gastos"
 }
 

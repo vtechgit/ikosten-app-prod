@@ -1,19 +1,21 @@
 <div class="onboarding-container">
 
-  <ion-content [fullscreen]="true" class="ion-padding">
+  <ion-content [fullscreen]="true">
     
     <!-- Header Section -->
-    <div class="welcome-section ion-text-center ion-margin-bottom">
-      <ion-icon name="sparkles" size="large"></ion-icon>
-      <h1 class="welcome-title">¡Hola {{currentUser?.name?.split(' ')[0] || 'Usuario'}}!</h1>
-      <p class="welcome-subtitle">
-        Cuéntanos cómo quieres usar iKosten para personalizar tu experiencia
+    <div class="header-section">
+      <div class="header-icon">
+        <ion-icon name="sparkles"></ion-icon>
+      </div>
+      <h1>{{ 'titles.modules.onboarding.welcome-title' | translate: {name: currentUser?.name?.split(' ')[0] || ('titles.modules.onboarding.default-user' | translate)} }}</h1>
+      <p class="subtitle">
+        {{ 'titles.modules.onboarding.welcome-subtitle' | translate }}
       </p>
     </div>
 
     <!-- Category Selection Cards -->
     <div class="category-section">
-      <h2 class="section-title ion-text-center">¿Cómo planeas usar iKosten?</h2>
+      <h2 class="section-title ion-text-center">{{ 'titles.modules.onboarding.section-title' | translate }}</h2>
       
       <div class="category-cards">
         <!-- Travel Card -->
@@ -28,24 +30,23 @@
               <ion-icon name="airplane" size="large" color="primary"></ion-icon>
             </div>
             
-            <h3>Quiero usarlo para viajar</h3>
+            <h3>{{ 'titles.modules.onboarding.travel.title' | translate }}</h3>
             <p>
-              Gestiona tus gastos de viaje, planifica presupuestos para tus aventuras 
-              y mantén control de todos tus gastos mientras exploras el mundo.
+              {{ 'titles.modules.onboarding.travel.description' | translate }}
             </p>
             
             <div class="card-features">
               <ion-chip color="primary" outline="true">
                 <ion-icon name="map"></ion-icon>
-                <ion-label>Viajes organizados</ion-label>
+                <ion-label>{{ 'titles.modules.onboarding.travel.feature1' | translate }}</ion-label>
               </ion-chip>
               <ion-chip color="primary" outline="true">
                 <ion-icon name="card"></ion-icon>
-                <ion-label>Control de gastos</ion-label>
+                <ion-label>{{ 'titles.modules.onboarding.travel.feature2' | translate }}</ion-label>
               </ion-chip>
               <ion-chip color="primary" outline="true">
                 <ion-icon name="analytics"></ion-icon>
-                <ion-label>Presentar mis viáticos</ion-label>
+                <ion-label>{{ 'titles.modules.onboarding.travel.feature3' | translate }}</ion-label>
               </ion-chip>
             </div>
             
@@ -67,20 +68,19 @@
               <ion-icon name="wallet" size="large" color="secondary"></ion-icon>
             </div>
             
-            <h3>Quiero usarlo para mis finanzas</h3>
+            <h3>{{ 'titles.modules.onboarding.finance.title' | translate }}</h3>
             <p>
-              Controla tus finanzas personales, registra ingresos y gastos, 
-              y mantén un seguimiento completo de tu situación económica.
+              {{ 'titles.modules.onboarding.finance.description' | translate }}
             </p>
             
             <div class="card-features">
               <ion-chip color="secondary" outline="true">
                 <ion-icon name="trending-up"></ion-icon>
-                <ion-label>Finanzas personales</ion-label>
+                <ion-label>{{ 'titles.modules.onboarding.finance.feature1' | translate }}</ion-label>
               </ion-chip>
               <ion-chip color="secondary" outline="true">
                 <ion-icon name="receipt"></ion-icon>
-                <ion-label>Registro de gastos</ion-label>
+                <ion-label>{{ 'titles.modules.onboarding.finance.feature2' | translate }}</ion-label>
               </ion-chip>
             </div>
             
@@ -99,7 +99,7 @@
     <ion-toolbar>
       <div class="footer-content">
         <p class="continue-hint ion-text-center" *ngIf="!selectedCategory">
-          Selecciona una opción para continuar
+          {{ 'titles.modules.onboarding.select-option-hint' | translate }}
         </p>
         
         <ion-button 
@@ -110,7 +110,7 @@
           class="continue-button">
           
           <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-          <span *ngIf="!isLoading">Continuar</span>
+          <span *ngIf="!isLoading">{{ 'buttons.continue' | translate }}</span>
           <ion-icon name="arrow-forward" slot="end" *ngIf="!isLoading"></ion-icon>
         </ion-button>
       </div>

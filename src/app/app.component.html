@@ -1,6 +1,6 @@
 <ion-app>
   <ion-split-pane   contentId="main-content">
-    <app-slide *ngIf="isLogged"></app-slide>
+    <app-slide *ngIf="isLogged && !isOnboarding"></app-slide>
 
     <ion-router-outlet id="main-content"></ion-router-outlet>
 
