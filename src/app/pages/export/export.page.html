@@ -133,8 +133,8 @@
         <div class="header-icon">
           <ion-icon name="git-compare-outline"></ion-icon>
         </div>
-        <h1>¿Deseas conciliar con un extracto bancario?</h1>
-        <p class="subtitle">Opcional: Sube tu extracto bancario para comparar automáticamente con tus recibos</p>
+        <h1>{{ 'titles.modules.export.step2-reconciliation-title' | translate }}</h1>
+        <p class="subtitle">{{ 'titles.modules.export.step2-reconciliation-subtitle' | translate }}</p>
       </div>
 
       <div class="reconciliation-section">
@@ -148,8 +148,8 @@
                 (click)="$event.stopPropagation()">
               </ion-checkbox>
               <div class="option-content">
-                <h2>Quiero conciliar mis gastos con un extracto bancario</h2>
-                <p>Sube o selecciona un extracto PDF para comparar con tus recibos</p>
+                <h2>{{ 'titles.modules.export.step2-reconciliation-checkbox' | translate }}</h2>
+                <p>{{ 'titles.modules.export.step2-reconciliation-description' | translate }}</p>
               </div>
             </div>
           </ion-card-content>
@@ -159,7 +159,7 @@
         <div *ngIf="wantsReconciliation" class="extract-upload-section">
           <ion-card>
             <ion-card-header>
-              <ion-card-title>Subir Extracto Bancario</ion-card-title>
+              <ion-card-title>{{ 'titles.modules.export.step2-upload-title' | translate }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <!-- Extracto subido -->
@@ -224,7 +224,7 @@
                     (change)="onExtractFileSelected($event)">
                   <label for="extractFileInput" class="upload-label">
                     <ion-icon name="cloud-upload" class="upload-icon"></ion-icon>
-                    <p class="upload-title">Solo archivos PDF</p>
+                    <p class="upload-title">{{ 'titles.modules.export.pdf-only' | translate }}</p>
                   </label>
                 </div>
 
@@ -238,7 +238,7 @@
             <ion-card-header (click)="toggleExtractHistory()" class="history-header">
               <ion-card-title>
                 <ion-icon name="time-outline"></ion-icon>
-                Extractos anteriores
+                {{ 'titles.modules.export.extract-history' | translate }}
                 <ion-icon 
                   [name]="showExtractHistory ? 'chevron-up' : 'chevron-down'" 
                   class="toggle-icon">
@@ -249,7 +249,7 @@
             <ion-card-content *ngIf="showExtractHistory" class="history-content">
               <div *ngIf="extractsHistory.length === 0 && !isLoadingExtracts" class="no-history">
                 <ion-icon name="document-text-outline"></ion-icon>
-                <p>No hay extractos anteriores</p>
+                <p>{{ 'titles.modules.export.no-previous-extracts' | translate }}</p>
               </div>
 
               <div class="extracts-list">
@@ -288,13 +288,13 @@
                 [disabled]="!hasMoreExtracts">
                 <ion-infinite-scroll-content
                   loadingSpinner="crescent"
-                  loadingText="Cargando más extractos...">
+                  [loadingText]="'titles.modules.export.loading-more-extracts' | translate">
                 </ion-infinite-scroll-content>
               </ion-infinite-scroll>
 
               <div *ngIf="isLoadingExtracts && extractsHistory.length === 0" class="loading-extracts">
                 <ion-spinner name="crescent"></ion-spinner>
-                <p>Cargando historial...</p>
+                <p>{{ 'titles.modules.export.loading-extracts' | translate }}</p>
               </div>
             </ion-card-content>
           </ion-card>
