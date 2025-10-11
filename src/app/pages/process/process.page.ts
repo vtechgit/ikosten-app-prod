@@ -814,11 +814,18 @@ export class ProcessPage implements OnInit {
   takePhoto() {
     Camera.getPhoto({
       quality: 90,
-      allowEditing: true,
+      allowEditing: false,  // Cambiado a false para permitir fotos completas (no cuadradas)
       resultType: CameraResultType.DataUrl,
-      source: CameraSource.Camera
+      source: CameraSource.Camera,
+      width: 1920,  // Ancho máximo
+      height: undefined,  // Altura automática para mantener aspect ratio
+      correctOrientation: true  // Corregir orientación automáticamente
     }).then((imageData) => {
       this.imagesToUpload.push(imageData);
+      
+      // Subir automáticamente después de tomar la foto
+      console.log('📸 Foto capturada, subiendo...');
+      this.uploadImagesBase64();
     }, (err) => {
       console.error('Error taking photo:', err);
     });
@@ -836,13 +843,20 @@ export class ProcessPage implements OnInit {
   }
 
   uploadImagesBase64() {
+    console.log('📤 Iniciando subida de imágenes Base64...');
+    console.log('📊 Imágenes a subir:', this.imagesToUpload.length);
+    
     let files: any[] = [];
 
-    this.imagesToUpload.forEach((image: any) => {
+    this.imagesToUpload.forEach((image: any, index: number) => {
+      console.log(`🖼️ Procesando imagen ${index + 1}/${this.imagesToUpload.length}`);
       const blob = this.dataURItoBlob(image.dataUrl || image);
-      const file = new File([blob], 'receipt_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+      const file = new File([blob], 'receipt_' + Date.now() + '_' + index + '.jpg', { type: 'image/jpeg' });
+      console.log(`✅ Archivo creado: ${file.name}, tamaño: ${(file.size / 1024).toFixed(2)}KB`);
       files.push(file);
     });
+
+    console.log('📦 Total de archivos preparados:', files.length);
 
     // Limpiar imagesToUpload inmediatamente para volver a la vista normal
     this.imagesToUpload = [];

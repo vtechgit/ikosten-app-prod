@@ -134,28 +134,47 @@ export class SignUpComponent  implements OnInit {
                   localStorage.setItem('ikosten_refresh_token', responseData.tokens.refreshToken);
                 }
                 
-                // Guardar datos de usuario
+                // Formato User correcto para AuthService
+                const userData = {
+                  id: responseData.user?.id || responseData._id,
+                  email: responseData.user?.email || responseData.lead_email,
+                  name: responseData.user?.name || responseData.lead_name,
+                  role: responseData.user?.role !== undefined ? responseData.user.role : (responseData.lead_role || 0),
+                  company_id: responseData.user?.company_id || responseData.lead_company_id,
+                  category: responseData.user?.category || responseData.lead_category || null,
+                  onboarding_completed: responseData.user?.onboarding_completed || responseData.lead_onboarding_completed || false
+                };
+                
+                // Guardar en formato User (ikosten_user_data) para AuthService
+                localStorage.setItem('ikosten_user_data', JSON.stringify(userData));
+                console.log('✅ Datos de usuario guardados:', userData);
+                
+                // También guardar en formato legacy (userSession) para compatibilidad
                 let sessionObj = {
-                  _id: responseData.user?.id || responseData._id,
-                  lead_name: responseData.user?.name || responseData.lead_name,
-                  lead_email: responseData.user?.email || responseData.lead_email,
+                  _id: userData.id,
+                  lead_name: userData.name,
+                  lead_email: userData.email,
                   lead_phone: responseData.user?.phone || responseData.lead_phone,
                   lead_country: responseData.user?.country || responseData.lead_country,
-                  lead_role: responseData.user?.role || responseData.lead_role,
+                  lead_role: userData.role,
                   lead_paypal_customer_id: responseData.user?.paypal_customer_id || responseData.lead_paypal_customer_id,
-                  lead_company_id: responseData.user?.company_id || responseData.lead_company_id,
+                  lead_company_id: userData.company_id,
                   lead_invitation_status: responseData.user?.invitation_status || responseData.lead_invitation_status,
-                  lead_category: responseData.user?.category || responseData.lead_category,
-                  lead_onboarding_completed: responseData.user?.onboarding_completed || responseData.lead_onboarding_completed || false
+                  lead_category: userData.category,
+                  lead_onboarding_completed: userData.onboarding_completed
                 }
-                
                 localStorage.setItem('userSession', JSON.stringify(sessionObj));
-                localStorage.setItem('ikosten_user_data', JSON.stringify(responseData.user || sessionObj));
                 
                 this.loading=false;
                 
-                console.log('✅ Sesión guardada, redirigiendo a /customer/trips');
-                window.location.href = '/customer/trips';
+                console.log('✅ Sesión guardada, redirigiendo a onboarding o trips');
+                
+                // Redirigir según si completó el onboarding
+                if (userData.onboarding_completed) {
+                  window.location.href = '/customer/trips';
+                } else {
+                  window.location.href = '/onboarding';
+                }
             }else if(res['body']['code'] == 'ALREADY_EXIST'){
               this.showAlertAlreadyExist=true;
               this.loading=false;

@@ -474,12 +474,19 @@ export class MainPage implements OnInit {
   takePhoto() {
     Camera.getPhoto({
       quality: 90,
-      allowEditing: true,
+      allowEditing: false,  // Cambiado a false para permitir fotos completas (no cuadradas)
       resultType: CameraResultType.DataUrl,
-      source: CameraSource.Camera
+      source: CameraSource.Camera,
+      width: 1920,  // Ancho máximo
+      height: undefined,  // Altura automática para mantener aspect ratio
+      correctOrientation: true  // Corregir orientación automáticamente
     }).then((imageData) => {
       this.imagesToUpload.push(imageData);
       this.cdr.detectChanges();
+      
+      // Subir automáticamente después de tomar la foto
+      console.log('📸 Foto capturada, subiendo...');
+      this.uploadImagesBase64();
     }, (err) => {
       console.error('Error taking photo:', err);
     });
@@ -503,14 +510,21 @@ export class MainPage implements OnInit {
   }
 
   uploadImagesBase64() {
+    console.log('📤 Iniciando subida de imágenes Base64...');
+    console.log('📊 Imágenes a subir:', this.imagesToUpload.length);
+    
     let files: any[] = [];
 
-    this.imagesToUpload.forEach((image: any) => {
+    this.imagesToUpload.forEach((image: any, index: number) => {
+      console.log(`🖼️ Procesando imagen ${index + 1}/${this.imagesToUpload.length}`);
       const blob = this.dataURItoBlob(image.dataUrl || image);
-      const file = new File([blob], 'receipt_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+      const file = new File([blob], 'receipt_' + Date.now() + '_' + index + '.jpg', { type: 'image/jpeg' });
+      console.log(`✅ Archivo creado: ${file.name}, tamaño: ${(file.size / 1024).toFixed(2)}KB`);
       files.push(file);
     });
 
+    console.log('📦 Total de archivos preparados:', files.length);
+    
     this.imagesToUpload = [];
     this.isUploadingOther = false;
     
@@ -546,9 +560,28 @@ export class MainPage implements OnInit {
       return;
     }
 
+    // Si no hay país seleccionado, intentar seleccionar automáticamente
     if (!this.currencyBlockSelected) {
-      alert('Por favor selecciona un país primero');
-      return;
+      console.log('⚠️ No country selected, attempting auto-selection...');
+      
+      // Si hay países con recibos, seleccionar el primero
+      if (this.userCountries && this.userCountries.length > 0) {
+        console.log('✅ Auto-selecting first country from user receipts');
+        this.selectCountry(0);
+      }
+      // Si no hay recibos pero hay currencies disponibles, seleccionar el primero
+      else if (this.currencies && this.currencies.length > 0) {
+        console.log('✅ Auto-selecting first available currency');
+        this.currencyBlockSelected = this.currencies[0];
+      }
+      
+      // Si después de intentar auto-seleccionar sigue sin país, mostrar error
+      if (!this.currencyBlockSelected) {
+        this.translate.get('errors.select-country-first').subscribe((text: string) => {
+          alert(text || 'Please select a country first');
+        });
+        return;
+      }
     }
 
     // Validar límite de subida antes de proceder
