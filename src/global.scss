@@ -265,23 +265,42 @@ ion-badge{
 
   /* iOS Header Safe Area - Padding superior para evitar que el header quede tapado */
   .ios {
-    /* El toolbar se extiende para cubrir el área del notch */
+    /* El toolbar NO debe tener padding-top, en su lugar usamos una estructura diferente */
     ion-header {
+      /* El header tiene un padding-top invisible que empuja todo el contenido hacia abajo */
+      padding-top: env(safe-area-inset-top);
+      padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+      
+      /* El header debe tener el mismo color que el toolbar para que el espacio superior sea del mismo color */
+      background: var(--ion-toolbar-background, var(--ion-color-primary));
+      
       ion-toolbar {
-        padding-top: env(safe-area-inset-top);
-        padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
-        min-height: calc(56px + env(safe-area-inset-top));
-        min-height: calc(56px + constant(safe-area-inset-top));
+        /* El toolbar ya no necesita padding-top porque el header lo maneja */
+        --min-height: 56px;
+        min-height: 56px;
       }
     }
 
     /* Ajuste para headers con translucent */
     ion-header.header-translucent {
+      padding-top: calc(env(safe-area-inset-top) + 4px);
+      padding-top: calc(constant(safe-area-inset-top) + 4px);
+      
+      /* Headers translúcidos no necesitan background sólido */
+      background: transparent;
+      
       ion-toolbar {
-        padding-top: calc(env(safe-area-inset-top) + 4px);
-        padding-top: calc(constant(safe-area-inset-top) + 4px);
-        min-height: calc(56px + env(safe-area-inset-top) + 4px);
-        min-height: calc(56px + constant(safe-area-inset-top) + 4px);
+        --min-height: 56px;
+        min-height: 56px;
+      }
+    }
+    
+    /* Headers con clase específica header-primary */
+    ion-header.header-primary {
+      background: var(--ion-color-primary);
+      
+      ion-toolbar {
+        --background: var(--ion-color-primary);
       }
     }
 
@@ -307,11 +326,12 @@ ion-badge{
     ion-modal {
       .ion-page {
         ion-header {
+          padding-top: env(safe-area-inset-top);
+          padding-top: constant(safe-area-inset-top);
+          
           ion-toolbar {
-            padding-top: env(safe-area-inset-top);
-            padding-top: constant(safe-area-inset-top);
-            min-height: calc(56px + env(safe-area-inset-top));
-            min-height: calc(56px + constant(safe-area-inset-top));
+            --min-height: 56px;
+            min-height: 56px;
           }
         }
 
@@ -343,15 +363,20 @@ ion-badge{
         top: calc(16px + constant(safe-area-inset-top));
       }
     }
+    
+    /* Nota: Los estilos del ion-menu están en slide.component.scss 
+     * para mejor especificidad y evitar conflictos */
   }
 
   /* Configuración adicional para dispositivos con notch/Dynamic Island */
   @supports (padding: max(0px)) {
     .ios {
       ion-header {
+        padding-top: max(env(safe-area-inset-top), 10px);
+        
         ion-toolbar {
-          padding-top: max(env(safe-area-inset-top), 10px);
-          min-height: calc(56px + max(env(safe-area-inset-top), 10px));
+          --min-height: 56px;
+          min-height: 56px;
         }
       }
 

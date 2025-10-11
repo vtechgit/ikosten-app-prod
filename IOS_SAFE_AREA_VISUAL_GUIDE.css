@@ -1,0 +1,267 @@
+/* ============================================
+ * VISUAL COMPARISON: iOS Safe Area Fix
+ * ============================================
+ */
+
+/* 
+ * BEFORE (❌ Problem):
+ * ─────────────────────────────────────────
+ * El padding se aplicaba al toolbar, causando que
+ * los elementos hijos quedaran bajo el status bar
+ * 
+ * Structure:
+ * <ion-header>                          No padding
+ *   <ion-toolbar                        padding-top: 44px
+ *     <ion-menu-button />               ← INACCESIBLE (bajo status bar)
+ *     <ion-title>Título</ion-title>     ← Parcialmente oculto
+ *   />
+ * />
+ * 
+ * Visual:
+ * ┌─────────────────────────────┐
+ * │ ● ● ●     12:00 PM   ▮▮▮▮  │ ← Status Bar
+ * │ ╔═══════════════════════╗   │ ← Toolbar con padding-top
+ * │ ║ [≡] Título tapado     ║   │ ← Contenido BAJO el status bar
+ * │ ╚═══════════════════════╝   │
+ * └─────────────────────────────┘
+ */
+
+/* 
+ * AFTER (✅ Solution):
+ * ─────────────────────────────────────────
+ * El padding se aplica al header, empujando
+ * todo el toolbar hacia abajo correctamente.
+ * El header tiene el mismo color que el toolbar.
+ * 
+ * Structure:
+ * <ion-header                           padding-top: 44px, background: #1e96fc
+ *   <ion-toolbar                        No padding extra, background: #1e96fc
+ *     <ion-menu-button />               ← ACCESIBLE
+ *     <ion-title>Título</ion-title>     ← Visible completo
+ *   />
+ * />
+ * 
+ * Visual:
+ * ┌─────────────────────────────┐
+ * │ ● ● ●     12:00 PM   ▮▮▮▮  │ ← Status Bar (transparente)
+ * │ ═════════════════════════   │ ← Padding del header (AZUL #1e96fc)
+ * │ ╔═══════════════════════╗   │ ← Toolbar (AZUL #1e96fc)
+ * │ ║ [≡] Título visible    ║   │ ← Contenido BAJO el padding
+ * │ ╚═══════════════════════╝   │
+ * └─────────────────────────────┘
+ */
+
+/* ============================================
+ * CSS Implementation
+ * ============================================ */
+
+/* BEFORE - Approach that caused issues */
+.ios-before-fix {
+  ion-header {
+    /* Sin padding aquí */
+    
+    ion-toolbar {
+      /* Padding aplicado aquí causaba problemas */
+      padding-top: env(safe-area-inset-top);
+      min-height: calc(56px + env(safe-area-inset-top));
+    }
+  }
+}
+
+/* AFTER - Correct implementation */
+.ios-after-fix {
+  ion-header {
+    /* Padding aplicado al header empuja todo hacia abajo */
+    padding-top: env(safe-area-inset-top);
+    
+    /* El header tiene el mismo color que el toolbar para continuidad visual */
+    background: var(--ion-toolbar-background, var(--ion-color-primary));
+    
+    ion-toolbar {
+      /* Toolbar mantiene altura normal */
+      --min-height: 56px;
+      min-height: 56px;
+    }
+  }
+  
+  /* Para headers con clase específica */
+  ion-header.header-primary {
+    background: var(--ion-color-primary); /* #1e96fc */
+    
+    ion-toolbar {
+      --background: var(--ion-color-primary);
+    }
+  }
+  
+  /* Safe Area para el slide menu */
+  ion-menu {
+    padding-top: env(safe-area-inset-top);
+    
+    ion-content {
+      --padding-top: 0;
+      --padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .menu-image-container {
+      padding-top: 8px;
+    }
+  }
+}
+
+/* ============================================
+ * Device Measurements
+ * ============================================ */
+
+/*
+ * Safe Area Inset Top (approximate):
+ * 
+ * iPhone X/XS/11 Pro:         44px (notch)
+ * iPhone XR/11:               44px (notch)
+ * iPhone 12 mini:             50px (notch)
+ * iPhone 12/12 Pro:           47px (notch)
+ * iPhone 13/13 Pro:           47px (notch)
+ * iPhone 14:                  47px (notch)
+ * iPhone 14 Pro/15 Pro:       59px (Dynamic Island)
+ * iPhone 14 Plus:             47px (notch)
+ * iPhone SE (all):            20px (status bar only)
+ * iPad Pro (all):             20px (status bar only)
+ * 
+ * Safe Area Inset Bottom:
+ * 
+ * iPhones with home indicator:  34px
+ * iPhones with home button:     0px
+ * iPads with home indicator:    20px
+ * iPads with home button:       0px
+ */
+
+/* ============================================
+ * Complete Working Example
+ * ============================================ */
+
+.ios {
+  /* Main header configuration */
+  ion-header {
+    padding-top: env(safe-area-inset-top);
+    padding-top: constant(safe-area-inset-top); /* Fallback for iOS 11.0 */
+    
+    /* Header background matches toolbar for visual continuity */
+    background: var(--ion-toolbar-background, var(--ion-color-primary));
+    
+    ion-toolbar {
+      --min-height: 56px;
+      min-height: 56px;
+    }
+  }
+
+  /* Translucent headers (with extra spacing) */
+  ion-header.header-translucent {
+    padding-top: calc(env(safe-area-inset-top) + 4px);
+    padding-top: calc(constant(safe-area-inset-top) + 4px);
+    
+    /* Translucent headers don't need solid background */
+    background: transparent;
+    
+    ion-toolbar {
+      --min-height: 56px;
+      min-height: 56px;
+    }
+  }
+  
+  /* Headers with specific primary class */
+  ion-header.header-primary {
+    background: var(--ion-color-primary);
+    
+    ion-toolbar {
+      --background: var(--ion-color-primary);
+    }
+  }
+
+  /* Footer configuration (unchanged) */
+  ion-footer {
+    ion-toolbar {
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: constant(safe-area-inset-bottom);
+      min-height: calc(56px + env(safe-area-inset-bottom));
+      min-height: calc(56px + constant(safe-area-inset-bottom));
+    }
+  }
+
+  /* Modals */
+  ion-modal {
+    .ion-page {
+      ion-header {
+        padding-top: env(safe-area-inset-top);
+        padding-top: constant(safe-area-inset-top);
+        background: var(--ion-toolbar-background, var(--ion-color-primary));
+        
+        ion-toolbar {
+          --min-height: 56px;
+          min-height: 56px;
+        }
+      }
+    }
+  }
+
+  /* FAB buttons */
+  ion-fab {
+    &[vertical="bottom"] {
+      bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    
+    &[vertical="top"] {
+      top: calc(16px + env(safe-area-inset-top));
+    }
+  }
+
+  /* Tabs */
+  ion-tab-bar {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(56px + env(safe-area-inset-bottom));
+  }
+  
+  /* Slide Menu (ion-menu) */
+  ion-menu {
+    padding-top: env(safe-area-inset-top);
+    padding-top: constant(safe-area-inset-top);
+    
+    ion-content {
+      --padding-top: 0;
+      --padding-bottom: env(safe-area-inset-bottom);
+      --padding-bottom: constant(safe-area-inset-bottom);
+    }
+    
+    .menu-image-container {
+      padding-top: 8px;
+    }
+  }
+}
+
+/* With max() support for better fallbacks */
+@supports (padding: max(0px)) {
+  .ios {
+    ion-header {
+      padding-top: max(env(safe-area-inset-top), 10px);
+      background: var(--ion-toolbar-background, var(--ion-color-primary));
+      
+      ion-toolbar {
+        --min-height: 56px;
+        min-height: 56px;
+      }
+    }
+
+    ion-footer {
+      ion-toolbar {
+        padding-bottom: max(env(safe-area-inset-bottom), 10px);
+        min-height: calc(56px + max(env(safe-area-inset-bottom), 10px));
+      }
+    }
+    
+    ion-menu {
+      padding-top: max(env(safe-area-inset-top), 10px);
+      
+      ion-content {
+        --padding-bottom: max(env(safe-area-inset-bottom), 10px);
+      }
+    }
+  }
+}
