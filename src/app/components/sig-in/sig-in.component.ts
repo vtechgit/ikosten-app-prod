@@ -314,127 +314,41 @@ export class SigInComponent  implements OnInit {
 
       }
   }
-  async doLoginApple(){
-    this.isLoading=true;
+  async loginApplev2(){
+    // Autenticar con Apple después de que el usuario llene el formulario
+    console.log('🍎 loginApplev2() llamado - iniciando autenticación');
+    this.isLoading = true;
 
-    FirebaseAuthentication.signInWithApple().then(res=>{
-      let user = res['user'];
-      console.log('user',user);
-      if(user){
-        let full_name = user['displayName'];
-        let email = user.email && user.email != 'null' ? user.email : '';
-        let token = user.uid;
-
-        let country = this.selectedCountry._id;
-        var obj = {};
-        if(this.utm_lead && this.utm_lead != ''){
-          obj ={
-            lead_type: 'apple',
-            lead_email: email,
-            lead_token: token,
-            lead_name: full_name,
-            lead_phone: user.phoneNumber,
-            lead_role:0,
-            lead_country: country,
-            lead_id: this.utm_lead,
-            lead_invitation_status: 'active',
-            lead_source: localStorage.getItem('clientSource')
-          }
-        }else{
-          obj ={
-            lead_type: 'apple',
-            lead_email: email,
-            lead_token: token,
-            lead_name: full_name,
-            lead_phone: user.phoneNumber,
-            lead_role:0,
-            lead_country: country,
-            lead_source: localStorage.getItem('clientSource')
-          }
-        }
-
-        this.api.create('leads/auth/social', obj).subscribe(res=>{
-          console.log('auth response',res);
-  
-          if(res['body']['data'].length > 0){
-  
-            localStorage.setItem('userSession', JSON.stringify(res['body']['data'][0]));
-            var leadId = res['body']['data'][0]['_id'];
-  
-            if(sessionStorage.getItem('travels') && sessionStorage.getItem('travels') != '' && sessionStorage.getItem('travels') != null){
-  
-              var travels = JSON.parse(sessionStorage.getItem('travels'));
-  
-              travels.forEach((travel,index) => {
-                
-                travels[index]['process_lead'] = leadId;
-  
-              });
-              this.api.update('processes/update/bulk',travels).subscribe(res=>{
-                sessionStorage.removeItem('travels');
-                this.isLoginApple=false;
-                this.isLoading=false;
-                if(this.backParams){
-
-                  if(this.backParams.back && this.backParams.back != ''){
-  
-                    if(this.backParams.membership && this.backParams.membership != ''){
-  
-                      window.location.href = '/customer/'+this.backParams.back+'/?membership='+this.backParams.membership;
-  
-                    }else if(this.backParams.trip && this.backParams.trip != ''){
-  
-                      if(this.backParams.step && this.backParams.step){
-                        window.location.href = '/customer/'+this.backParams.back+'/?trip='+this.backParams.trip+'&step='+this.backParams.step;
-                      }else{
-                        window.location.href = '/customer/'+this.backParams.back+'/?trip='+this.backParams.trip;
-                      }
-  
-                      
-  
-                    }else{
-                      window.location.href = '/customer/'+this.backParams.back;
-  
-                    }
-                  }else{
-                    window.location.href = '/';
-                  }
-  
-                }else{
-                  window.location.href = '/';
-  
-                }
-  
-              });
-  
-            }else{
-              this.isLoginApple=false;
-              this.isLoading=false;
-              window.location.href = '/';
-  
-            }
-          }
-        })
-  
-      }else{
-        window.localStorage.clear();
-        console.log('response', res);
-        //this.alert.presentAlert('Ha ocurrido un error','Apple no devolvió un usuario','','error');
-        this.showAppleAlertLogin = true;
-
-      }
-    }).catch((error) => {
-      console.log('catch', JSON.stringify(error['message']));
-      if( !error['message'].includes('error 1000') && !error['errorMessage'].includes('error 1001.')){
-        this.showAppleAlertLogin = true;
-        //this.alert.presentAlert('Ha ocurrido un error',error['message'],'','error');
-
+    try {
+      // Verificar que tenemos el país seleccionado
+      if (!this.selectedCountry) {
+        console.error('❌ No hay país seleccionado');
+        this.handleAppleLoginError('Por favor selecciona un país');
+        return;
       }
 
+      console.log('🔑 Iniciando autenticación con Apple Firebase...');
+      
+      // Iniciar el proceso de login con Apple usando Firebase Authentication
+      const result = await FirebaseAuthentication.signInWithApple();
 
-    });
+      console.log('📝 Resultado de Firebase Auth Apple:', result);
 
+      if (result && result.user) {
+        console.log('✅ Usuario obtenido de Firebase Apple:', result.user);
+        await this.handleAppleLoginSuccess(result.user);
+      } else {
+        console.error('❌ Apple Firebase no devolvió usuario');
+        this.handleAppleLoginError('No se pudo obtener información del usuario de Apple');
+      }
+    } catch (error) {
+      console.error('💥 Error en Firebase Apple Authentication:', error);
+      this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
+
   doLoginEmail() {
     console.log('🎯 doLoginEmail: Método llamado - INICIO');
     console.log('🔍 Estado del loading:', this.isLoading);
@@ -747,38 +661,10 @@ export class SigInComponent  implements OnInit {
     this.showAppleAlertLogin = true; // Reutilizar el alert existente
   }
   async startLoginApple(){
-    console.log('🍎 startLoginApple() llamado');
+    // Solo mostrar el formulario de país/teléfono, como hace Google
+    console.log('🍎 startLoginApple() llamado - mostrando formulario');
     this.isLoginApple = true;
-    this.isLoading = true;
-
-    try {
-      console.log('🔍 Verificando país seleccionado:', this.selectedCountry);
-      
-      // Verificar que tenemos el país seleccionado
-      if (!this.selectedCountry) {
-        console.error('❌ No hay país seleccionado');
-        this.handleAppleLoginError('Por favor selecciona un país');
-        return;
-      }
-
-      console.log('🔑 Iniciando autenticación con Apple Firebase...');
-      
-      // Iniciar el proceso de login con Apple usando Firebase Authentication
-      const result = await FirebaseAuthentication.signInWithApple();
-
-      console.log('📝 Resultado de Firebase Auth Apple:', result);
-
-      if (result && result.user) {
-        console.log('✅ Usuario obtenido de Firebase Apple:', result.user);
-        await this.handleAppleLoginSuccess(result.user);
-      } else {
-        console.error('❌ Apple Firebase no devolvió usuario');
-        this.handleAppleLoginError('No se pudo obtener información del usuario de Apple');
-      }
-    } catch (error) {
-      console.error('💥 Error en Firebase Apple Authentication:', error);
-      this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
-    }
+    this.isLoading = false;
   }
 
   private async handleAppleLoginSuccess(user: any) {

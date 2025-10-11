@@ -34,6 +34,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private tokenRefreshTimer: any = null;
+  private userDataRefreshTimer: any = null; // Timer para actualizar datos del usuario
 
   constructor(
     private apiService: ApiService,
@@ -48,6 +49,8 @@ export class AuthService {
       this.currentUserSubject.next(savedUser);
       // Verificar si el token necesita ser renovado
       this.checkAndRefreshToken();
+      // Verificar datos del usuario desde el backend
+      this.checkAndRefreshUserData();
     }
   }
 
@@ -118,6 +121,93 @@ export class AuthService {
     if (this.tokenRefreshTimer) {
       clearTimeout(this.tokenRefreshTimer);
       this.tokenRefreshTimer = null;
+    }
+  }
+
+  /**
+   * Verifica y actualiza los datos del usuario desde el backend
+   * Esto asegura que cambios en lead_role (ej: expiración de membresía) se reflejen sin relogin
+   */
+  private async checkAndRefreshUserData(): Promise<void> {
+    try {
+      const currentUser = this.getCurrentUser();
+      
+      if (!currentUser || !currentUser.id) {
+        console.log('⚠️ No hay usuario actual para actualizar');
+        return;
+      }
+
+      console.log('🔄 Verificando datos del usuario desde el backend...');
+      
+      // Consultar datos actualizados del usuario
+      this.apiService.read(`leads/${currentUser.id}`).subscribe({
+        next: (response: any) => {
+          if (response && response.body) {
+            const updatedUserData = response.body;
+            
+            // Verificar si el lead_role cambió
+            if (updatedUserData.lead_role !== currentUser.role) {
+              console.log(`🔄 lead_role actualizado: ${currentUser.role} → ${updatedUserData.lead_role}`);
+              
+              // Actualizar el usuario con los nuevos datos
+              const updatedUser: User = {
+                ...currentUser,
+                role: updatedUserData.lead_role,
+                onboarding_completed: updatedUserData.onboarding_completed
+              };
+              
+              this.updateCurrentUser(updatedUser);
+              
+              // Si el usuario perdió su membresía, mostrar notificación
+              if (currentUser.role > 0 && updatedUserData.lead_role === 0) {
+                this.showInfoToast('Tu membresía ha expirado. Ahora tienes acceso limitado.');
+              }
+            } else {
+              console.log('✅ lead_role sin cambios:', currentUser.role);
+            }
+          }
+          
+          // Programar la próxima verificación (cada 5 minutos)
+          this.scheduleUserDataRefresh();
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar datos del usuario:', error);
+          // Intentar de nuevo en 1 minuto si hubo error
+          setTimeout(() => this.checkAndRefreshUserData(), 60 * 1000);
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error en checkAndRefreshUserData:', error);
+    }
+  }
+
+  /**
+   * Programa la próxima actualización de datos del usuario
+   */
+  private scheduleUserDataRefresh(): void {
+    // Limpiar cualquier timer anterior
+    if (this.userDataRefreshTimer) {
+      clearTimeout(this.userDataRefreshTimer);
+    }
+
+    // Actualizar cada 5 minutos
+    const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutos
+    
+    console.log('⏰ Próxima actualización de datos del usuario en 5 minutos');
+    
+    this.userDataRefreshTimer = setTimeout(async () => {
+      console.log('⏰ Timer ejecutado - actualizando datos del usuario...');
+      await this.checkAndRefreshUserData();
+    }, REFRESH_INTERVAL);
+  }
+
+  /**
+   * Cancela la actualización automática de datos del usuario
+   */
+  private cancelUserDataRefresh(): void {
+    if (this.userDataRefreshTimer) {
+      clearTimeout(this.userDataRefreshTimer);
+      this.userDataRefreshTimer = null;
     }
   }
 
@@ -241,6 +331,9 @@ export class AuthService {
     // Cancelar cualquier renovación programada
     this.cancelTokenRefresh();
     
+    // Cancelar verificaciones de datos del usuario
+    this.cancelUserDataRefresh();
+    
     // Cerrar sesión en PaymentService
     await this.paymentService.logoutUser();
     console.log('👋 Usuario desconectado de PaymentService');
@@ -257,6 +350,15 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  /**
+   * Fuerza la actualización de datos del usuario desde el backend
+   * Útil para llamar después de acciones que pueden cambiar el lead_role (compras, cancelaciones, etc)
+   */
+  async forceRefreshUserData(): Promise<void> {
+    console.log('🔄 Forzando actualización de datos del usuario...');
+    await this.checkAndRefreshUserData();
   }
 
   updateCurrentUser(userData: User): void {
@@ -309,6 +411,10 @@ export class AuthService {
         console.log('👤 Usuario identificado en PaymentService después del login');
       }
       
+      // Programar verificación periódica de datos del usuario
+      this.scheduleUserDataRefresh();
+      console.log('⏰ Verificación periódica de datos del usuario activada');
+      
     } catch (error) {
       console.error('Error en setAuthData:', error);
     }
@@ -320,6 +426,17 @@ export class AuthService {
       duration: 3000,
       position: 'top',
       color: 'success'
+    });
+    await toast.present();
+  }
+
+  private async showInfoToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 5000,
+      position: 'top',
+      color: 'warning',
+      icon: 'information-circle-outline'
     });
     await toast.present();
   }

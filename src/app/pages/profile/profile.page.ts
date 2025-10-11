@@ -338,19 +338,12 @@ export class ProfilePage implements OnInit {
             alert.present();
           });
           
-          // Actualizar el rol en la sesión local
-          if (this.userSession) {
-            this.userSession.lead_role = 0;
-          }
+          // NO cambiar lead_role aquí - el usuario mantiene acceso hasta el fin del período
+          // El backend y el job periódico se encargan de actualizar el rol cuando expire
           
-          // Actualizar el rol en el authService
-          const currentUser = this.authService.getCurrentUser();
-          if (currentUser) {
-            this.authService.updateCurrentUser({
-              ...currentUser,
-              role: 0
-            });
-          }
+          // Forzar actualización de datos del usuario desde el backend
+          // Esto asegura que cualquier cambio se refleje inmediatamente
+          this.authService.forceRefreshUserData();
           
           // Recargar datos de membresía
           this.getActiveMembership();

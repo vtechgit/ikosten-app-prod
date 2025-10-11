@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "هل أنت متأكد أنك تريد إلغاء عضويتك؟ ستفقد الوصول إلى الميزات المميزة.",
+	"alerts.cancel-membership.message": "هل أنت متأكد أنك تريد إلغاء عضويتك؟ ستحتفظ بالوصول إلى الميزات المميزة حتى نهاية فترة الفوترة الحالية.",
 	"alerts.cancel-membership.title": "إلغاء العضوية",
 	"alerts.create-password.success.header": "لقد تم إنشاء كلمة المرور الخاصة بك بنجاح.",
 	"alerts.create-password.success.subtitle": "يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "تسجيل الدخول",
 	"menu.tabs.trips": "السفر",
 	"menu.tabs.upload-receipts": "تحميل الإيصالات",
-	"messages.membership-cancelled": "تم إلغاء عضويتك بنجاح",
+	"messages.membership-cancelled": "تم إلغاء عضويتك. ستحتفظ بالوصول المميز حتى نهاية فترة الفوترة الحالية",
 	"messages.no-transactions": "لا توجد معاملات بعد",
 	"placeholders.enter-email": "أدخل بريدك الإلكتروني",
 	"placeholders.enter-name": "أدخل اسمك",
