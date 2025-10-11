@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "Sei sicuro di voler annullare il tuo abbonamento? Perderai l'accesso alle funzionalità premium.",
+	"alerts.cancel-membership.message": "Sei sicuro di voler annullare il tuo abbonamento? Manterrai l'accesso alle funzionalità premium fino alla fine del tuo periodo di fatturazione corrente.",
 	"alerts.cancel-membership.title": "Annulla abbonamento",
 	"alerts.create-password.success.header": "La tua password è stata creata con successo.",
 	"alerts.create-password.success.subtitle": "Ora puoi effettuare l'accesso con la tua nuova password.",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "Accesso",
 	"menu.tabs.trips": "Viaggi",
 	"menu.tabs.upload-receipts": "Carica Ricevute",
-	"messages.membership-cancelled": "Il tuo abbonamento è stato annullato con successo",
+	"messages.membership-cancelled": "Il tuo abbonamento è stato annullato. Manterrai l'accesso premium fino alla fine del periodo di fatturazione corrente",
 	"messages.no-transactions": "Nessuna transazione ancora",
 	"placeholders.enter-email": "Inserisci la tua email",
 	"placeholders.enter-name": "Inserisci il tuo nome",

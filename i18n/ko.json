@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "멤버십을 취소하시겠습니까? 프리미엄 기능에 대한 액세스가 손실됩니다.",
+	"alerts.cancel-membership.message": "멤버십을 취소하시겠습니까? 현재 청구 기간이 끝날 때까지 프리미엄 기능에 계속 액세스할 수 있습니다.",
 	"alerts.cancel-membership.title": "멤버십 취소",
 	"alerts.create-password.success.header": "비밀번호가 성공적으로 생성되었습니다.",
 	"alerts.create-password.success.subtitle": "이제 새로운 비밀번호로 로그인할 수 있습니다.",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "로그인",
 	"menu.tabs.trips": "여행",
 	"menu.tabs.upload-receipts": "영수증 업로드",
-	"messages.membership-cancelled": "멤버십이 성공적으로 취소되었습니다",
+	"messages.membership-cancelled": "멤버십이 취소되었습니다. 현재 청구 기간이 끝날 때까지 프리미엄 액세스가 유지됩니다",
 	"messages.no-transactions": "아직 거래가 없습니다",
 	"placeholders.enter-email": "이메일을 입력하세요",
 	"placeholders.enter-name": "이름을 입력하세요",

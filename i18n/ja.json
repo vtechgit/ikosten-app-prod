@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "メンバーシップをキャンセルしてもよろしいですか？プレミアム機能へのアクセスが失われます。",
+	"alerts.cancel-membership.message": "メンバーシップをキャンセルしてもよろしいですか？現在の請求期間が終了するまでプレミアム機能へのアクセスは維持されます。",
 	"alerts.cancel-membership.title": "メンバーシップをキャンセル",
 	"alerts.create-password.success.header": "パスワードが正常に作成されました。",
 	"alerts.create-password.success.subtitle": "新しいパスワードでログインできるようになりました。",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "ログイン",
 	"menu.tabs.trips": "旅行",
 	"menu.tabs.upload-receipts": "レシートをアップロード",
-	"messages.membership-cancelled": "メンバーシップが正常にキャンセルされました",
+	"messages.membership-cancelled": "メンバーシップがキャンセルされました。現在の請求期間が終了するまでプレミアムアクセスは維持されます",
 	"messages.no-transactions": "まだ取引はありません",
 	"placeholders.enter-email": "メールアドレスを入力",
 	"placeholders.enter-name": "お名前を入力",

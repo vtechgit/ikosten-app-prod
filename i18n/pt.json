@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "Tem certeza de que deseja cancelar sua assinatura? Você perderá o acesso aos recursos premium.",
+	"alerts.cancel-membership.message": "Tem certeza de que deseja cancelar sua assinatura? Você manterá o acesso aos recursos premium até o final do seu período de faturamento atual.",
 	"alerts.cancel-membership.title": "Cancelar Assinatura",
 	"alerts.create-password.success.header": "Sua senha foi criada com sucesso.",
 	"alerts.create-password.success.subtitle": "Agora você pode efetuar login com sua nova senha.",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "Iniciar sessão",
 	"menu.tabs.trips": "Viagens",
 	"menu.tabs.upload-receipts": "Carregar Recibos",
-	"messages.membership-cancelled": "Sua assinatura foi cancelada com sucesso",
+	"messages.membership-cancelled": "Sua assinatura foi cancelada. Você manterá o acesso premium até o final do seu período de faturamento atual",
 	"messages.no-transactions": "Ainda não há transações",
 	"placeholders.enter-email": "Digite seu email",
 	"placeholders.enter-name": "Digite seu nome",

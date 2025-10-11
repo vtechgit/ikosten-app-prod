@@ -1,5 +1,5 @@
 {
-	"alerts.cancel-membership.message": "Sind Sie sicher, dass Sie Ihre Mitgliedschaft kündigen möchten? Sie verlieren den Zugriff auf Premium-Funktionen.",
+	"alerts.cancel-membership.message": "Sind Sie sicher, dass Sie Ihre Mitgliedschaft kündigen möchten? Sie behalten den Zugriff auf Premium-Funktionen bis zum Ende Ihres aktuellen Abrechnungszeitraums.",
 	"alerts.cancel-membership.title": "Mitgliedschaft kündigen",
 	"alerts.create-password.success.header": "Ihr Passwort wurde erfolgreich erstellt.",
 	"alerts.create-password.success.subtitle": "Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
@@ -469,7 +469,7 @@
 	"menu.tabs.sing-in": "Anmeldung",
 	"menu.tabs.trips": "Reisen",
 	"menu.tabs.upload-receipts": "Belege hochladen",
-	"messages.membership-cancelled": "Ihre Mitgliedschaft wurde erfolgreich gekündigt",
+	"messages.membership-cancelled": "Ihre Mitgliedschaft wurde gekündigt. Sie behalten den Premium-Zugriff bis zum Ende Ihres aktuellen Abrechnungszeitraums",
 	"messages.no-transactions": "Noch keine Transaktionen",
 	"placeholders.enter-email": "Geben Sie Ihre E-Mail ein",
 	"placeholders.enter-name": "Geben Sie Ihren Namen ein",
