@@ -120,30 +120,66 @@ export class SignUpComponent  implements OnInit {
           }
         }
         
-        this.api.create('leads/registerNew',obj).subscribe(res=>{
-          if(res['body']['status'] == true){
-              let sessionObj = {
-                _id:res['body']['data']['_id'],
-                lead_name:res['body']['data']['lead_name'],
-                lead_email:res['body']['data']['lead_email'],
-                lead_phone:res['body']['data']['lead_phone'],
-                lead_country:res['body']['data']['lead_country'],
-                lead_role:res['body']['data']['lead_role'],
-                lead_paypal_customer_id:res['body']['data']['lead_paypal_customer_id'],
-                lead_company_id:res['body']['data']['lead_company_id'],
-                lead_invitation_status:res['body']['data']['lead_invitation_status'],
-              }
-              localStorage.setItem('userSession', JSON.stringify(sessionObj));
+        this.api.create('leads/registerNew',obj).subscribe({
+          next: (res) => {
+            console.log('✅ Respuesta de registro:', res);
+            
+            if(res['body']['status'] == true){
+                // Estructura de respuesta actualizada con tokens
+                const responseData = res['body']['data'];
+                
+                // Guardar tokens
+                if(responseData.tokens) {
+                  localStorage.setItem('ikosten_access_token', responseData.tokens.accessToken);
+                  localStorage.setItem('ikosten_refresh_token', responseData.tokens.refreshToken);
+                }
+                
+                // Guardar datos de usuario
+                let sessionObj = {
+                  _id: responseData.user?.id || responseData._id,
+                  lead_name: responseData.user?.name || responseData.lead_name,
+                  lead_email: responseData.user?.email || responseData.lead_email,
+                  lead_phone: responseData.user?.phone || responseData.lead_phone,
+                  lead_country: responseData.user?.country || responseData.lead_country,
+                  lead_role: responseData.user?.role || responseData.lead_role,
+                  lead_paypal_customer_id: responseData.user?.paypal_customer_id || responseData.lead_paypal_customer_id,
+                  lead_company_id: responseData.user?.company_id || responseData.lead_company_id,
+                  lead_invitation_status: responseData.user?.invitation_status || responseData.lead_invitation_status,
+                  lead_category: responseData.user?.category || responseData.lead_category,
+                  lead_onboarding_completed: responseData.user?.onboarding_completed || responseData.lead_onboarding_completed || false
+                }
+                
+                localStorage.setItem('userSession', JSON.stringify(sessionObj));
+                localStorage.setItem('ikosten_user_data', JSON.stringify(responseData.user || sessionObj));
+                
+                this.loading=false;
+                
+                console.log('✅ Sesión guardada, redirigiendo a /customer/trips');
+                window.location.href = '/customer/trips';
+            }else if(res['body']['code'] == 'ALREADY_EXIST'){
+              this.showAlertAlreadyExist=true;
               this.loading=false;
-              window.location.href = '/customer/trips';
-          }else if(res['body']['code'] == 'ALREADY_EXIST'){
-
-            this.showAlertAlreadyExist=true;
+            }else{
+              this.showAlertCodeError=true;
+              this.loading=false;
+            }
+          },
+          error: (error) => {
             this.loading=false;
-
-          }else{
-            this.showAlertCodeError=true;
-            this.loading=false;
+            console.error('Error en registro:', error);
+            
+            // Manejar error 409 (usuario ya existe)
+            if(error.status === 409 && error.error?.body?.code === 'ALREADY_EXIST'){
+              this.showAlertAlreadyExist=true;
+            }
+            // Manejar error 400 (validación)
+            else if(error.status === 400){
+              this.showAlertCodeError=true;
+            }
+            // Otros errores
+            else{
+              this.showAlertCodeError=true;
+            }
           }
         })
           
