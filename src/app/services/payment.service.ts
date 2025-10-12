@@ -16,6 +16,7 @@ export interface PurchaseResult {
   transactionId?: string;
   productId?: string;
   error?: string;
+  isInTrial?: boolean; // 🆕 Indica si la compra es un trial period
 }
 
 @Injectable({
@@ -171,10 +172,42 @@ export class PaymentService {
       const activeEntitlements = customerInfo.entitlements.active;
       const hasActiveSubscription = Object.keys(activeEntitlements).length > 0;
 
+      // 🔍 Obtener información de la transacción más reciente
+      // Si hay entitlements activos, buscar el más reciente
+      let latestTransactionId = `${customerInfo.originalAppUserId}_${Date.now()}`;
+      let isInTrial = false;
+      
+      if (hasActiveSubscription) {
+        // Obtener el primer entitlement activo (debería ser el que acabamos de comprar)
+        const entitlementKeys = Object.keys(activeEntitlements);
+        if (entitlementKeys.length > 0) {
+          const firstEntitlement = activeEntitlements[entitlementKeys[0]];
+          
+          // Usar el originalPurchaseDate como parte del ID único
+          const purchaseDate = firstEntitlement.originalPurchaseDate;
+          if (purchaseDate) {
+            latestTransactionId = `${customerInfo.originalAppUserId}_${new Date(purchaseDate).getTime()}`;
+          }
+          
+          // Detectar si está en trial
+          // periodType puede ser: "normal", "trial", "intro", "promotional"
+          isInTrial = firstEntitlement.periodType === 'trial' || 
+                     firstEntitlement.willRenew === false ||
+                     (firstEntitlement.unsubscribeDetectedAt !== null && firstEntitlement.billingIssueDetectedAt === null);
+          
+          console.log('📊 Entitlement info:', {
+            periodType: firstEntitlement.periodType,
+            willRenew: firstEntitlement.willRenew,
+            isInTrial: isInTrial
+          });
+        }
+      }
+
       return {
         success: true,
         productId: productId,
-        transactionId: customerInfo.originalAppUserId, // O usar otro identificador apropiado
+        transactionId: latestTransactionId,
+        isInTrial: isInTrial // 🆕 Indicar si es trial
       };
     } catch (error: any) {
       console.error('❌ PaymentService: Error en compra:', error);

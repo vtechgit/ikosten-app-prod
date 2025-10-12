@@ -234,20 +234,30 @@ export class MembershipModalComponent implements OnChanges {
       if (result.success) {
         console.log('✅ Compra exitosa:', result);
         
+        // 🔍 Determinar si es trial y ajustar el valor
+        const isTrialPurchase = result.isInTrial || false;
+        const purchaseValue = isTrialPurchase ? 0 : membership.membership_price;
+        
+        console.log('💰 Tipo de compra:', {
+          isInTrial: isTrialPurchase,
+          originalPrice: membership.membership_price,
+          valueSent: purchaseValue
+        });
+        
         // Registrar la compra en el backend
         this.api.create('purchasedMemberships/new', {
           order_id: result.transactionId,
           subscription_id: result.transactionId,
           lead_id: this.userSession.id,
           payer_id: this.userSession.id,
-          value: membership.membership_price,
+          value: purchaseValue, // 🔧 0 si es trial, precio real si no
           membership_plan_id: membership._id,
           plan_id: membership.membership_in_app_product_id,
           error: '',
           currency: membership.membership_currency,
           description: membership.membership_title,
           prod_id: membership.membership_prod_id,
-          membership_status: 'active',
+          membership_status: 'ACTIVE'.toUpperCase(), // Asegurar mayúsculas consistentes con PayPal
           recurring: membership.membership_recurring,
           source: this.platform.is('ios') ? 'app_store' : 'google_play'
         }).subscribe({
@@ -261,14 +271,34 @@ export class MembershipModalComponent implements OnChanges {
               next: (res) => {
                 console.log('✅ User updated:', res);
                 
-                // Actualizar sesión local
+                // Actualizar sesión local - IMPORTANTE: mantener onboarding_completed
                 this.userSession.lead_role = membership.membership_role;
                 this.userSession.role = membership.membership_role;
+                
+                // ✅ Mapear lead_onboarding_completed a onboarding_completed
+                if (this.userSession.hasOwnProperty('lead_onboarding_completed')) {
+                  this.userSession.onboarding_completed = this.userSession.lead_onboarding_completed;
+                } else if (!this.userSession.hasOwnProperty('onboarding_completed')) {
+                  // Si no existe ninguno, asumir completado (usuario existente)
+                  this.userSession.onboarding_completed = true;
+                  this.userSession.lead_onboarding_completed = true;
+                }
+                
                 localStorage.setItem('userSession', JSON.stringify(this.userSession));
                 
-                // Actualizar AuthService
-                this.authService.updateCurrentUser(this.userSession);
-                console.log('🔄 AuthService actualizado con el nuevo rol del usuario');
+                // Actualizar AuthService con la estructura correcta de User
+                const updatedUser: any = {
+                  id: this.userSession.id || this.userSession._id,
+                  email: this.userSession.email || this.userSession.lead_email,
+                  name: this.userSession.name || this.userSession.lead_name,
+                  role: membership.membership_role,
+                  company_id: this.userSession.company_id || this.userSession.lead_company_id,
+                  category: this.userSession.category || this.userSession.lead_category,
+                  onboarding_completed: this.userSession.lead_onboarding_completed !== false || this.userSession.onboarding_completed !== false
+                };
+                
+                this.authService.updateCurrentUser(updatedUser);
+                console.log('🔄 AuthService actualizado con el nuevo rol del usuario:', updatedUser);
                 
                 // Mostrar alerta de éxito
                 this.showAlertSuccess = true;
@@ -347,7 +377,7 @@ export class MembershipModalComponent implements OnChanges {
             currency: membership.membership_currency,
             description: membership.membership_title,
             prod_id: membership.membership_prod_id,
-            membership_status: details.status,
+            membership_status: (details.status || 'ACTIVE').toUpperCase(),
             recurring: membership.membership_recurring,
             source: 'paypal'
           }).subscribe(purchasedMembershipsResponse => {
@@ -364,11 +394,31 @@ export class MembershipModalComponent implements OnChanges {
               this.userSession.lead_role = membership.membership_role;
               this.userSession.role = membership.membership_role; // Para AuthService
               this.userSession.lead_paypal_customer_id = details.subscriber.payer_id;
+              
+              // ✅ Mapear lead_onboarding_completed a onboarding_completed
+              if (this.userSession.hasOwnProperty('lead_onboarding_completed')) {
+                this.userSession.onboarding_completed = this.userSession.lead_onboarding_completed;
+              } else if (!this.userSession.hasOwnProperty('onboarding_completed')) {
+                // Si no existe ninguno, asumir completado (usuario existente)
+                this.userSession.onboarding_completed = true;
+                this.userSession.lead_onboarding_completed = true;
+              }
+              
               localStorage.setItem('userSession', JSON.stringify(this.userSession));
               
-              // Actualizar el AuthService para que todos los componentes se enteren del cambio
-              this.authService.updateCurrentUser(this.userSession);
-              console.log('🔄 AuthService actualizado con el nuevo rol del usuario');
+              // Actualizar AuthService con la estructura correcta de User
+              const updatedUser: any = {
+                id: this.userSession.id || this.userSession._id,
+                email: this.userSession.email || this.userSession.lead_email,
+                name: this.userSession.name || this.userSession.lead_name,
+                role: membership.membership_role,
+                company_id: this.userSession.company_id || this.userSession.lead_company_id,
+                category: this.userSession.category || this.userSession.lead_category,
+                onboarding_completed: this.userSession.lead_onboarding_completed !== false || this.userSession.onboarding_completed !== false
+              };
+              
+              this.authService.updateCurrentUser(updatedUser);
+              console.log('🔄 AuthService actualizado con el nuevo rol del usuario:', updatedUser);
               
               // Mostrar alerta de éxito
               this.currentStep = 'plans'; // Volver al paso de planes
