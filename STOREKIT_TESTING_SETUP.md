@@ -70,7 +70,7 @@ El archivo `Ikosten.storekit` contiene:
           "recurringSubscriptionPeriod": "P1M",
           "introductoryOffer": {
             "paymentMode": "free",
-            "subscriptionPeriod": "P1W",
+            "subscriptionPeriod": "P2W",
             "numberOfPeriods": 1
           }
         }
