@@ -254,3 +254,12 @@
   [isOpen]="showAppleAlertLogin"
   (didDismiss)="showAppleAlertLogin=false">
 </ion-alert>
+
+<!-- Loading Overlay for Social Login -->
+<div class="loading-overlay" *ngIf="isLoading && (isLoginGoogle || isLoginApple)">
+  <div class="loading-content">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="loading-message">{{ loadingMessage | translate }}</p>
+  </div>
+</div>
+

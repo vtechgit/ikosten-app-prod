@@ -213,8 +213,11 @@ export class ExportPage implements OnInit {
     const startDateStr = new Date(this.startDate).toISOString().split('T')[0];
     const endDateStr = new Date(this.endDate).toISOString().split('T')[0];
 
-    console.log('📅 Searching receipts from', startDateStr, 'to', endDateStr);
+    console.log('📅 Searching ACTIVE receipts (excluding deleted) from', startDateStr, 'to', endDateStr);
+    console.log('🔍 Backend will filter out receipts with deleted: true');
 
+    // Este endpoint ya filtra automáticamente los recibos eliminados en el backend
+    // usando el filtro robusto: { $or: [{ deleted: false }, { deleted: { $exists: false } }, { deleted: null }] }
     this.api.read(`userReceipts/${this.userSession.id}/grouped/byDateRange?startDate=${startDateStr}&endDate=${endDateStr}`)
       .subscribe({
         next: (res) => {
@@ -223,7 +226,8 @@ export class ExportPage implements OnInit {
           if (res && res['body']) {
             this.receiptsData = res['body'];
             this.totalReceipts = this.receiptsData.reduce((sum, country) => sum + country.count, 0);
-            console.log('✅ Receipts loaded:', this.totalReceipts, 'receipts in', this.receiptsData.length, 'countries');
+            console.log('✅ ACTIVE receipts loaded:', this.totalReceipts, 'receipts in', this.receiptsData.length, 'countries');
+            console.log('✅ Deleted receipts are automatically excluded by backend');
           }
         },
         error: async (error) => {

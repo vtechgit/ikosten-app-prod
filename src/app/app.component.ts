@@ -122,8 +122,8 @@ export class AppComponent implements OnInit  {
         
         // IMPORTANT: RevenueCat genera un API Key público diferente para cada plataforma
         // Obtenerlas de: app.revenuecat.com > Project > API Keys
-        const iosApiKey = 'test_TzMElXoctpGwVuraqIGJcfVAAGf'; //appl_RpVMsKlHqPrYfXhCUXWhoXxWDUl
-        const androidApiKey = 'test_TzMElXoctpGwVuraqIGJcfVAAGf';//goog_kuETDompNqmtFzGWtsZhJuvyIIQ
+        const iosApiKey = 'appl_RpVMsKlHqPrYfXhCUXWhoXxWDUl'; //
+        const androidApiKey = 'goog_kuETDompNqmtFzGWtsZhJuvyIIQ';//
         
         const apiKey = this.platform.is('ios') ? iosApiKey : androidApiKey;
         

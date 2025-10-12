@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-sign-up',
   standalone:false,
@@ -128,10 +129,11 @@ export class SignUpComponent  implements OnInit {
                 // Estructura de respuesta actualizada con tokens
                 const responseData = res['body']['data'];
                 
-                // Guardar tokens
+                // Guardar tokens usando ApiService para mantener consistencia
                 if(responseData.tokens) {
-                  localStorage.setItem('ikosten_access_token', responseData.tokens.accessToken);
-                  localStorage.setItem('ikosten_refresh_token', responseData.tokens.refreshToken);
+                  this.api.setToken(responseData.tokens.accessToken);
+                  this.api.setRefreshToken(responseData.tokens.refreshToken);
+                  console.log('✅ Tokens guardados a través de ApiService');
                 }
                 
                 // Formato User correcto para AuthService
@@ -145,9 +147,9 @@ export class SignUpComponent  implements OnInit {
                   onboarding_completed: responseData.user?.onboarding_completed || responseData.lead_onboarding_completed || false
                 };
                 
-                // Guardar en formato User (ikosten_user_data) para AuthService
-                localStorage.setItem('ikosten_user_data', JSON.stringify(userData));
-                console.log('✅ Datos de usuario guardados:', userData);
+                // Guardar datos de usuario usando ApiService para mantener consistencia
+                this.api.setUserData(userData);
+                console.log('✅ Datos de usuario guardados a través de ApiService:', userData);
                 
                 // También guardar en formato legacy (userSession) para compatibilidad
                 let sessionObj = {

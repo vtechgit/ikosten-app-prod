@@ -102,6 +102,14 @@ export class MainPage implements OnInit {
   showAlertTime: boolean = false;
   showMembershipModal: boolean = false;
   uploadLimitData: any = null;
+  
+  // Variables de polling para análisis
+  pollingInterval: any = null;
+  pollingAttempts: number = 0;
+  maxPollingAttempts: number = 120; // 120 intentos = hasta ~8 minutos con backoff progresivo
+  pollingIntervalTime: number = 2000; // 2 segundos inicial
+  pollingBackoffMultiplier: number = 1; // Multiplicador para backoff progresivo
+  processingReceiptIds: Set<string> = new Set(); // IDs de recibos en procesamiento
 
   constructor(
     private api: ApiService,
@@ -158,6 +166,17 @@ export class MainPage implements OnInit {
     if (this.userCountries && this.userCountries.length > 0 && !this.currentCountryData) {
       this.selectCountry(0);
     }
+  }
+  
+  ionViewWillLeave() {
+    // Detener polling cuando el usuario sale de la página
+    console.log('👋 Usuario saliendo de la página, deteniendo polling...');
+    this.stopPollingForAnalysis();
+  }
+  
+  ngOnDestroy() {
+    // Limpiar recursos cuando se destruye el componente
+    this.stopPollingForAnalysis();
   }
 
   initializeLanguage() {
@@ -335,14 +354,40 @@ export class MainPage implements OnInit {
           // Si hay países, seleccionar el primero
           if (this.userCountries && this.userCountries.length > 0 && resetPagination) {
             this.selectCountry(0);
+            
+            // ✅ NUEVO: Verificar si hay recibos en estado "analizando" al cargar la página
+            setTimeout(() => {
+              const hasProcessingReceipts = this.checkForProcessingReceipts();
+              if (hasProcessingReceipts) {
+                console.log('⚠️ Se detectaron recibos en estado analizando, iniciando polling automático...');
+                this.startPollingForAnalysis();
+              }
+            }, 500);
+            
           } else if (!resetPagination && this.currentCountryData) {
-            // Actualizar el país actual con los nuevos datos
-            const updatedCountry = this.userCountries[this.selectedCountryIndex];
+            // ✅ CORREGIDO: Actualizar el país actual PRESERVANDO la selección
+            // Durante polling, mantener el país seleccionado incluso si temporalmente no viene en la respuesta
+            const currentCountry = this.currentCountryData.country;
+            const updatedCountry = this.userCountries.find(c => c.country === currentCountry);
+            
             if (updatedCountry) {
+              // Actualizar con los nuevos datos
               this.currentCountryData = updatedCountry;
+              console.log('✅ País actualizado durante polling:', currentCountry);
+            } else {
+              // Si el país ya no existe en la respuesta, buscar por índice como fallback
+              const fallbackCountry = this.userCountries[this.selectedCountryIndex];
+              if (fallbackCountry) {
+                this.currentCountryData = fallbackCountry;
+                console.log('⚠️ País no encontrado por nombre, usando fallback por índice:', fallbackCountry.country);
+              } else {
+                // Último recurso: mantener currentCountryData como está (no establecer en null)
+                console.log('⚠️ No se puede actualizar país, manteniendo datos actuales');
+              }
             }
-          } else {
-            this.currentCountryData = null;
+          } else if (!resetPagination && !this.currentCountryData && this.userCountries.length > 0) {
+            // Si no había país seleccionado pero ahora hay países, seleccionar el primero
+            this.selectCountry(0);
           }
         }
         this.isLoadingReceipts = false;
@@ -358,6 +403,193 @@ export class MainPage implements OnInit {
         this.isLoadingMore = false;
       }
     });
+  }
+  
+  /**
+   * Inicia polling OPTIMIZADO para verificar el estado de análisis de recibos
+   * Usa un endpoint ligero que solo consulta IDs y status, reduciendo carga del servidor
+   * Implementa backoff progresivo: 2s -> 3s -> 5s -> 10s para archivos que tardan mucho
+   */
+  startPollingForAnalysis() {
+    // Limpiar cualquier polling anterior
+    this.stopPollingForAnalysis();
+    
+    this.pollingAttempts = 0;
+    this.pollingBackoffMultiplier = 1; // Resetear backoff
+    console.log('🔄 Iniciando polling OPTIMIZADO para verificar análisis de recibos...');
+    
+    // Ejecutar inmediatamente la primera vez
+    this.checkAnalysisStatusLightweight();
+    
+    this.pollingInterval = setInterval(() => {
+      this.pollingAttempts++;
+      
+      // Calcular intervalo con backoff progresivo (más paciente para Azure)
+      let currentInterval = this.pollingIntervalTime * this.pollingBackoffMultiplier;
+      
+      // Aplicar backoff progresivo gradual
+      if (this.pollingAttempts === 15) {
+        this.pollingBackoffMultiplier = 1.5; // 3 segundos después de 15 intentos (30s)
+        console.log('⏱️ Aumentando intervalo de polling a 3 segundos (backoff)');
+      } else if (this.pollingAttempts === 30) {
+        this.pollingBackoffMultiplier = 2.5; // 5 segundos después de 30 intentos (75s)
+        console.log('⏱️ Aumentando intervalo de polling a 5 segundos (backoff)');
+      } else if (this.pollingAttempts === 50) {
+        this.pollingBackoffMultiplier = 5; // 10 segundos después de 50 intentos (175s)
+        console.log('⏱️ Aumentando intervalo de polling a 10 segundos (backoff)');
+      } else if (this.pollingAttempts === 80) {
+        this.pollingBackoffMultiplier = 7.5; // 15 segundos después de 80 intentos (375s)
+        console.log('⏱️ Aumentando intervalo de polling a 15 segundos (backoff)');
+      }
+      
+      console.log(`🔍 Polling intento ${this.pollingAttempts}/${this.maxPollingAttempts} (intervalo: ${currentInterval}ms)`);
+      
+      // Si llegamos al máximo de intentos, detener
+      if (this.pollingAttempts >= this.maxPollingAttempts) {
+        console.log('⚠️ Máximo de intentos de polling alcanzado, deteniendo...');
+        console.log('⚠️ El análisis de Azure está tomando más tiempo de lo esperado');
+        console.log('💡 Recarga la página en unos minutos para verificar si completó');
+        this.stopPollingForAnalysis();
+        
+        // Mostrar un mensaje al usuario
+        this.translate.get('alerts.receipts.analysis-taking-long').subscribe((text: string) => {
+          alert(text || 'El análisis está tomando más tiempo de lo esperado. Por favor recarga la página en unos minutos.');
+        });
+        return;
+      }
+      
+      // Llamar al endpoint ligero
+      this.checkAnalysisStatusLightweight();
+      
+    }, this.pollingIntervalTime); // El intervalo se ajusta dinámicamente con backoff
+  }
+  
+  /**
+   * Verifica el estado de análisis usando el endpoint ligero (solo IDs y status)
+   * Si detecta cambios, ENTONCES recarga los recibos completos
+   */
+  checkAnalysisStatusLightweight() {
+    console.log('📡 Consultando estado de análisis (endpoint ligero)...');
+    
+    this.api.read(`userReceipts/${this.userSession.id}/analysisStatus`).subscribe({
+      next: (res) => {
+        if (res['status'] === 200) {
+          const data = res['body'];
+          const receipts = data.receipts || [];
+          const summary = data.summary;
+          
+          console.log('📊 Estado de análisis recibido:', summary);
+          
+          // Si no hay recibos procesando, detener polling
+          if (!summary.hasProcessing || summary.processing === 0) {
+            console.log('✅ Todos los recibos completaron el análisis');
+            
+            // Recargar una última vez para obtener los datos completos
+            console.log('📥 Recargando recibos con datos completos...');
+            this.loadUserReceipts(false);
+            
+            this.stopPollingForAnalysis();
+            return;
+          }
+          
+          // Detectar cambios en los IDs de recibos procesando
+          const currentProcessingIds = new Set<string>(
+            receipts.filter((r: any) => r.analysis_status === 0).map((r: any) => r._id as string)
+          );
+          
+          // Si hay cambios (recibos que terminaron), recargar datos completos
+          const hasChanges = this.detectProcessingChanges(currentProcessingIds);
+          
+          if (hasChanges) {
+            console.log('🔄 Detectados cambios en el estado, recargando datos completos...');
+            this.loadUserReceipts(false); // false = no resetear paginación
+          } else {
+            console.log('⏳ Sin cambios, continuando polling...');
+          }
+          
+          // Actualizar el Set de IDs procesando
+          this.processingReceiptIds = currentProcessingIds;
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error verificando estado de análisis:', error);
+        // En caso de error, intentar con el método tradicional
+        console.log('🔄 Fallback: recargando recibos completos...');
+        this.loadUserReceipts(false);
+      }
+    });
+  }
+  
+  /**
+   * Detecta si hubo cambios en los recibos que están procesando
+   * Retorna true si algún recibo terminó de procesar
+   */
+  detectProcessingChanges(currentIds: Set<string>): boolean {
+    // Si es la primera vez, guardar y no recargar
+    if (this.processingReceiptIds.size === 0) {
+      return false;
+    }
+    
+    // Verificar si algún ID que estaba procesando ya no está
+    for (const id of this.processingReceiptIds) {
+      if (!currentIds.has(id)) {
+        console.log(`✅ Recibo ${id} completó el análisis`);
+        return true;
+      }
+    }
+    
+    // Verificar si hay nuevos IDs procesando (nuevo upload durante polling)
+    for (const id of currentIds) {
+      if (!this.processingReceiptIds.has(id)) {
+        console.log(`🆕 Nuevo recibo ${id} detectado en análisis`);
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Detiene el polling de análisis
+   */
+  stopPollingForAnalysis() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+      this.pollingAttempts = 0;
+      console.log('🛑 Polling detenido');
+    }
+  }
+  
+  /**
+   * Verifica si hay recibos en estado "procesando" (analysis_status = 0)
+   * Revisa TODOS los países cargados, no solo el actual
+   */
+  checkForProcessingReceipts(): boolean {
+    if (!this.userCountries || this.userCountries.length === 0) {
+      return false;
+    }
+    
+    let totalProcessing = 0;
+    
+    // Revisar todos los países
+    this.userCountries.forEach((country: any) => {
+      if (country.receipts && country.receipts.length > 0) {
+        const processingInCountry = country.receipts.filter((receipt: any) => {
+          return receipt.analysis_status === 0 || receipt.analysis_status === '0';
+        }).length;
+        
+        totalProcessing += processingInCountry;
+      }
+    });
+    
+    const hasProcessing = totalProcessing > 0;
+    
+    if (hasProcessing) {
+      console.log(`⏳ Hay ${totalProcessing} recibos aún procesando en total`);
+    }
+    
+    return hasProcessing;
   }
   
   loadMoreReceipts(event: any) {
@@ -473,13 +705,13 @@ export class MainPage implements OnInit {
 
   takePhoto() {
     Camera.getPhoto({
-      quality: 90,
-      allowEditing: false,  // Cambiado a false para permitir fotos completas (no cuadradas)
+      quality: 75,  // Reducido de 90 a 75 para archivos más pequeños
+      allowEditing: false,
       resultType: CameraResultType.DataUrl,
       source: CameraSource.Camera,
-      width: 1920,  // Ancho máximo
-      height: undefined,  // Altura automática para mantener aspect ratio
-      correctOrientation: true  // Corregir orientación automáticamente
+      width: 1600,  // Reducido de 1920 a 1600 - suficiente para OCR
+      height: undefined,
+      correctOrientation: true
     }).then((imageData) => {
       this.imagesToUpload.push(imageData);
       this.cdr.detectChanges();
@@ -495,18 +727,37 @@ export class MainPage implements OnInit {
   onFileDropped(files: any) {
     this.imagesToUpload = [];
     this.isUploadingOther = false;
-    this.uploadFile(files);
+    // Asegurar que files es un array
+    const filesArray = Array.isArray(files) ? files : Array.from(files);
+    this.uploadFile(filesArray);
   }
 
   fileBrowseHandler(event: any) {
-    const files = event.target.files;
-    this.imagesToUpload = [];
+    const fileList = event.target.files;
+    // Convertir FileList a Array
+    const files = Array.from(fileList) as File[];
+    // NO limpiar imagesToUpload aquí para evitar bug
+    // this.imagesToUpload = [];
     this.isUploadingOther = false;
     this.uploadFile(files);
   }
 
   deleteImageToUpload(index: number) {
     this.imagesToUpload.splice(index, 1);
+  }
+
+  deleteUploadingFile(index: number) {
+    console.log('🗑️ Eliminando archivo con error en index:', index);
+    this.uploadingFiles.splice(index, 1);
+    
+    // Si no quedan archivos en la lista de uploading, resetear estados
+    if (this.uploadingFiles.length === 0) {
+      this.isUploading = false;
+      this.showAlertTime = false;
+      console.log('✅ Lista de archivos subiendo vacía, reseteando estados');
+    }
+    
+    this.cdr.detectChanges();
   }
 
   uploadImagesBase64() {
@@ -525,7 +776,7 @@ export class MainPage implements OnInit {
 
     console.log('📦 Total de archivos preparados:', files.length);
     
-    this.imagesToUpload = [];
+    // NO limpiar aquí, dejarlo para después de que se confirme la subida
     this.isUploadingOther = false;
     
     this.uploadFile(files);
@@ -548,6 +799,89 @@ export class MainPage implements OnInit {
     return new Blob([ia], { type: mimeString });
   }
 
+  /**
+   * Comprime una imagen a un tamaño y calidad específicos
+   * @param file Archivo de imagen a comprimir
+   * @param maxWidth Ancho máximo (default: 1600px)
+   * @param quality Calidad JPEG (default: 0.75)
+   * @returns Promise con el archivo comprimido
+   */
+  private compressImage(file: File, maxWidth: number = 1600, quality: number = 0.75): Promise<File> {
+    return new Promise((resolve, reject) => {
+      // Si no es imagen, retornar el archivo original
+      if (!file.type.startsWith('image/')) {
+        resolve(file);
+        return;
+      }
+
+      // Si el archivo ya es pequeño (< 500KB), no comprimir
+      if (file.size < 500 * 1024) {
+        console.log(`📦 Archivo ${file.name} ya es pequeño (${(file.size / 1024).toFixed(2)}KB), no se comprime`);
+        resolve(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = (event: any) => {
+        const img = new Image();
+        img.src = event.target.result;
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calcular nuevas dimensiones manteniendo aspect ratio
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx!.drawImage(img, 0, 0, width, height);
+
+          // Convertir a blob con compresión
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                });
+                
+                const originalSizeKB = (file.size / 1024).toFixed(2);
+                const compressedSizeKB = (compressedFile.size / 1024).toFixed(2);
+                const reduction = (((file.size - compressedFile.size) / file.size) * 100).toFixed(1);
+                
+                console.log(`✅ Imagen comprimida: ${file.name}`);
+                console.log(`   Original: ${originalSizeKB}KB → Comprimido: ${compressedSizeKB}KB (${reduction}% reducción)`);
+                
+                resolve(compressedFile);
+              } else {
+                reject(new Error('Error al comprimir imagen'));
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        
+        img.onerror = () => {
+          reject(new Error('Error al cargar imagen para comprimir'));
+        };
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Error al leer archivo'));
+      };
+    });
+  }
+
   sanitizeFileName(name: string): string {
     name = name.replace(/\s+/g, '-').toLowerCase();
     name = name.replace(/[^a-zA-Z0-9]/g, '');
@@ -555,6 +889,24 @@ export class MainPage implements OnInit {
   }
 
   uploadFile(files: any[]) {
+    // Validar y convertir files a array si es necesario
+    if (!files) {
+      console.error('❌ No files provided to uploadFile');
+      return;
+    }
+    
+    // Si files no es un array, convertirlo
+    if (!Array.isArray(files)) {
+      console.log('⚠️ Converting FileList to Array');
+      files = Array.from(files);
+    }
+    
+    // Validar que el array no esté vacío
+    if (files.length === 0) {
+      console.error('❌ No files to upload');
+      return;
+    }
+    
     if (!this.userSession || !this.userSession.id) {
       console.error('❌ No user session for upload');
       return;
@@ -613,7 +965,13 @@ export class MainPage implements OnInit {
     });
   }
 
-  private proceedWithUpload(files: any[]) {
+  private async proceedWithUpload(files: any[]) {
+    // Validar que files sea un array
+    if (!Array.isArray(files)) {
+      console.error('❌ proceedWithUpload: files is not an array', typeof files);
+      files = Array.from(files);
+    }
+    
     this.showAlertTime = true;
     this.isUploading = true;
     
@@ -621,29 +979,124 @@ export class MainPage implements OnInit {
     this.uploadingFiles = [];
 
     if (files.length > 0) {
-      for (const fileElement of files) {
+      console.log(`🚀 Iniciando compresión y subida de ${files.length} archivos...`);
+      
+      // Primero comprimir todas las imágenes en paralelo
+      const compressionPromises = files.map(async (fileElement) => {
         if ((fileElement.size / 1048576) <= 10) {
-          // Agregar archivo al array de tracking
-          const fileTrack = {
-            name: fileElement.name,
-            size: fileElement.size,
-            status: 'uploading' // 'uploading', 'success', 'error'
-          };
-          this.uploadingFiles.push(fileTrack);
-          
-          // Subir archivo con índice para actualizar su status
-          this.uploadReceiptFile(fileElement, this.uploadingFiles.length - 1);
+          try {
+            // Comprimir imagen si es necesario
+            const compressedFile = await this.compressImage(fileElement);
+            return { file: compressedFile, error: false };
+          } catch (error) {
+            console.error('❌ Error comprimiendo archivo:', fileElement.name, error);
+            // Si falla la compresión, usar archivo original
+            return { file: fileElement, error: false };
+          }
         } else {
           console.error('❌ File too large:', fileElement.name);
-          // Agregar como error
-          this.uploadingFiles.push({
-            name: fileElement.name,
-            size: fileElement.size,
-            status: 'error'
-          });
+          return { file: fileElement, error: true, errorType: 'size' };
         }
+      });
+
+      // Esperar a que todas las compresiones terminen
+      const compressedResults = await Promise.all(compressionPromises);
+      
+      // Crear tracking para cada archivo
+      compressedResults.forEach((result, index) => {
+        const fileTrack = {
+          name: result.file.name,
+          size: result.file.size,
+          status: result.error ? 'error' : 'uploading'
+        };
+        this.uploadingFiles.push(fileTrack);
+      });
+
+      // Subir todos los archivos en paralelo
+      const uploadPromises = compressedResults.map((result, index) => {
+        if (!result.error) {
+          return this.uploadReceiptFileParallel(result.file, index);
+        } else {
+          // Archivo con error (muy grande), no subir
+          return Promise.resolve({ success: false, index });
+        }
+      });
+
+      // Ejecutar todas las subidas en paralelo
+      Promise.all(uploadPromises).then((results) => {
+        console.log('✅ Todas las subidas completadas:', results);
+        
+        this.showAlertTime = false;
+        this.isUploading = false;
+        
+        // Esperar a que el usuario vea el éxito antes de limpiar y recargar
+        setTimeout(() => {
+          this.uploadingFiles = [];
+          this.loadUserReceipts();
+          
+          // ✅ NUEVO: Iniciar polling para verificar análisis de recibos
+          console.log('🔄 Iniciando polling para verificar estado de análisis...');
+          this.startPollingForAnalysis();
+          
+          if (this.hasReceipts()) {
+            this.isUploadingOther = false;
+          }
+        }, 1500);
+        
+        this.cdr.detectChanges();
+      }).catch((error) => {
+        console.error('❌ Error en subidas paralelas:', error);
+        this.showAlertTime = false;
+        this.isUploading = false;
+        this.cdr.detectChanges();
+      });
+      
+      // Limpiar imagesToUpload SOLO después de comenzar la subida exitosamente
+      if (this.imagesToUpload.length > 0) {
+        console.log('✅ Limpiando imagesToUpload después de iniciar subida');
+        this.imagesToUpload = [];
       }
     }
+  }
+
+  /**
+   * Versión paralela de uploadReceiptFile que retorna una Promise
+   */
+  private uploadReceiptFileParallel(fileElement: any, fileIndex: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let form = new FormData();
+      form.append('file', fileElement, fileElement.name);
+      form.append('user_id', this.userSession.id);
+      form.append('country', this.currencyBlockSelected.country);
+      form.append('currency_code', this.currencyBlockSelected.code);
+      form.append('country_translate_key', this.currencyBlockSelected.country_translate_key || this.convertKey(this.currencyBlockSelected.country));
+      form.append('model_id', 'custom-ikosten-bills-v2');
+
+      console.log(`📤 [${fileIndex + 1}] Subiendo:`, fileElement.name, `(${(fileElement.size / 1024).toFixed(2)}KB)`);
+
+      this.api.sendForm('uploads/uploadUserReceipt', form).subscribe({
+        next: (res) => {
+          console.log(`✅ [${fileIndex + 1}] Completado:`, fileElement.name);
+          
+          if (this.uploadingFiles[fileIndex]) {
+            this.uploadingFiles[fileIndex].status = 'success';
+          }
+          
+          this.cdr.detectChanges();
+          resolve({ success: true, index: fileIndex, response: res });
+        },
+        error: (error) => {
+          console.error(`❌ [${fileIndex + 1}] Error:`, fileElement.name, error);
+          
+          if (this.uploadingFiles[fileIndex]) {
+            this.uploadingFiles[fileIndex].status = 'error';
+          }
+          
+          this.cdr.detectChanges();
+          resolve({ success: false, index: fileIndex, error });
+        }
+      });
+    });
   }
 
   openMembershipModal() {

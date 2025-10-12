@@ -145,6 +145,11 @@ export class AuthService {
           if (response && response.body) {
             const updatedUserData = response.body;
             
+            // Mapear lead_onboarding_completed a onboarding_completed
+            const onboardingCompleted = updatedUserData.lead_onboarding_completed !== undefined 
+              ? updatedUserData.lead_onboarding_completed 
+              : updatedUserData.onboarding_completed;
+            
             // Verificar si el lead_role cambió
             if (updatedUserData.lead_role !== currentUser.role) {
               console.log(`🔄 lead_role actualizado: ${currentUser.role} → ${updatedUserData.lead_role}`);
@@ -153,7 +158,7 @@ export class AuthService {
               const updatedUser: User = {
                 ...currentUser,
                 role: updatedUserData.lead_role,
-                onboarding_completed: updatedUserData.onboarding_completed
+                onboarding_completed: onboardingCompleted
               };
               
               this.updateCurrentUser(updatedUser);
@@ -405,10 +410,15 @@ export class AuthService {
       this.apiService.setUserData(authData.user);
       this.currentUserSubject.next(authData.user);
       
-      // Identificar usuario en PaymentService para In-App Purchases
+      // ✅ Identificar usuario en PaymentService de forma asíncrona (sin bloquear)
+      // Esto evita que el login se demore esperando por RevenueCat
       if (authData.user && authData.user.id) {
-        await this.paymentService.identifyUser(authData.user.id);
-        console.log('👤 Usuario identificado en PaymentService después del login');
+        // No usar await para no bloquear el flujo de login
+        this.paymentService.identifyUser(authData.user.id).then(() => {
+          console.log('👤 Usuario identificado en PaymentService después del login');
+        }).catch(error => {
+          console.error('⚠️ Error identificando usuario en PaymentService (no crítico):', error);
+        });
       }
       
       // Programar verificación periódica de datos del usuario

@@ -6,6 +6,7 @@ import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { ActivatedRoute, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-sig-in',
@@ -31,6 +32,7 @@ export class SigInComponent  implements OnInit {
   verificationCode:string;
   phoneToSend:string;
   isLoadingCode:boolean=false;
+  loadingMessage:string='titles.modules.login.loading-message'; // Default message
 
   availableCountries = [];
 
@@ -318,6 +320,7 @@ export class SigInComponent  implements OnInit {
     // Autenticar con Apple después de que el usuario llene el formulario
     console.log('🍎 loginApplev2() llamado - iniciando autenticación');
     this.isLoading = true;
+    this.loadingMessage = 'titles.modules.login.authenticating-apple';
 
     try {
       // Verificar que tenemos el país seleccionado
@@ -336,6 +339,7 @@ export class SigInComponent  implements OnInit {
 
       if (result && result.user) {
         console.log('✅ Usuario obtenido de Firebase Apple:', result.user);
+        this.loadingMessage = 'titles.modules.login.processing-authentication';
         await this.handleAppleLoginSuccess(result.user);
       } else {
         console.error('❌ Apple Firebase no devolvió usuario');
@@ -344,8 +348,6 @@ export class SigInComponent  implements OnInit {
     } catch (error) {
       console.error('💥 Error en Firebase Apple Authentication:', error);
       this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
-    } finally {
-      this.isLoading = false;
     }
   }
 
@@ -439,6 +441,9 @@ export class SigInComponent  implements OnInit {
   async loginGooglev2(){
     
     try {
+      this.isLoading = true;
+      this.loadingMessage = 'titles.modules.login.authenticating-google';
+      
       console.log('🔍 Verificando país seleccionado:', this.selectedCountry);
       
       // Verificar que tenemos el país seleccionado
@@ -459,6 +464,7 @@ export class SigInComponent  implements OnInit {
 
       if (result && result.user) {
         console.log('✅ Usuario obtenido de Firebase:', result.user);
+        this.loadingMessage = 'titles.modules.login.processing-authentication';
         await this.handleGoogleLoginSuccess(result.user);
       } else {
         console.error('❌ Firebase no devolvió usuario');
@@ -591,10 +597,9 @@ export class SigInComponent  implements OnInit {
   }
 
   private navigateAfterLogin() {
-    // NO resetear isLoginGoogle aquí para evitar mostrar el formulario de email/password
-    // La navegación limpiará el componente de todas formas
-    // this.isLoginGoogle = false;
-    this.isLoading = false;
+    // Mantener isLoading = true hasta que navegue para mostrar feedback visual
+    // La navegación con window.location.href recargará la página de todas formas
+    this.loadingMessage = 'titles.modules.login.redirecting';
 
     // Verificar si el usuario ha completado el onboarding
     const currentUser = this.authService.getCurrentUser();
@@ -606,18 +611,13 @@ export class SigInComponent  implements OnInit {
     console.log('🔍 navigateAfterLogin - Es undefined?:', currentUser?.onboarding_completed === undefined);
     console.log('🔍 navigateAfterLogin - Es null?:', currentUser?.onboarding_completed === null);
     
-    // Verificar también desde localStorage directamente
-    const storedUser = localStorage.getItem('ikosten_user_data');
+    // Verificar también desde ApiService (usa environment.security.userStorageKey)
+    const storedUser = this.api.getUserData();
     if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        console.log('🔍 navigateAfterLogin - Usuario en localStorage completo:', JSON.stringify(parsed, null, 2));
-        console.log('🔍 navigateAfterLogin - onboarding en localStorage:', parsed.onboarding_completed);
-      } catch (e) {
-        console.error('❌ Error parseando datos de localStorage:', e);
-      }
+      console.log('🔍 navigateAfterLogin - Usuario desde ApiService completo:', JSON.stringify(storedUser, null, 2));
+      console.log('🔍 navigateAfterLogin - onboarding desde ApiService:', storedUser.onboarding_completed);
     } else {
-      console.warn('⚠️ No hay datos en localStorage con key "ikosten_user_data"');
+      console.warn('⚠️ No hay datos de usuario disponibles desde ApiService');
     }
     
     // Verificar onboarding - considerar undefined, null y false como "no completado"
