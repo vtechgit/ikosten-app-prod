@@ -150,17 +150,39 @@ export class PaymentService {
 
     try {
       console.log('💰 PaymentService: Iniciando compra de producto:', productId);
+      console.log('📱 PaymentService: Plataforma detectada:', this.platform.platforms());
+      console.log('🔑 PaymentService: SDK inicializado:', this.isInitialized);
       
       // Primero obtener el producto completo
       const { products } = await Purchases.getProducts({
         productIdentifiers: [productId],
       });
 
+      console.log('📦 PaymentService: Respuesta de getProducts:', { 
+        count: products?.length || 0, 
+        products: products 
+      });
+
       if (!products || products.length === 0) {
-        throw new Error('Producto no encontrado');
+        console.error('❌ PaymentService: No se encontró el producto:', productId);
+        console.error('❌ Posibles causas:');
+        console.error('   1. Producto no configurado en App Store Connect');
+        console.error('   2. Product ID incorrecto en la base de datos');
+        console.error('   3. Producto no importado en RevenueCat');
+        console.error('   4. Bundle ID no coincide entre Xcode y App Store Connect');
+        console.error('   5. API Key de iOS incorrecta');
+        console.error('   6. Necesitas configurar StoreKit Testing en simulador');
+        console.error('💡 Solución: Ver FIX_PRODUCT_NOT_FOUND_IOS.md');
+        throw new Error('Producto no encontrado en la tienda');
       }
 
       const product = products[0];
+      console.log('✅ PaymentService: Producto encontrado:', {
+        identifier: product.identifier,
+        title: product.title,
+        price: product.priceString,
+        description: product.description
+      });
       
       const { customerInfo } = await Purchases.purchaseStoreProduct({
         product: product
