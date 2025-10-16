@@ -245,9 +245,10 @@
     transform: translateY(0);
   }
 }
+
 // Desktop responsive styles
-@media (min-width: 768px) {
-  // Ocultar el header en desktop
+@media (min-width: 993px) {
+  // Ocultar el header en desktop (solo después de 993px)
   ion-header {
     display: none !important;
   }

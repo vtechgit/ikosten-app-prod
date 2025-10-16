@@ -44,6 +44,7 @@ export class SigInComponent  implements OnInit {
   showAppleAlertLogin:boolean=false;
   showAppleAlertAccount:boolean=false;
   utm_lead:string;
+  lead_source:string;
 
   showAlertNotFound:boolean=false;
   showAlertInvalidCreeds:boolean=false;
@@ -73,7 +74,26 @@ export class SigInComponent  implements OnInit {
     console.log('📋 Formulario de login inicializado:', this.loginForm);
     console.log('✅ SigInComponent: ngOnInit completado');
     
+    // Capturar utm_lead desde localStorage (guardado previamente)
     this.utm_lead = localStorage.getItem('utm_lead');
+    
+    // Capturar lead_source desde URL
+    const leadSourceFromUrl = this.activatedRoute.snapshot.queryParamMap.get('lead_source');
+    if(leadSourceFromUrl && leadSourceFromUrl != ''){
+      this.lead_source = leadSourceFromUrl;
+      localStorage.setItem('lead_source', leadSourceFromUrl);
+      console.log('✅ lead_source capturado desde URL en login:', leadSourceFromUrl);
+    }
+    
+    // Si no hay lead_source en URL, verificar localStorage
+    if(!this.lead_source){
+      const storedSource = localStorage.getItem('lead_source');
+      if(storedSource){
+        this.lead_source = storedSource;
+        console.log('ℹ️  lead_source recuperado de localStorage en login:', storedSource);
+      }
+    }
+    
     this.getAvailableCountries();
 
   }
@@ -192,6 +212,13 @@ export class SigInComponent  implements OnInit {
         console.log('📞 Teléfono limpio:', cleanedPhone);
         console.log('📞 Teléfono formateado:', fullPhoneNumber);
 
+        // Determinar lead_source con sistema de prioridades
+        const finalLeadSource = this.lead_source || 
+                                localStorage.getItem('lead_source') || 
+                                localStorage.getItem('clientSource') || 
+                                'direct';
+        console.log('📊 lead_source final para Google login:', finalLeadSource);
+        
         var obj = {};
         if(this.utm_lead && this.utm_lead != ''){
           obj ={
@@ -205,7 +232,7 @@ export class SigInComponent  implements OnInit {
             lead_role:0,
             lead_id: this.utm_lead,
             lead_invitation_status: 'active',
-            lead_source: localStorage.getItem('clientSource')
+            lead_source: finalLeadSource
           }
         }else{
           obj ={
@@ -217,7 +244,7 @@ export class SigInComponent  implements OnInit {
             lead_country: country,
             lead_country_digit: countryDigit,
             lead_role:0,
-            lead_source: localStorage.getItem('clientSource')
+            lead_source: finalLeadSource
           }
         }
 
@@ -689,6 +716,13 @@ export class SigInComponent  implements OnInit {
       console.log('📞 Teléfono limpio:', cleanedPhone);
       console.log('📞 Teléfono formateado:', fullPhoneNumber);
       
+      // Determinar lead_source con sistema de prioridades
+      const finalLeadSource = this.lead_source || 
+                              localStorage.getItem('lead_source') || 
+                              localStorage.getItem('clientSource') || 
+                              'direct';
+      console.log('📊 lead_source final para Apple login:', finalLeadSource);
+      
       let authData: any = {
         lead_type: 'apple',
         lead_email: user.email && user.email != 'null' ? user.email : '',
@@ -698,7 +732,7 @@ export class SigInComponent  implements OnInit {
         lead_country: country,
         lead_country_digit: countryDigit,
         lead_role: 0,
-        lead_source: localStorage.getItem('clientSource')
+        lead_source: finalLeadSource
       };
 
       // Si hay un lead de invitación, agregarlo

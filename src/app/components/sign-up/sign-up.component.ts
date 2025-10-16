@@ -29,6 +29,7 @@ export class SignUpComponent  implements OnInit {
 
   registerForm:FormGroup;
   utm_lead:string;
+  lead_source:string;
 
   constructor(
     private api:ApiService,
@@ -61,9 +62,29 @@ export class SignUpComponent  implements OnInit {
       ]),
 
     });
+    
+    // Capturar utm_lead desde URL
     this.utm_lead = this.activatedRoute.snapshot.queryParamMap.get('utm_lead');
     if(this.utm_lead && this.utm_lead != ''){
       localStorage.setItem('utm_lead', this.utm_lead);
+      console.log('✅ utm_lead capturado desde URL:', this.utm_lead);
+    }
+    
+    // Capturar lead_source desde URL
+    this.lead_source = this.activatedRoute.snapshot.queryParamMap.get('lead_source');
+    if(this.lead_source && this.lead_source != ''){
+      localStorage.setItem('lead_source', this.lead_source);
+      console.log('✅ lead_source capturado desde URL:', this.lead_source);
+    }
+    
+    // Si no hay lead_source en URL, verificar si existe en localStorage
+    // (puede haber sido guardado previamente o por otro componente)
+    if(!this.lead_source){
+      const storedSource = localStorage.getItem('lead_source');
+      if(storedSource){
+        this.lead_source = storedSource;
+        console.log('ℹ️  lead_source recuperado de localStorage:', this.lead_source);
+      }
     }
   }
 
@@ -90,9 +111,20 @@ export class SignUpComponent  implements OnInit {
 
       if (this.registerForm.valid){
         this.loading=true;
-        var obj = {};
+        
         var country = this.countrySelect.value._id;
         var country_digit= this.countrySelect.value.digit;
+        
+        // Determinar lead_source: prioridad URL > localStorage > clientSource (legacy)
+        const finalLeadSource = this.lead_source || 
+                                localStorage.getItem('lead_source') || 
+                                localStorage.getItem('clientSource') || 
+                                'direct';
+        
+        console.log('📊 Lead source para registro:', finalLeadSource);
+        
+        var obj = {};
+        
         if(this.utm_lead && this.utm_lead != ''){
           obj ={
             lead_type: 'email',
@@ -104,7 +136,7 @@ export class SignUpComponent  implements OnInit {
             lead_role:0,
             lead_id: this.utm_lead,
             lead_invitation_status: 'active',
-            lead_source: localStorage.getItem('clientSource'),
+            lead_source: finalLeadSource,
             lead_password: this.password.value
           }
         }else{
@@ -116,14 +148,14 @@ export class SignUpComponent  implements OnInit {
             lead_country: country,
             lead_country_digit: country_digit,
             lead_role:0,
-            lead_source: localStorage.getItem('clientSource'),
+            lead_source: finalLeadSource,
             lead_password: this.password.value
           }
         }
         
         this.api.create('leads/registerNew',obj).subscribe({
           next: (res) => {
-            console.log('✅ Respuesta de registro:', res);
+            console.log('✅ Respuesta de registro:',JSON.stringify( res));
             
             if(res['body']['status'] == true){
                 // Estructura de respuesta actualizada con tokens
@@ -149,7 +181,7 @@ export class SignUpComponent  implements OnInit {
                 
                 // Guardar datos de usuario usando ApiService para mantener consistencia
                 this.api.setUserData(userData);
-                console.log('✅ Datos de usuario guardados a través de ApiService:', userData);
+                console.log('✅ Datos de usuario guardados a través de ApiService:', JSON.stringify(userData));
                 
                 // También guardar en formato legacy (userSession) para compatibilidad
                 let sessionObj = {
@@ -187,7 +219,7 @@ export class SignUpComponent  implements OnInit {
           },
           error: (error) => {
             this.loading=false;
-            console.error('Error en registro:', error);
+            console.error('Error en registro:', JSON.stringify(error));
             
             // Manejar error 409 (usuario ya existe)
             if(error.status === 409 && error.error?.body?.code === 'ALREADY_EXIST'){

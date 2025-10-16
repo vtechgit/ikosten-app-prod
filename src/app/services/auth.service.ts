@@ -278,8 +278,9 @@ export class AuthService {
       lead_password: password
     }).pipe(
       map((response: any) => {
-        if (response.status && response.data) {
-          this.setAuthData(response.data);
+        // El backend devuelve: { error: false, status: 200, body: { status: true, data: {...} } }
+        if (response && response.body && response.body.status && response.body.data) {
+          this.setAuthData(response.body.data);
           return true;
         }
         return false;
@@ -297,8 +298,9 @@ export class AuthService {
   register(userData: any): Observable<boolean> {
     return this.apiService.register(userData).pipe(
       map((response: any) => {
-        if (response.status && response.data) {
-          this.setAuthData(response.data);
+        // El backend devuelve: { error: false, status: 200, body: { status: true, data: {...} } }
+        if (response && response.body && response.body.status && response.body.data) {
+          this.setAuthData(response.body.data);
           return true;
         }
         return false;
