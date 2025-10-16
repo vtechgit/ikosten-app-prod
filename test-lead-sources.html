@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iKosten - Test Lead Sources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .source-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .source-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+        
+        .source-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .source-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .source-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .source-url {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75em;
+            color: #667eea;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+        
+        .btn-register {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        
+        .btn-register:hover {
+            opacity: 0.9;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .info-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .info-section li:last-child {
+            border-bottom: none;
+        }
+        
+        .code-example {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-new {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .badge-popular {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .badge-premium {
+            background: #9f7aea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 iKosten - Test Lead Sources</h1>
+        <p class="subtitle">Prueba diferentes fuentes de registro para ver cómo se rastrean en el sistema</p>
+        
+        <div class="sources-grid">
+            <!-- Google Ads -->
+            <div class="source-card">
+                <div class="source-icon">🔍</div>
+                <div class="source-name">
+                    Google Ads
+                    <span class="badge badge-popular">Popular</span>
+                </div>
+                <div class="source-description">
+                    Campaña de publicidad en Google. Ideal para rastrear conversiones de anuncios pagados.
+                </div>
+                <div class="source-url">
+                    ?lead_source=google_ads
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=google_ads" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Facebook -->
+            <div class="source-card">
+                <div class="source-icon">👥</div>
+                <div class="source-name">
+                    Facebook
+                    <span class="badge badge-popular">Popular</span>
+                </div>
+                <div class="source-description">
+                    Posts orgánicos o anuncios en Facebook. Rastrea tráfico desde la red social.
+                </div>
+                <div class="source-url">
+                    ?lead_source=facebook
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=facebook" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Instagram -->
+            <div class="source-card">
+                <div class="source-icon">📸</div>
+                <div class="source-name">
+                    Instagram
+                    <span class="badge badge-new">New</span>
+                </div>
+                <div class="source-description">
+                    Stories, posts o anuncios en Instagram. Perfecto para campañas visuales.
+                </div>
+                <div class="source-url">
+                    ?lead_source=instagram
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=instagram" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Email Campaign -->
+            <div class="source-card">
+                <div class="source-icon">📧</div>
+                <div class="source-name">Email Campaign</div>
+                <div class="source-description">
+                    Newsletter o campaña de email marketing. Rastrea efectividad de emails.
+                </div>
+                <div class="source-url">
+                    ?lead_source=email_campaign
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=email_campaign" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- LinkedIn -->
+            <div class="source-card">
+                <div class="source-icon">💼</div>
+                <div class="source-name">
+                    LinkedIn
+                    <span class="badge badge-premium">Premium</span>
+                </div>
+                <div class="source-description">
+                    Anuncios o posts en LinkedIn. Ideal para audiencia profesional B2B.
+                </div>
+                <div class="source-url">
+                    ?lead_source=linkedin
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=linkedin" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Referral -->
+            <div class="source-card">
+                <div class="source-icon">🤝</div>
+                <div class="source-name">Referral Program</div>
+                <div class="source-description">
+                    Referido por otro usuario. Incluye ID de invitación para rastreo.
+                </div>
+                <div class="source-url">
+                    ?lead_source=referral&utm_lead=USER123
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=referral&utm_lead=USER123" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Blog -->
+            <div class="source-card">
+                <div class="source-icon">📝</div>
+                <div class="source-name">Blog</div>
+                <div class="source-description">
+                    Artículos del blog o contenido educativo. Marketing de contenidos.
+                </div>
+                <div class="source-url">
+                    ?lead_source=blog
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=blog" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Partner -->
+            <div class="source-card">
+                <div class="source-icon">🔗</div>
+                <div class="source-name">
+                    Partner Link
+                    <span class="badge badge-premium">Premium</span>
+                </div>
+                <div class="source-description">
+                    Enlaces desde sitios partner o afiliados. Rastrea colaboraciones.
+                </div>
+                <div class="source-url">
+                    ?lead_source=partner_techcompany
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=partner_techcompany" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- QR Code -->
+            <div class="source-card">
+                <div class="source-icon">📱</div>
+                <div class="source-name">
+                    QR Code
+                    <span class="badge badge-new">New</span>
+                </div>
+                <div class="source-description">
+                    Escaneo de código QR en material impreso o eventos físicos.
+                </div>
+                <div class="source-url">
+                    ?lead_source=qr_code
+                </div>
+                <a href="http://localhost:8100/auth/register?lead_source=qr_code" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+            
+            <!-- Direct (Sin parámetro) -->
+            <div class="source-card">
+                <div class="source-icon">🌐</div>
+                <div class="source-name">Direct / Organic</div>
+                <div class="source-description">
+                    Acceso directo sin fuente específica. Se registrará como "direct".
+                </div>
+                <div class="source-url">
+                    (sin parámetros)
+                </div>
+                <a href="http://localhost:8100/auth/register" class="btn-register" target="_blank">
+                    Probar Registro
+                </a>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>📊 Cómo Funciona</h2>
+            <ul>
+                <li>
+                    <strong>1. Click en "Probar Registro"</strong><br>
+                    Se abre la página de registro con el parámetro lead_source en la URL
+                </li>
+                <li>
+                    <strong>2. El sistema captura automáticamente</strong><br>
+                    El componente detecta y guarda el parámetro en localStorage
+                </li>
+                <li>
+                    <strong>3. Completa el registro</strong><br>
+                    Al registrarte, el lead_source se envía al backend
+                </li>
+                <li>
+                    <strong>4. Verifica en la base de datos</strong><br>
+                    El campo lead_source del documento debe contener el valor correcto
+                </li>
+            </ul>
+            
+            <h2 style="margin-top: 30px;">🧪 Verificación en Consola</h2>
+            <p style="margin-bottom: 15px;">Abre DevTools (F12) y busca estos mensajes:</p>
+            <div class="code-example">
+✅ lead_source capturado desde URL: google_ads<br>
+✅ Tokens guardados a través de ApiService<br>
+📊 Lead source para registro: google_ads
+            </div>
+            
+            <h2 style="margin-top: 30px;">🔍 Verificación en localStorage</h2>
+            <p style="margin-bottom: 15px;">En DevTools > Application > Local Storage:</p>
+            <div class="code-example">
+lead_source: "google_ads"<br>
+utm_lead: "USER123" (si aplica)
+            </div>
+            
+            <h2 style="margin-top: 30px;">📈 URLs para Producción</h2>
+            <div class="code-example">
+<!-- Google Ads --><br>
+https://ikosten.com/auth/register?lead_source=google_ads<br><br>
+
+<!-- Facebook Ads --><br>
+https://ikosten.com/auth/register?lead_source=facebook_ads<br><br>
+
+<!-- Email con tracking --><br>
+https://ikosten.com/auth/register?lead_source=email_campaign&utm_campaign=welcome<br><br>
+
+<!-- Referido --><br>
+https://ikosten.com/auth/register?lead_source=referral&utm_lead=USER123
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Copiar URL al hacer clic en el source-url
+        document.querySelectorAll('.source-url').forEach(element => {
+            element.style.cursor = 'pointer';
+            element.title = 'Click para copiar';
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.textContent.trim();
+                const fullUrl = 'http://localhost:8100/auth/register' + url;
+                
+                navigator.clipboard.writeText(fullUrl).then(() => {
+                    const originalBg = this.style.background;
+                    this.style.background = '#48bb78';
+                    this.style.color = 'white';
+                    this.textContent = '✓ Copiado!';
+                    
+                    setTimeout(() => {
+                        this.style.background = originalBg;
+                        this.style.color = '#667eea';
+                        this.textContent = url;
+                    }, 1500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -72,7 +72,11 @@
 .text-right{
     text-align: right;
 }
-
+.errorNote{
+  color:#c5000f;
+  margin-top: 5px;
+  font-size: 0.75rem;
+}
 .shepherd-title{
   font-weight: bold !important;
 }
@@ -84,13 +88,8 @@
   margin-bottom: 10px;
   float: right;
 }
-ion-card-title{
-  font-size: 21px;
-}
-ion-button{
-    color: white;
-    --color: white;
-}
+
+
 .button-controll{
     min-width: 150px;
 }
@@ -212,6 +211,28 @@ ion-datetime{
     margin-bottom: 16px !important;
     
   }
+.h-100{
+  height: 100%;
+}
+ion-list-header, ion-list-header ion-label{
+  font-weight: 500 !important;
+  font-size: 19px;
+
+}
+ion-card{
+  border-radius: 23px;
+}
+ion-card-title{
+  font-size: 19px;
+  font-weight: 500;
+  display: inline-flex;
+}
+ion-badge{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    position: relative;
+    top: 4px;
+}
   @media screen and (max-width: 700px) {
     .guided-tour-dialog{
       max-width: 90% !important;
@@ -233,4 +254,137 @@ ion-datetime{
         display: block;
         margin: auto;
       }
+  }
+
+  /* ============================================
+   * iOS Safe Area Configuration
+   * ============================================
+   * Configuración para manejar las áreas seguras en dispositivos iOS
+   * (notch, Dynamic Island, cámara, altavoz, indicador home)
+   */
+
+  /* iOS Header Safe Area - Padding superior para evitar que el header quede tapado */
+  .ios {
+    /* El toolbar NO debe tener padding-top, en su lugar usamos una estructura diferente */
+    ion-header {
+      /* El header tiene un padding-top invisible que empuja todo el contenido hacia abajo */
+      padding-top: env(safe-area-inset-top);
+      padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+      
+      /* El header debe tener el mismo color que el toolbar para que el espacio superior sea del mismo color */
+      background: var(--ion-toolbar-background, var(--ion-color-primary));
+      
+      ion-toolbar {
+        /* El toolbar ya no necesita padding-top porque el header lo maneja */
+        --min-height: 56px;
+        min-height: 56px;
+      }
+    }
+
+    /* Ajuste para headers con translucent */
+    ion-header.header-translucent {
+      padding-top: calc(env(safe-area-inset-top) + 4px);
+      padding-top: calc(constant(safe-area-inset-top) + 4px);
+      
+      /* Headers translúcidos no necesitan background sólido */
+      background: transparent;
+      
+      ion-toolbar {
+        --min-height: 56px;
+        min-height: 56px;
+      }
+    }
+    
+    /* Headers con clase específica header-primary */
+    ion-header.header-primary {
+      background: var(--ion-color-primary);
+      
+      ion-toolbar {
+        --background: var(--ion-color-primary);
+      }
+    }
+
+    /* iOS Footer/Tabs Safe Area - Padding inferior para evitar que el footer quede tapado por el indicador home */
+    ion-footer {
+      ion-toolbar {
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: constant(safe-area-inset-bottom);
+        min-height: calc(56px + env(safe-area-inset-bottom));
+        min-height: calc(56px + constant(safe-area-inset-bottom));
+      }
+    }
+
+    /* Tabs Safe Area */
+    ion-tab-bar {
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: constant(safe-area-inset-bottom);
+      height: calc(56px + env(safe-area-inset-bottom));
+      height: calc(56px + constant(safe-area-inset-bottom));
+    }
+
+    /* Ajuste para modals y popups */
+    ion-modal {
+      .ion-page {
+        ion-header {
+          padding-top: env(safe-area-inset-top);
+          padding-top: constant(safe-area-inset-top);
+          
+          ion-toolbar {
+            --min-height: 56px;
+            min-height: 56px;
+          }
+        }
+
+        ion-footer {
+          ion-toolbar {
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: constant(safe-area-inset-bottom);
+            min-height: calc(56px + env(safe-area-inset-bottom));
+            min-height: calc(56px + constant(safe-area-inset-bottom));
+          }
+        }
+      }
+    }
+
+    /* Content Safe Area - NO aplicar padding-top porque el toolbar ya se extiende */
+    ion-content {
+      --padding-bottom: 0;
+    }
+
+    /* Ajuste específico para FAB buttons en iOS */
+    ion-fab {
+      &[vertical="bottom"] {
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        bottom: calc(16px + constant(safe-area-inset-bottom));
+      }
+
+      &[vertical="top"] {
+        top: calc(16px + env(safe-area-inset-top));
+        top: calc(16px + constant(safe-area-inset-top));
+      }
+    }
+    
+    /* Nota: Los estilos del ion-menu están en slide.component.scss 
+     * para mejor especificidad y evitar conflictos */
+  }
+
+  /* Configuración adicional para dispositivos con notch/Dynamic Island */
+  @supports (padding: max(0px)) {
+    .ios {
+      ion-header {
+        padding-top: max(env(safe-area-inset-top), 10px);
+        
+        ion-toolbar {
+          --min-height: 56px;
+          min-height: 56px;
+        }
+      }
+
+      ion-footer {
+        ion-toolbar {
+          padding-bottom: max(env(safe-area-inset-bottom), 10px);
+          min-height: calc(56px + max(env(safe-area-inset-bottom), 10px));
+        }
+      }
+    }
   }

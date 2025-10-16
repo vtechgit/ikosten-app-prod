@@ -1,129 +1,265 @@
-<div class="responsive_container-s " >
-  <ion-list *ngIf="!isValidatingCode && !isLoginGoogle">
-    <ion-list-header>
-      {{mainTitle | translate}}
-    </ion-list-header>
-  </ion-list>
-  <div class="socialSignIn ion-margin-top ion-margin-bottom" *ngIf="!isValidatingCode && !isLoginGoogle">
-    <ion-list>
-      <ion-button (click)="startLoginGoogle()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
-        <div class="gsi-material-button-icon">
-          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block; width: 20px;height: 20px;margin: auto;">
+<div class="login-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section" *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
+    <div class="welcome-content">
+      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+      <h1 class="welcome-title">{{mainTitle | translate}}</h1>
+      <p class="welcome-subtitle">{{'titles.modules.login.welcome-subtitle' | translate}}</p>
+    </div>
+  </div>
+
+  <!-- Email Login Form -->
+  <div class="login-form-section" *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
+    <div class="form-card">
+      <form [formGroup]="loginForm" class="login-form">
+        <div class="form-fields">
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
+              <ion-input 
+                label="{{'inputs.email.title' | translate}}" 
+                type="email" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.email.placeholder' | translate}}"
+                name="loginEmail" 
+                formControlName="loginEmail">
+              </ion-input>
+              <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="(email.touched || email.dirty || submitted) && (email.hasError('required') || email.hasError('email'))">
+              {{'inputs.email.title' | translate}} {{'errors.inputs.invalid' | translate}}
+            </div>
+          </div>
+
+          <div class="input-group">
+            <ion-item class="custom-input" [class.error]="(password.touched || password.dirty || submitted) && password.hasError('required')">
+              <ion-input 
+                label="{{'inputs.password.title' | translate}}" 
+                type="password" 
+                labelPlacement="floating" 
+                placeholder="{{'inputs.password.placeholder' | translate}}"
+                name="loginPass" 
+                formControlName="loginPass">
+              </ion-input>
+              <ion-icon name="lock-closed-outline" slot="start" class="input-icon"></ion-icon>
+            </ion-item>
+            <div class="error-message" *ngIf="(password.touched || password.dirty || submitted) && password.hasError('required')">
+              {{'inputs.password.title' | translate}} {{'errors.inputs.is-required.f' | translate}}
+            </div>
+          </div>
+        </div>
+
+        <ion-button 
+          [disabled]="isLoading" 
+          expand="block" 
+          (click)="doLoginEmail()" 
+          color="primary" 
+          class="login-button">
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">{{'buttons.sign-in' | translate}}</span>
+          <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+
+        <div class="forgot-password">
+          <a routerLink="/auth/restore-password" class="forgot-link">
+            {{'titles.modules.login.forgot-password' | translate}}
+          </a>
+        </div>
+      </form>
+
+      <!-- Social Login Section -->
+      <div class="divider">
+        <span class="divider-text">{{'titles.modules.login.or' | translate}}</span>
+      </div>
+
+      <div class="social-buttons">
+        <ion-button 
+          (click)="startLoginGoogle()" 
+          expand="block" 
+          fill="outline" 
+          class="social-button google-button">
+          <div class="social-icon">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
               <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
               <path fill="none" d="M0 0h48v48H0z"></path>
-          </svg>
-        </div>
-        {{'buttons.sing-in-with-google' | translate}}</ion-button>
-        <ion-button  *ngIf="platform.is('ios') && !this.platform.is('mobileweb')" (click)="startLoginApple()"  expand="block" type="submit" class="btn-google login-google-button ion-margin" >
-          <div class="gsi-material-button-icon">
-            <img src="assets/images/apple_black_2x.png" alt="">
+            </svg>
           </div>
-          {{'buttons.sing-in-with-apple' | translate}}</ion-button>
-    </ion-list>
+          {{'buttons.sing-in-with-google' | translate}}
+        </ion-button>
+
+        <ion-button 
+          *ngIf="platform.is('ios') && !this.platform.is('mobileweb')" 
+          (click)="startLoginApple()" 
+          expand="block" 
+          fill="outline" 
+          class="social-button apple-button">
+          <div class="social-icon">
+            <img src="assets/images/apple_black_2x.png" alt="Apple">
+          </div>
+          {{'buttons.sing-in-with-apple' | translate}}
+        </ion-button>
+      </div>
+
+      <div class="register-section">
+        <ion-button 
+          expand="block" 
+          routerLink="/auth/register" 
+          fill="clear" 
+          class="register-button">
+          {{'buttons.register-login-button' | translate}}
+        </ion-button>
+      </div>
+    </div>
   </div>
-  <ion-grid *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
-    <ion-row>
-        <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
-        </ion-col>
-        <ion-col size="4" class="color-white">
-            <div class="text-center">
-              {{'titles.modules.login.or' | translate}}
-            </div>
-        </ion-col>
 
-        <ion-col size="4" style="border-bottom: 1px solid #acacac; height: 15px;">
-        </ion-col>
-    </ion-row>
-    
-    
-  </ion-grid>
-  <div class="phoneSignin ion-margin-top">
-    <ion-list *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
-      <ion-list-header>
-        {{'titles.modules.login.continue-with-phone-number' | translate}}
-      </ion-list-header>
+  <!-- Google/Apple Country Selection -->
+  <div class="country-selection" *ngIf="isLoginGoogle || isLoginApple">
+    <div class="selection-card">
+      <div class="back-button-container">
+        <ion-button 
+          fill="clear" 
+          (click)="goBackToLogin()" 
+          class="back-button">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          {{'buttons.back' | translate}}
+        </ion-button>
+      </div>
+      <h2 class="selection-title">{{'titles.modules.login.google.title' | translate}}</h2>
       
-      <ion-item class="ion-margin-top">
-        <ion-select label="{{'global.words.country' | translate}}" [(ngModel)]="selectedCountry" label-placement="floating">
-          <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-input label="{{'inputs.phone-number.title' | translate}}" type="number" [(ngModel)]="userPhone" labelPlacement="floating" placeholder="{{'inputs.phone-number.placeholder' | translate}}"></ion-input>
+      <div class="country-input">
+        <ion-item class="custom-input">
+          <ion-select 
+            label="{{'global.words.country' | translate}}" 
+            [(ngModel)]="selectedCountry" 
+            labelPlacement="floating">
+            <ion-select-option *ngFor="let country of availableCountries" [value]="country">
+              {{convertKey(country.title) | translate}}
+            </ion-select-option>
+          </ion-select>
+          <ion-icon name="location-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+      </div>
 
-      </ion-item>
+      <div class="phone-input">
+        <ion-item class="custom-input">
+          <ion-input 
+            label="{{'inputs.phone-number.title' | translate}}" 
+            type="tel" 
+            [(ngModel)]="userPhone" 
+            labelPlacement="floating" 
+            placeholder="{{'inputs.phone-number.placeholder' | translate}}">
+          </ion-input>
+          <ion-icon name="call-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+        <div class="input-hint" *ngIf="selectedCountry">
+          <ion-text color="medium">
+            <small>{{'inputs.phone-number.hint' | translate}}: {{selectedCountry.digit}}</small>
+          </ion-text>
+        </div>
+      </div>
 
-      
-    </ion-list>
-    <div id="captcha-container" [ngClass]="isValidatingCode ? 'd-none': ''" class="captcha-container" ></div>
-
-    <ion-list *ngIf="!isValidatingCode && !isLoginGoogle && !isLoginApple">
-      <ion-button  [disabled]="isLoading || !userPhone || userPhone.length < 10 || !selectedCountry" expand="block" (click)="doLoginPhone()" color="primary" class="button-controll ion-margin">
-        {{isLoading ? '' : 'buttons.start' | translate}}
+      <ion-button 
+        *ngIf="isLoginGoogle"
+        [disabled]="isLoading || !selectedCountry || !userPhone" 
+        expand="block" 
+        (click)="loginGooglev2()" 
+        color="primary" 
+        class="continue-button">
         <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">{{'buttons.next' | translate}}</span>
         <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
-    </ion-list>
 
-
+      <ion-button 
+        *ngIf="isLoginApple" 
+        [disabled]="isLoading || !selectedCountry || !userPhone" 
+        expand="block" 
+        (click)="loginApplev2()" 
+        color="primary" 
+        class="continue-button">
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">{{'buttons.next' | translate}}</span>
+        <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </div>
   </div>
 
-</div>
-<div class="responsive_container" *ngIf="isLoginGoogle || isLoginApple">
-  <ion-list>
-    <ion-list-header>
-      {{'titles.modules.login.google.title' | translate}}
-    </ion-list-header>
-    <ion-item class="ion-margin-top">
-      <ion-select label="{{'global.words.country' | translate}}" [(ngModel)]="selectedCountry" label-placement="floating">
-        <ion-select-option *ngFor="let country of availableCountries" [value]="country">{{convertKey(country.title) | translate}}</ion-select-option>
-      </ion-select>
-    </ion-item>
-    <ion-button *ngIf="isLoginGoogle"  [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginGoogle()" color="primary" class="button-controll ion-margin">
-      {{isLoading ? '' : 'buttons.next' | translate}}
-      <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-      <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
-    </ion-button>
-    <ion-button *ngIf="isLoginApple" [disabled]="isLoading || !selectedCountry" expand="block" (click)="doLoginApple()" color="primary" class="button-controll ion-margin">
-      {{isLoading ? '' : 'buttons.next' | translate}}
-      <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-      <ion-icon *ngIf="!isLoading" name="arrow-forward-outline" slot="end"></ion-icon>
-    </ion-button>
-  </ion-list>
-</div>
-<div *ngIf="isValidatingCode" class="responsive_container">
+  <!-- Code Validation -->
+  <div class="code-validation" *ngIf="isValidatingCode">
+    <div class="validation-card">
+      <div class="validation-header">
+        <ion-icon name="shield-checkmark-outline" class="validation-icon"></ion-icon>
+        <h2 class="validation-title">{{'titles.modules.login.type-validate-code' | translate}}</h2>
+        <p class="validation-subtitle">{{phoneToSend}}</p>
+      </div>
+      
+      <div class="code-input">
+        <ion-item class="custom-input">
+          <ion-input 
+            label="{{'inputs.validate-code.title' | translate}}" 
+            type="text" 
+            [(ngModel)]="verificationCode" 
+            labelPlacement="floating" 
+            placeholder="{{'inputs.validate-code.placeholder' | translate}}">
+          </ion-input>
+          <ion-icon name="keypad-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+      </div>
 
-  <ion-list class="ion-margin-top">
-    <ion-list-header lass="ion-margin-bottom">
-      {{'titles.modules.login.type-validate-code' | translate}} {{phoneToSend}}
-    </ion-list-header>
-    <ion-item>
-      <ion-input label="{{'inputs.validate-code.title' | translate}}" type="text" [(ngModel)]="verificationCode" labelPlacement="floating" placeholder="{{'inputs.validate-code.placeholder' | translate}}"></ion-input>
-
-    </ion-item>
-    <ion-button  [disabled]="!verificationCode || verificationCode.length <4 || isLoadingCode" expand="block" (click)="validateCode()" color="primary" class="button-controll ion-margin">
-      {{isLoadingCode ? '' : 'buttons.validate' | translate}}
-      <ion-spinner name="crescent" *ngIf="isLoadingCode"></ion-spinner>
-      <ion-icon *ngIf="!isLoadingCode" name="arrow-forward-outline" slot="end"></ion-icon>
-    </ion-button>
-  </ion-list>
+      <ion-button 
+        [disabled]="!verificationCode || verificationCode.length < 4 || isLoadingCode" 
+        expand="block" 
+        (click)="validateCode()" 
+        color="primary" 
+        class="validate-button">
+        <ion-spinner name="crescent" *ngIf="isLoadingCode"></ion-spinner>
+        <span *ngIf="!isLoadingCode">{{'buttons.validate' | translate}}</span>
+        <ion-icon *ngIf="!isLoadingCode" name="arrow-forward-outline" slot="end"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
 </div>
 
+<!-- Alerts -->
 <ion-alert
   header="{{'alerts.invalid-code.title' | translate}}"
   subHeader="{{'alerts.invalid-code.subtitle' | translate}}"
   [buttons]="alertButtons"
   [isOpen]="showAlertCodeError"
-></ion-alert>
+  (didDismiss)="showAlertCodeError=false">
+</ion-alert>
 
+<ion-alert
+  header="{{'alerts.register.error.user-not-found.title' | translate}}"
+  subHeader="{{'alerts.register.error.user-not-found.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertNotFound"
+  (didDismiss)="showAlertNotFound=false">
+</ion-alert>
 
-<!-- apple alerts -->
+<ion-alert
+  header="{{'alerts.register.error.invalid-creeds.title' | translate}}"
+  subHeader="{{'alerts.register.error.invalid-creeds.subtitle' | translate}}"
+  [buttons]="alertButtons"
+  [isOpen]="showAlertInvalidCreeds"
+  (didDismiss)="showAlertInvalidCreeds=false">
+</ion-alert>
+
 <ion-alert
   header="{{'alerts.general.header' | translate}}"
   subHeader="{{'alerts.general.try-again-later' | translate}}"
   [buttons]="alertButtons"
   [isOpen]="showAppleAlertLogin"
-></ion-alert>
+  (didDismiss)="showAppleAlertLogin=false">
+</ion-alert>
+
+<!-- Loading Overlay for Social Login -->
+<div class="loading-overlay" *ngIf="isLoading && (isLoginGoogle || isLoginApple)">
+  <div class="loading-content">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="loading-message">{{ loadingMessage | translate }}</p>
+  </div>
+</div>
+

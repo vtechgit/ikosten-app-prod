@@ -1,0 +1,294 @@
+.language-container {
+  --background: #ffffff;
+  
+  // Welcome Section
+  .welcome-section {
+    background: #1e96fc;
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 2rem;
+    
+    .welcome-content {
+      text-align: center;
+      padding: 3rem 2rem 2.5rem 2rem;
+      color: white;
+      
+      .welcome-icon {
+        font-size: 4rem;
+        color: white;
+        margin-bottom: 1rem;
+      }
+      
+      .welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: white;
+      }
+      
+      .welcome-subtitle {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.5;
+        margin: 0;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  }
+  
+  // Language Selection Section
+  .language-selection-section {
+    padding: 0 1.5rem;
+    
+    .selection-card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
+      border: 1px solid var(--ion-color-light);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      
+      .card-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        
+        .card-icon {
+          font-size: 3rem;
+          color: var(--ion-color-primary);
+          margin-bottom: 1rem;
+        }
+        
+        .card-title {
+          color: var(--ion-color-dark);
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin: 0 0 0.5rem 0;
+        }
+        
+        .card-subtitle {
+          color: var(--ion-color-medium);
+          font-size: 1rem;
+          margin: 0;
+          line-height: 1.5;
+        }
+      }
+      
+      .language-input {
+        margin-bottom: 2rem;
+        
+        .custom-input {
+          --background: #ffffff;
+          --border-radius: 16px;
+          --border-color: var(--ion-color-light);
+          --border-width: 2px;
+          --highlight-color-focused: var(--ion-color-primary);
+          --padding-start: 56px;
+          --padding-end: 16px;
+          margin: 0;
+          border: 2px solid var(--ion-color-light);
+          border-radius: 16px;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            --border-color: var(--ion-color-secondary);
+            box-shadow: 0 2px 8px rgba(30, 150, 252, 0.1);
+          }
+          
+          &.ion-focused {
+            --border-color: var(--ion-color-primary);
+            box-shadow: 0 0 0 4px rgba(30, 150, 252, 0.1);
+          }
+          
+          .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--ion-color-medium);
+            font-size: 1.2rem;
+            z-index: 10;
+          }
+          
+          ion-select {
+            --placeholder-color: var(--ion-color-medium);
+            font-size: 1rem;
+          }
+        }
+      }
+      
+      .language-info {
+        .info-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1rem;
+          padding: 0.8rem 1rem;
+          background: var(--ion-color-light);
+          border-radius: 12px;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: var(--ion-color-secondary);
+            transform: translateX(4px);
+          }
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .info-icon {
+            color: var(--ion-color-primary);
+            font-size: 1.2rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+          }
+          
+          span {
+            color: var(--ion-color-dark);
+            font-size: 0.95rem;
+            line-height: 1.4;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .language-container {
+    .welcome-section {
+      .welcome-content {
+        padding: 2rem 1rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.7rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .language-selection-section {
+      padding: 0 1rem;
+      
+      .selection-card {
+        padding: 1.5rem;
+        
+        .card-header {
+          .card-icon {
+            font-size: 2.5rem;
+          }
+          
+          .card-title {
+            font-size: 1.3rem;
+          }
+          
+          .card-subtitle {
+            font-size: 0.9rem;
+          }
+        }
+        
+        .language-input .custom-input {
+          --padding-start: 50px;
+        }
+        
+        .language-info .info-item {
+          padding: 0.6rem 0.8rem;
+          
+          .info-icon {
+            font-size: 1.1rem;
+            margin-right: 10px;
+          }
+          
+          span {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Focus states for accessibility
+.custom-input:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+// Animation for info items
+.info-item {
+  animation: slideInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Desktop responsive styles
+@media (min-width: 993px) {
+  // Ocultar el header en desktop (solo después de 993px)
+  ion-header {
+    display: none !important;
+  }
+
+  .language-container {
+    --background: #f5f7fa; // Fondo gris en toda la pantalla
+    
+    // Eliminar max-width del contenedor para que el fondo sea 100%
+    // Los elementos hijos tendrán el max-width
+    
+    .welcome-section {
+      max-width: 1200px;
+      margin: 0 auto 2rem auto; // Centrado
+      
+      .welcome-content {
+        padding: 2.5rem 2rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.8rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .language-selection-section {
+      max-width: 1200px;
+      margin: 0 auto; // Centrado
+      padding: 0 1rem;
+      
+      .selection-card {
+        max-width: 600px;
+        margin: 0 auto 2rem auto; // Centrado dentro de la sección
+      }
+    }
+  }
+}

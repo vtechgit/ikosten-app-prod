@@ -1,0 +1,197 @@
+<ion-modal
+  [isOpen]="isOpen"
+  (didDismiss)="onModalDismiss()"
+  class="membership-modal">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start" *ngIf="currentStep === 'checkout'">
+          <ion-button (click)="backToPlans()">
+            <ion-icon name="arrow-back"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title>
+          <span *ngIf="currentStep === 'plans'">{{ 'trial.modal.header' | translate }}</span>
+          <span *ngIf="currentStep === 'checkout'">{{ 'global.words.checkout' | translate }}</span>
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModalWithButton()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding limit-modal-content">
+      
+      <!-- PASO 1: Selección de planes -->
+      <div *ngIf="currentStep === 'plans'">
+        <!-- Banner de Prueba Gratis -->
+        <div class="trial-promo-banner" *ngIf="uploadLimitData">
+          <ion-icon name="gift-outline" color="primary"></ion-icon>
+          <div class="promo-text">
+            <h2>{{ 'trial.banner.title' | translate }}</h2>
+            <p class="promo-highlight">
+              {{ 'trial.banner.subtitle' | translate }}
+            </p>
+            <p class="promo-description">
+              {{ 'trial.banner.message' | translate: {current: uploadLimitData.currentCount, max: uploadLimitData.maxAllowed} }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Título de planes -->
+        <div class="plans-header">
+          <h2>{{ 'trial.plans.header' | translate }}</h2>
+          <p class="plans-subtitle">{{ 'trial.plans.subtitle' | translate }}</p>
+        </div>
+
+        <!-- Planes de Membresía dinámicos -->
+        <div class="membership-plans">
+          <!-- Mostrar loader mientras carga -->
+          <div class="loading-plans" *ngIf="isLoadingMemberships">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p>{{ 'loadings.loading' | translate }}...</p>
+          </div>
+
+          <!-- Mostrar planes cuando estén cargados -->
+          <ion-card class="plan-card" 
+            *ngFor="let plan of membershipPlans; let i = index" 
+            [ngClass]="{'recommended': plan.membership_featured}">
+
+            <ion-card-header>
+              <ion-card-title>{{ plan.membership_title | translate }}</ion-card-title>
+              <ion-card-subtitle>{{ plan.membership_sub_title | translate }}</ion-card-subtitle>
+            </ion-card-header>
+            
+            <ion-card-content>
+              <ion-list lines="none">
+                <ion-item *ngFor="let featureKey of plan.membership_list">
+                  <ion-icon name="checkmark-circle" 
+                    color="primary" 
+                    slot="start"></ion-icon>
+                  <ion-label class="ion-text-wrap">{{ featureKey | translate }}</ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <!-- Precio -->
+              <div class="plan-price">
+                <h3 class="price-amount">{{ getFormattedPrice(plan) }}</h3>
+                <p class="price-period" *ngIf="plan.membership_recurring === 'month'">
+                  {{ 'global.words.per-month' | translate }}
+                </p>
+                <p class="price-period" *ngIf="plan.membership_recurring === 'year'">
+                  {{ 'global.words.per-year' | translate }}
+                </p>
+              </div>
+              
+              <ion-button 
+                expand="block" 
+                color="primary" 
+                class="upgrade-button" 
+                [disabled]="isLoadingMemberships"
+                (click)="selectPlan(plan._id)">
+                <ion-spinner name="crescent" *ngIf="isLoadingMemberships"></ion-spinner>
+                <ion-icon name="rocket-outline" slot="start" *ngIf="!isLoadingMemberships"></ion-icon>
+                <span *ngIf="!isLoadingMemberships">{{ 'trial.button.start-trial' | translate }}</span>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Mensaje si no hay planes -->
+          <div class="no-plans-message" *ngIf="!isLoadingMemberships && membershipPlans.length === 0">
+            <ion-icon name="information-circle-outline" color="medium"></ion-icon>
+            <p>{{ 'errors.no-plans-available' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Garantía y beneficios -->
+        <div class="trial-guarantee">
+          <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
+          <p>{{ 'trial.guarantee' | translate }}</p>
+        </div>
+
+        <!-- Botón para cerrar -->
+        <div class="modal-footer">
+          <ion-button expand="block" fill="clear" (click)="closeModal()">
+            {{ 'buttons.maybe-later' | translate }}
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- PASO 2: Checkout con PayPal -->
+      <div *ngIf="currentStep === 'checkout' && membershipSelected">
+        
+        <!-- Mensaje de período de prueba gratuito (primero) -->
+        <ion-card *ngIf="membershipSelected.membership_trial_days > 0" class="trial-info-card">
+          <ion-card-content>
+            <ion-icon name="information-circle-outline" class="trial-icon"></ion-icon>
+            <div class="trial-text">
+              <h3>{{ 'checkout.trial.title' | translate }}</h3>
+              <p>
+                {{ 'checkout.trial.message-part1' | translate }}
+                <strong>$0.00</strong>
+                {{ 'checkout.trial.message-part2' | translate }}
+                <strong>{{ membershipSelected.membership_trial_days }}</strong>
+                {{ 'checkout.trial.message-part3' | translate }}
+                <strong>${{ membershipSelected.membership_price }} {{ membershipSelected.membership_currency }}</strong>
+                {{ 'checkout.trial.message-part4' | translate }}
+              </p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Resumen del plan -->
+        <ion-list>
+          <ion-item>
+            <ion-list-header style="padding: 0px;">
+              {{ membershipSelected.membership_title | translate }}
+            </ion-list-header>
+          </ion-item>
+          <p class="ion-margin-start" style="text-align: right;">
+            {{ 'global.words.total' | translate }}: 
+            <ng-container *ngIf="membershipSelected.membership_trial_days > 0; else regularPrice">
+              <strong style="color: var(--ion-color-primary);">$0.00</strong>
+            </ng-container>
+            <ng-template #regularPrice>
+              ${{ membershipSelected.membership_price }}
+            </ng-template>
+          </p>
+        </ion-list>
+
+        <!-- Métodos de pago -->
+        <ion-list class="ion-margin-bottom">
+          <ion-item>
+            <ion-list-header style="padding: 0px;">
+              {{ 'titles.modules.payments.payment-methods' | translate }}
+            </ion-list-header>
+          </ion-item>
+        </ion-list>
+
+        <!-- PayPal Button -->
+        <ion-list class="ion-padding-start">
+          <ion-progress-bar type="indeterminate" *ngIf="!payPalConfig"></ion-progress-bar>
+          <ngx-paypal [config]="payPalConfig" *ngIf="payPalConfig"></ngx-paypal>
+        </ion-list>
+      </div>
+
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- Alert de Error -->
+<ion-alert
+  [isOpen]="showAlertError"
+  header="{{ 'alerts.payment.error.title' | translate }}"
+  subHeader="{{ 'alerts.payment.error.subtitle' | translate }}"
+  [buttons]="errorButtons"
+  (didDismiss)="showAlertError=false">
+</ion-alert>
+
+<!-- Alert de Éxito -->
+<ion-alert
+  [isOpen]="showAlertSuccess"
+  header="{{ 'alerts.payment.success.title' | translate }}"
+  subHeader="{{ 'alerts.payment.success.subtitle' | translate }}"
+  [buttons]="successButtons"
+  (didDismiss)="onSuccessPayment()">
+</ion-alert>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {ApiService} from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import {
   IPayPalConfig,
   ICreateOrderRequest, 
@@ -43,7 +44,7 @@ export class MembershipsPage implements OnInit {
       text: 'buttons.accept',
       role: 'cancel',
       handler: () => {
-        window.location.href = '/';
+        this.router.navigate(['/customer/trips']);
         
       },
     },
@@ -60,6 +61,7 @@ export class MembershipsPage implements OnInit {
   availableLanguages:any=[];
   constructor(
     public api:ApiService,
+    private authService: AuthService,
     private router:Router,
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -247,7 +249,7 @@ export class MembershipsPage implements OnInit {
   }
   closeModalCheckout(){
     if(this.showAlertSuccess == true){
-      window.location.href = '/';
+      this.router.navigate(['/customer/trips']);
     }
     this.showPaymentcheckout = false;
   }
@@ -294,7 +296,7 @@ export class MembershipsPage implements OnInit {
                 currency:membership.membership_currency,
                 description:membership.membership_title,
                 prod_id: membership.membership_prod_id,
-                membership_status:details.status,
+                membership_status: (details.status || 'ACTIVE').toUpperCase(),
                 recurring:membership.membership_recurring,
                 source:'paypal'
   
@@ -305,10 +307,72 @@ export class MembershipsPage implements OnInit {
                   console.log('lead',res);
                   this.userSession.lead_role = membership.membership_role;
                   this.userSession.lead_paypal_customer_id = details.subscriber.payer_id;
-                  localStorage.setItem('userSession', JSON.stringify(this.userSession));
-                  this.showAlertSuccess = true;
-                  this.cd.detectChanges();
-                  console.log('showPaymentcheckout',this.showPaymentcheckout);
+                  
+                  // Actualizar el usuario en el AuthService para mantener la sesión sincronizada
+                  this.api.read('leads/'+this.userSession._id).subscribe(updatedUserResponse => {
+                    if(updatedUserResponse['body']) {
+                      const updatedUserData = updatedUserResponse['body'];
+                      
+                      // ✅ Mapear lead_onboarding_completed a onboarding_completed para consistencia
+                      // El servidor devuelve lead_onboarding_completed, pero el AuthService usa onboarding_completed
+                      if (updatedUserData.hasOwnProperty('lead_onboarding_completed')) {
+                        updatedUserData.onboarding_completed = updatedUserData.lead_onboarding_completed;
+                      } else if (!updatedUserData.hasOwnProperty('onboarding_completed')) {
+                        // Si no existe ninguno de los dos campos, asumir que está completado (usuario existente)
+                        updatedUserData.onboarding_completed = true;
+                        updatedUserData.lead_onboarding_completed = true;
+                      }
+                      
+                      localStorage.setItem('userSession', JSON.stringify(updatedUserData));
+                      this.userSession = updatedUserData;
+                      
+                      // Actualizar AuthService con la estructura correcta de User
+                      const user: any = {
+                        id: updatedUserData._id || updatedUserData.id,
+                        email: updatedUserData.lead_email || updatedUserData.email,
+                        name: updatedUserData.lead_name || updatedUserData.name,
+                        role: updatedUserData.lead_role || updatedUserData.role,
+                        company_id: updatedUserData.lead_company_id || updatedUserData.company_id,
+                        category: updatedUserData.lead_category || updatedUserData.category,
+                        onboarding_completed: updatedUserData.lead_onboarding_completed !== false
+                      };
+                      
+                      this.authService.updateCurrentUser(user);
+                      console.log('🔄 AuthService actualizado con el nuevo rol del usuario:', user);
+                    }
+                    this.showAlertSuccess = true;
+                    this.cd.detectChanges();
+                    console.log('showPaymentcheckout',this.showPaymentcheckout);
+                  }, error => {
+                    // Si falla la actualización, usar los datos locales
+                    // ✅ Mapear lead_onboarding_completed si existe
+                    if (this.userSession.hasOwnProperty('lead_onboarding_completed')) {
+                      this.userSession.onboarding_completed = this.userSession.lead_onboarding_completed;
+                    } else if (!this.userSession.hasOwnProperty('onboarding_completed')) {
+                      // Si no existe ninguno, asumir completado (usuario existente)
+                      this.userSession.onboarding_completed = true;
+                      this.userSession.lead_onboarding_completed = true;
+                    }
+                    
+                    localStorage.setItem('userSession', JSON.stringify(this.userSession));
+                    
+                    // Actualizar AuthService incluso si falla el read
+                    const user: any = {
+                      id: this.userSession._id || this.userSession.id,
+                      email: this.userSession.lead_email || this.userSession.email,
+                      name: this.userSession.lead_name || this.userSession.name,
+                      role: membership.membership_role,
+                      company_id: this.userSession.lead_company_id || this.userSession.company_id,
+                      category: this.userSession.lead_category || this.userSession.category,
+                      onboarding_completed: this.userSession.lead_onboarding_completed !== false || this.userSession.onboarding_completed !== false
+                    };
+                    
+                    this.authService.updateCurrentUser(user);
+                    console.log('🔄 AuthService actualizado (fallback):', user);
+                    
+                    this.showAlertSuccess = true;
+                    this.cd.detectChanges();
+                  });
 
 
                 })
@@ -357,8 +421,7 @@ export class MembershipsPage implements OnInit {
 
   }
   onDissmissAlertSuccess(){
-   // this.router.navigate(['/customer/trips']);
-   window.location.href = '/';
+   this.router.navigate(['/customer/trips']);
   }
 
 }

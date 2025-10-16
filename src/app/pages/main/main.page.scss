@@ -1,85 +1,1691 @@
-.checked-state {
-    --size: 32px;
-    --checkbox-background-checked: #7eb474;
+// Ocultar header en desktop
+@media (min-width: 993px) {
+  ion-header {
+    display: none !important;
   }
-  .viewer-image{
-    max-height: 300px;
-    max-width: 100%;
-    display: block;
-    margin: auto;
-  }
+}
 
-  .image-to-upload{
-    --border-radius: 13px;
-  }
-  .responsive_container,.responsive_footer{
+.main-container {
+  --background: #ffffff;
+  
+  .main-content {
     max-width: 800px;
+    margin: 0 auto;
+    
+    // Welcome Section
+    .welcome-section {
+      background: #1e96fc;
+      border-radius: 0 0 30px 30px;
+      margin-bottom: 2rem;
+      
+      .welcome-content {
+        text-align: center;
+        padding: 3rem 2rem 2.5rem 2rem;
+        color: white;
+        
+        .welcome-icon {
+          font-size: 4rem;
+          color: white;
+          margin-bottom: 1rem;
+        }
+        
+        .welcome-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin: 0 0 0.5rem 0;
+          color: white;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1.1rem;
+          color: rgba(255, 255, 255, 0.9);
+          line-height: 1.5;
+          margin: 0;
+          max-width: 500px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    }
+    
+    // Dashboard Step 0 Styles
+    .dashboard-section {
+      padding: 0 1rem;
+      
+      .creation-section {
+        margin-bottom: 2rem;
+        
+        .creation-card {
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
+          border: 2px solid var(--ion-color-light);
+          overflow: hidden;
+          transition: all 0.3s ease;
+          animation: slideInUp 0.6s ease forwards;
+          opacity: 0;
+          transform: translateY(30px);
+          animation-delay: 0.1s;
+          
+          &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(30, 150, 252, 0.12);
+            border-color: var(--ion-color-secondary);
+          }
+          
+          .card-header {
+            padding: 2rem 2rem 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(30, 150, 252, 0.1);
+            
+            .header-icon {
+              font-size: 2.5rem;
+              color: var(--ion-color-primary);
+            }
+            
+            .header-content {
+              flex: 1;
+              
+              .card-title {
+                color: var(--ion-color-dark);
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin: 0 0 0.5rem 0;
+              }
+              
+              .card-subtitle {
+                color: var(--ion-color-medium);
+                font-size: 1rem;
+                margin: 0;
+                line-height: 1.4;
+              }
+            }
+          }
+          
+          .card-content {
+            padding: 2rem;
+            padding-bottom: 5px;
+            
+            .country-selector {
+              background: rgba(30, 150, 252, 0.03);
+              border: 2px solid var(--ion-color-light);
+              border-radius: 16px;
+              padding: 1.5rem;
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              margin-bottom: 2rem;
+              
+              &:hover {
+                background: #e3f2fd;
+                border-color: #42a5f5;
+                transform: translateY(-2px);
+              }
+              
+              &[disabled] {
+                opacity: 0.6;
+                cursor: not-allowed;
+              }
+              
+              .selector-icon {
+                font-size: 1.5rem;
+                color: var(--ion-color-primary);
+                flex-shrink: 0;
+              }
+              
+              .selector-content {
+                flex: 1;
+                
+                .selector-label {
+                  color: var(--ion-color-medium);
+                  font-size: 0.9rem;
+                  margin-bottom: 0.25rem;
+                }
+                
+                .selector-value {
+                  color: var(--ion-color-dark);
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                }
+                
+                .selector-placeholder {
+                  color: var(--ion-color-medium);
+                  font-size: 1.1rem;
+                  font-style: italic;
+                }
+              }
+              
+              .selector-chevron {
+                font-size: 1.2rem;
+                color: var(--ion-color-medium);
+                flex-shrink: 0;
+              }
+            }
+          }
+          
+          .create-button {
+            --border-radius: 16px;
+            --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
+            height: 56px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            --background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+            margin: 0 2rem 2rem 2rem;
+            
+            &:hover:not([disabled]) {
+              transform: translateY(-2px);
+              --box-shadow: 0 6px 25px rgba(30, 150, 252, 0.4);
+            }
+            
+            &[disabled] {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+      
+      .history-section {
+        .section-header {
+          margin-bottom: 1.5rem;
+          animation: slideInUp 0.6s ease forwards;
+          opacity: 0;
+          transform: translateY(30px);
+          animation-delay: 0.2s;
+          
+          .section-title {
+            color: var(--ion-color-dark);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            
+            .section-icon {
+              font-size: 1.6rem;
+              color: var(--ion-color-primary);
+            }
+          }
+        }
+        
+        .history-list {
+          .history-item {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(30, 150, 252, 0.06);
+            border: 1px solid var(--ion-color-light);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative; // Para posicionar el botón flotante
+            
+            // Solo aplicar animación al cargar inicialmente
+            &:not(.no-animate) {
+              animation: slideInUp 0.6s ease forwards;
+              opacity: 0;
+              transform: translateY(30px);
+              
+              &:nth-child(1) { animation-delay: 0.3s; }
+              &:nth-child(2) { animation-delay: 0.4s; }
+              &:nth-child(3) { animation-delay: 0.5s; }
+              &:nth-child(4) { animation-delay: 0.6s; }
+              &:nth-child(n+5) { animation-delay: 0.7s; }
+            }
+            
+            // Para elementos que ya no necesitan animación
+            &.no-animate {
+              opacity: 1;
+              transform: translateY(0);
+              animation: none; // Asegurar que no hay animación residual
+            }
+            
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 20px rgba(30, 150, 252, 0.12);
+              border-color: var(--ion-color-secondary);
+              
+              // Mostrar el botón de eliminar en hover
+              .delete-travel-btn {
+                opacity: 1;
+                visibility: visible;
+              }
+            }
+            
+            // Para dispositivos táctiles, mostrar siempre el botón después de un toque
+            &:active, &:focus {
+              .delete-travel-btn {
+                opacity: 0.8;
+                visibility: visible;
+              }
+            }
+            
+            // En pantallas pequeñas, mostrar siempre el botón
+            @media (max-width: 768px) {
+              .delete-travel-btn {
+                opacity: 0.7;
+                visibility: visible;
+              }
+            }
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            // Botón de eliminación flotante
+            .delete-travel-btn {
+              position: absolute;
+              top: 0px;
+              right: 3px;
+              z-index: 10;
+              opacity: 0;
+              visibility: hidden;
+              transition: all 0.2s ease;
+              border-radius: 50px;
+              width: 32px;
+              height: 32px;
+              min-width: 32px;
+              min-height: 32px;
+              --background: rgba(255, 255, 255, 0.95);
+              --color: var(--ion-color-danger);
+              backdrop-filter: blur(10px);
+              box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+              border: 1px solid rgba(244, 67, 54, 0.1);
+              --padding-start: 0;
+              --padding-end: 0;
+              --padding-top: 0;
+              --padding-bottom: 0;
+              
+              &:hover {
+                --background: var(--ion-color-danger);
+                --color: white;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+                // Mantener el mismo borde sin cambios
+                border: 1px solid rgba(244, 67, 54, 0.1);
+              }
+              
+              &:active {
+                transform: scale(0.95);
+              }
+              
+              ion-icon {
+                font-size: 1.1rem;
+                font-weight: bold;
+                margin: 0;
+                padding: 0;
+              }
+            }
+            
+            &.skeleton {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              cursor: default;
+              
+              &:hover {
+                transform: none;
+                box-shadow: 0 2px 10px rgba(30, 150, 252, 0.06);
+                border-color: var(--ion-color-light);
+                
+                .delete-travel-btn {
+                  opacity: 0;
+                  visibility: hidden;
+                }
+              }
+              
+              .skeleton-content {
+                flex: 1;
+              }
+            }
+            
+            // Nueva estructura para acomodar el botón flotante
+            .travel-content {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              flex: 1;
+              cursor: pointer;
+              width: 100%;
+              min-height: 60px; // Asegurar altura mínima para el contenido
+            }
+            
+            .travel-info {
+              flex: 1;
+              // Removido min-width: 0 que podía causar problemas de compresión
+              // Removido overflow: hidden que estaba ocultando el contenido
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              
+              .travel-country {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+                position: relative;
+                
+                .country-icon {
+                  font-size: 1.2rem;
+                  color: var(--ion-color-primary);
+                }
+                
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--ion-color-dark);
+                line-height: 1.4; // Asegurar altura de línea adecuada
+                
+                // Status dot sutil
+                .status-dot {
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  margin-left: auto;
+                  flex-shrink: 0;
+                  position: relative;
+                  
+                  &.new {
+                    background: var(--ion-color-primary);
+                    box-shadow: 0 0 0 2px rgba(30, 150, 252, 0.2);
+                  }
+                  
+                  &.progress {
+                    background: var(--ion-color-warning);
+                    box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+                    animation: pulse 2s infinite;
+                  }
+                  
+                  &.finished {
+                    background: var(--ion-color-success);
+                    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+                  }
+                }
+              }
+              
+              @keyframes pulse {
+                0% {
+                  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+                }
+                50% {
+                  box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.1);
+                }
+                100% {
+                  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+                }
+              }
+              
+              .travel-dates {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--ion-color-medium);
+                font-size: 0.9rem;
+                flex-wrap: nowrap; // Evitar que los elementos se envuelvan en múltiples líneas
+                line-height: 1.4; // Asegurar altura de línea adecuada
+                // Removido overflow: hidden que estaba ocultando el contenido
+                // Removido min-width: 0 que podía causar compresión excesiva
+                
+                // Cada span de fecha debe mantenerse en una línea
+                > span {
+                  white-space: nowrap;
+                  display: inline-flex; // Cambio de flex a inline-flex para mejor compatibilidad
+                  align-items: center;
+                  gap: 0.3rem;
+                }
+                
+                .date-icon {
+                  font-size: 1rem;
+                  // Removido flex-shrink: 0 para simplificar
+                }
+                
+                .date-separator {
+                  display: inline-flex; // Cambio para mejor compatibilidad
+                  align-items: center;
+                  gap: 0.5rem;
+                  white-space: nowrap; // Mantener fechas en una línea
+                  
+                  .arrow-icon {
+                    font-size: 0.8rem;
+                  }
+                }
+                
+                // Status text sutil integrado
+                .status-text {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.3rem;
+                  margin-left: 0.5rem;
+                  padding: 0.2rem 0.5rem;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 500;
+                  white-space: nowrap; // Evitar que el texto se divida en múltiples líneas
+                  // Removido flex-shrink: 0 para simplificar
+                  
+                  .status-icon {
+                    font-size: 0.8rem;
+                    // Removido flex-shrink: 0 para simplificar
+                  }
+                  
+                  &.new {
+                    background: rgba(30, 150, 252, 0.1);
+                    color: var(--ion-color-primary);
+                  }
+                  
+                  &.progress {
+                    background: rgba(255, 193, 7, 0.1);
+                    color: var(--ion-color-warning);
+                  }
+                  
+                  &.finished {
+                    background: rgba(40, 167, 69, 0.1);
+                    color: var(--ion-color-success);
+                  }
+                }
+              }
+              
+              // En pantallas muy pequeñas, permitir que las fechas se apilen si es absolutamente necesario
+              @media (max-width: 360px) {
+                .travel-dates {
+                  flex-wrap: wrap;
+                  
+                  .status-text {
+                    margin-left: 0;
+                    margin-top: 0.25rem;
+                  }
+                }
+              }
+            }
+            
+            .travel-status {
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              
+              .chevron-icon {
+                font-size: 1.2rem;
+                color: var(--ion-color-medium);
+              }
+            }
+          }
+        }
+        
+        .empty-state {
+          text-align: center;
+          padding: 4rem 2rem;
+          background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(30, 150, 252, 0.1);
+          border: 2px solid var(--ion-color-light);
+          animation: slideInUp 0.6s ease forwards;
+          opacity: 0;
+          transform: translateY(30px);
+          animation-delay: 0.3s;
+          margin: 2rem 1rem;
+          position: relative;
+          overflow: hidden;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
+          }
+          
+          .empty-icon {
+            font-size: 5rem;
+            color: var(--ion-color-primary);
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            animation: pulse 2s ease-in-out infinite;
+          }
+          
+          .empty-title {
+            color: var(--ion-color-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            line-height: 1.3;
+          }
+          
+          .empty-subtitle {
+            color: var(--ion-color-medium);
+            font-size: 1.05rem;
+            margin: 0;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Existing styles for other steps (preserved)
+.checked-state {
+  --size: 32px;
+  --checkbox-background-checked: #7eb474;
+}
+
+.viewer-image {
+  max-height: 300px;
+  max-width: 100%;
+  display: block;
+  margin: auto;
+}
+
+.image-to-upload {
+  --border-radius: 13px;
+}
+
+.responsive_container,
+.responsive_footer {
+  max-width: 800px;
+  display: block;
+  margin: auto;
+}
+
+.add-image-button {
+  width: 50px;
+  height: 50px;
+}
+
+.delete-image-button {
+  position: absolute;
+  top: -14px;
+  left: -11px;
+}
+
+.list-spacer {
+  height: 100px;
+}
+
+.checked-state::part(container) {
+  border-radius: 6px;
+  border: 2px solid #7eb474;
+}
+
+.bordered-divider {
+  border-radius: 13px;
+}
+
+ion-accordion ion-item {
+  border-radius: 12px;
+}
+
+.unchecked-state {
+  --size: 32px;
+  --checkbox-background-checked: #ffffff;
+}
+
+.unchecked-state::part(container) {
+  border-radius: 6px;
+  border: 2px solid #c30000;
+}
+
+ion-footer {
+  background: white;
+}
+
+ion-list-header {
+  font-size: 18px;
+}
+
+.welcome-image {
+  width: 350px;
+  display: block;
+  margin: auto;
+}
+
+.helpList li {
+  margin-bottom: 10px;
+}
+
+// Mobile Responsiveness
+@media screen and (max-width: 700px) {
+  .main-container {
+    .welcome-section {
+      .welcome-content {
+        padding: 2rem 1rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.7rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .dashboard-section {
+      padding: 0 0.5rem;
+      
+      .creation-section {
+        .creation-card {
+          .card-header {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            
+            .header-icon {
+              font-size: 2rem;
+            }
+            
+            .card-title {
+              font-size: 1.2rem;
+            }
+            
+            .card-subtitle {
+              font-size: 0.95rem;
+            }
+          }
+          
+          .card-content {
+            padding: 1.5rem;
+            
+            .country-selector {
+              padding: 1rem;
+              
+              .selector-icon {
+                font-size: 1.3rem;
+              }
+              
+              .selector-content {
+                .selector-value,
+                .selector-placeholder {
+                  font-size: 1rem;
+                }
+              }
+            }
+          }
+          
+          .create-button {
+            height: 48px;
+            font-size: 1rem;
+            margin: 0 1.5rem 1.5rem 1.5rem;
+          }
+        }
+      }
+      
+      .history-section {
+        .section-header .section-title {
+          font-size: 1.2rem;
+          
+          .section-icon {
+            font-size: 1.4rem;
+          }
+        }
+        
+        .history-list .history-item {
+          padding: 1rem;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+          
+          .travel-info {
+            width: 100%;
+            
+            .travel-country {
+              font-size: 1rem;
+            }
+            
+            .travel-dates {
+              flex-wrap: wrap;
+              gap: 0.3rem;
+              font-size: 0.85rem;
+            }
+          }
+          
+          .travel-status {
+            width: 100%;
+            justify-content: space-between;
+            
+            .status-badge {
+              font-size: 0.8rem;
+              padding: 0.4rem 0.8rem;
+            }
+          }
+        }
+        
+        .empty-state {
+          padding: 2rem 1rem;
+          
+          .empty-icon {
+            font-size: 3rem;
+          }
+          
+          .empty-title {
+            font-size: 1.1rem;
+          }
+          
+          .empty-subtitle {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+  }
+
+  .welcome-image {
+    width: 250px;
     display: block;
     margin: auto;
   }
-  .add-image-button{
-    width: 50px;
-    height: 50px;
-  }
-  .delete-image-button{
-    position: absolute;
-    top: -14px;
-    left: -11px;
 
+  .responsive_container,
+  .responsive_footer {
+    width: 100%;
+    display: block;
+    margin: auto;
   }
-  .list-spacer{
-    height: 100px;
-  }
-  .checked-state::part(container) {
-    border-radius: 6px;
-    border: 2px solid #7eb474;
-  }
+}
 
-  .bordered-divider{
-    border-radius: 13px;
+// Animations
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  ion-accordion ion-item{
-    border-radius: 12px;
+}
+
+// Focus states for accessibility
+.create-button:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+// ========================================
+// RECEIPTS PAGE STYLES (NEW)
+// ========================================
+
+// Header styles
+ion-header.header-primary {
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+    
+    ion-title {
+      color: white;
+      font-weight: 600;
+    }
+    
+    ion-menu-button,
+    ion-button {
+      --color: white;
+      
+      ion-icon {
+        color: white;
+      }
+    }
   }
-  .unchecked-state {
-    --size: 32px;
-    --checkbox-background-checked: #ffffff;
+}
+
+.receipts-container {
+  --background: #f5f7fa;
+  
+  .receipts-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0 2rem 0; // Sin padding top para que el header-section esté pegado
+    
+    // Header Section
+    .header-section {
+      background: #1e96fc;
+      border-radius: 0 0 30px 30px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(30, 150, 252, 0.2);
+      margin-top: 0; // Pegado al toolbar
+      
+      .header-content {
+        text-align: center;
+        padding: 2.5rem 2rem 2rem 2rem;
+        color: white;
+        
+        .header-icon {
+          font-size: 3.5rem;
+          color: white;
+          margin-bottom: 1rem;
+          animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .header-title {
+          font-size: 1.8rem;
+          font-weight: 700;
+          margin: 0 0 0.5rem 0;
+          color: white;
+        }
+        
+        .header-subtitle {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.9);
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+    }
+    
+    // Country Chips Section
+    .selected-countries {
+      margin: 0 1rem 1.5rem 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      
+      .countries-label {
+        font-size: 0.9rem;
+        color: var(--ion-color-medium);
+        margin: 0 0 0.75rem 0;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .country-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        
+          ion-chip {
+          margin: 0;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+          
+          &[color="primary"] {
+            --background: var(--ion-color-primary);
+            --color: white;
+            transform: scale(1.05);
+            border-color: var(--ion-color-primary-shade);
+          }
+          
+          &[color="light"] {
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+          }          ion-icon {
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+    
+    // Country Selector (First Time)
+    .country-selector-section {
+      margin: 2rem 1rem;
+      animation: fadeInUp 0.6s ease forwards;
+      
+      .selector-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        box-shadow: 0 8px 32px rgba(30, 150, 252, 0.12);
+        text-align: center;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
+        }
+        
+        .selector-title {
+          color: var(--ion-color-dark);
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin: 0 0 2rem 0;
+          line-height: 1.4;
+        }
+        
+        .country-selector {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 2px dashed var(--ion-color-medium-tint);
+          position: relative;
+          
+          &:hover {
+            background: #e3f2fd;
+            border-color: #42a5f5;
+            border-style: solid;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(66, 165, 245, 0.25);
+          }
+          
+          .selector-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+          }
+          
+          .selector-icon {
+            font-size: 2.5rem;
+            color: var(--ion-color-primary);
+            transition: transform 0.3s ease;
+          }
+          
+          .selector-text {
+            flex: 1;
+            text-align: left;
+            
+            .selector-value {
+              display: block;
+              color: var(--ion-color-dark);
+              font-size: 1.1rem;
+              font-weight: 600;
+            }
+            
+            .selector-placeholder {
+              display: block;
+              color: var(--ion-color-medium);
+              font-size: 1rem;
+              font-weight: 500;
+            }
+          }
+          
+          .selector-chevron {
+            font-size: 1.5rem;
+            color: var(--ion-color-medium);
+            transition: transform 0.3s ease;
+          }
+          
+          &:hover .selector-icon {
+            transform: scale(1.1) rotate(5deg);
+          }
+          
+          &:hover .selector-chevron {
+            transform: translateX(4px);
+            color: var(--ion-color-primary);
+          }
+        }
+      }
+    }
+    
+    // Section Actions (Delete All)
+    .section-actions {
+      margin: 0 1rem 1.5rem 1rem;
+      display: flex;
+      justify-content: flex-end;
+      
+      .delete-all-button {
+        --background: transparent;
+        --color: var(--ion-color-danger);
+        --border-color: var(--ion-color-danger);
+        --border-width: 2px;
+        --border-style: solid;
+        --border-radius: 12px;
+        --padding-start: 1.25rem;
+        --padding-end: 1.25rem;
+        --box-shadow: 0 2px 8px rgba(var(--ion-color-danger-rgb), 0.15);
+        font-size: 0.95rem;
+        font-weight: 600;
+        height: 42px;
+        text-transform: none;
+        letter-spacing: 0.3px;
+        transition: all 0.3s ease;
+        
+        ion-icon {
+          font-size: 1.2rem;
+          margin-right: 0.5rem;
+        }
+        
+        &:hover {
+          --background: var(--ion-color-danger);
+          --color: white;
+          --box-shadow: 0 4px 16px rgba(var(--ion-color-danger-rgb), 0.3);
+          transform: translateY(-2px);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+    
+    // Loading Section
+    .loading-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem 2rem;
+      margin: 2rem 1rem;
+      min-height: 300px;
+      
+      .loading-content {
+        text-align: center;
+        animation: fadeIn 0.3s ease-in;
+        
+        ion-spinner {
+          width: 48px;
+          height: 48px;
+          --color: var(--ion-color-primary);
+          margin-bottom: 1rem;
+        }
+        
+        .loading-text {
+          font-size: 1rem;
+          color: var(--ion-color-medium);
+          margin: 0;
+          font-weight: 500;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+      }
+    }
+    
+    // Receipts List Section
+    .receipts-section {
+      margin: 0 1rem 2rem 1rem;
+      
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        ion-icon {
+          font-size: 1.5rem;
+          color: var(--ion-color-primary);
+        }
+      }
+      
+      .receipts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        
+        .receipt-item {
+          background: white;
+          border-radius: 12px;
+          padding: 1rem 1.25rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          border: 1px solid transparent;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border-color: var(--ion-color-primary-tint);
+          }
+          
+          .receipt-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            width: 32px;
+            height: 32px;
+            margin-right: 0.5rem;
+            
+            ion-icon {
+              font-size: 1.75rem;
+            }
+            
+            ion-spinner {
+              --color: var(--ion-color-primary);
+              width: 24px;
+              height: 24px;
+            }
+          }
+          
+          .receipt-info {
+            flex: 1;
+            
+            .receipt-vendor {
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--ion-color-dark);
+              margin: 0 0 0.25rem 0;
+            }
+            
+            .receipt-details {
+              font-size: 0.85rem;
+              color: var(--ion-color-medium);
+              display: flex;
+              gap: 1rem;
+              flex-wrap: wrap;
+              
+              .detail-item {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                
+                ion-icon {
+                  font-size: 0.9rem;
+                }
+              }
+            }
+          }
+          
+          .receipt-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            
+            .status-badge {
+              padding: 0.25rem 0.75rem;
+              border-radius: 20px;
+              font-size: 0.75rem;
+              font-weight: 600;
+              
+              &.success {
+                background: rgba(30, 150, 252, 0.15);
+                color: var(--ion-color-primary);
+              }
+              
+              &.warning {
+                background: var(--ion-color-warning-tint);
+                color: var(--ion-color-warning-shade);
+              }
+              
+              &.danger {
+                background: var(--ion-color-danger-tint);
+                color: var(--ion-color-danger-shade);
+              }
+            }
+            
+            ion-button {
+              --padding-start: 0.5rem;
+              --padding-end: 0.5rem;
+              height: 36px;
+            }
+          }
+        }
+        
+        .empty-receipts {
+          text-align: center;
+          padding: 3rem 1rem;
+          color: var(--ion-color-medium);
+          
+          ion-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+          }
+          
+          p {
+            font-size: 1rem;
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    // Lista de archivos subiendo (independiente)
+    .uploading-files {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      
+      .uploading-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--ion-color-light);
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        
+        &.uploading {
+          border-color: var(--ion-color-primary);
+          background: linear-gradient(90deg, rgba(30, 150, 252, 0.05) 0%, transparent 100%);
+        }
+        
+        &.success {
+          border-color: var(--ion-color-success);
+          background: rgba(16, 220, 96, 0.05);
+        }
+        
+        &.error {
+          border-color: var(--ion-color-danger);
+          background: rgba(235, 68, 90, 0.05);
+        }
+        
+        .file-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 32px;
+          width: 32px;
+          height: 32px;
+          
+          ion-icon {
+            font-size: 2rem;
+          }
+          
+          ion-spinner {
+            width: 24px;
+            height: 24px;
+          }
+        }
+        
+        .file-info {
+          flex: 1;
+          min-width: 0;
+          
+          .file-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+            margin: 0 0 0.25rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .file-size {
+            font-size: 0.8rem;
+            color: var(--ion-color-medium);
+            margin: 0 0 0.5rem 0;
+          }
+          
+          ion-progress-bar {
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            height: 4px;
+          }
+          
+          .file-status {
+            font-size: 0.85rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 500;
+            
+            &.success {
+              color: var(--ion-color-success);
+            }
+            
+            &.error {
+              color: var(--ion-color-danger);
+            }
+          }
+        }
+      }
+    }
+    
+    // Upload Section
+    .upload-section {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      
+      .section-title {
+        grid-column: 1 / -1;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+        margin: 0 0 1rem 0;
+        text-align: center;
+      }
+      
+      // Upload Option (elementos directos)
+      .upload-option {
+        width: 100%;
+        min-width: 200px;
+        
+        .upload-card {
+          background: var(--ion-color-light);
+          border-radius: 16px;
+          padding: 2rem 1.5rem;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 2px dashed var(--ion-color-medium);
+          position: relative;
+          min-height: 180px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          
+          &:hover {
+            background: rgba(30, 150, 252, 0.08);
+            border-color: var(--ion-color-primary);
+            border-style: solid;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(30, 150, 252, 0.2);
+            
+            ion-icon {
+              transform: scale(1.1);
+              color: var(--ion-color-primary-shade);
+            }
+          }
+          
+          // Ocultar input de archivo pero mantenerlo funcional
+          input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+          }
+          
+          ion-icon,
+          .upload-icon {
+            font-size: 3.5rem;
+            color: var(--ion-color-primary);
+            margin-bottom: 1rem;
+            display: block;
+            transition: all 0.3s ease;
+            pointer-events: none;
+          }
+          
+          .upload-title,
+          p {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+            margin: 0;
+            pointer-events: none;
+          }
+          
+          // Estado cuando se arrastra un archivo sobre el área
+          &.drag-over {
+            background: rgba(30, 150, 252, 0.1);
+            border-color: var(--ion-color-primary);
+            border-style: solid;
+            transform: scale(1.02);
+            
+            ion-icon {
+              color: var(--ion-color-primary-shade);
+              transform: scale(1.15);
+            }
+          }
+        }
+      }
+      
+      // Progress bar
+      ion-progress-bar {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+        border-radius: 4px;
+      }
+      
+      // Lista de archivos subiendo
+      .uploading-files {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        
+        .uploading-item {
+          background: white;
+          border-radius: 12px;
+          padding: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          border: 1px solid var(--ion-color-light);
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          transition: all 0.3s ease;
+          
+          &.uploading {
+            border-color: var(--ion-color-primary);
+            background: linear-gradient(90deg, rgba(30, 150, 252, 0.05) 0%, transparent 100%);
+          }
+          
+          &.success {
+            border-color: var(--ion-color-success);
+            background: rgba(16, 220, 96, 0.05);
+          }
+          
+          &.error {
+            border-color: var(--ion-color-danger);
+            background: rgba(235, 68, 90, 0.05);
+          }
+          
+          .file-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            width: 32px;
+            height: 32px;
+            
+            ion-icon {
+              font-size: 2rem;
+            }
+            
+            ion-spinner {
+              width: 24px;
+              height: 24px;
+            }
+          }
+          
+          .file-info {
+            flex: 1;
+            min-width: 0;
+            
+            .file-name {
+              font-size: 0.95rem;
+              font-weight: 600;
+              color: var(--ion-color-dark);
+              margin: 0 0 0.25rem 0;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .file-size {
+              font-size: 0.8rem;
+              color: var(--ion-color-medium);
+              margin: 0 0 0.5rem 0;
+            }
+            
+            ion-progress-bar {
+              margin: 0.5rem 0;
+              border-radius: 4px;
+              height: 4px;
+            }
+            
+            .file-status {
+              font-size: 0.85rem;
+              margin: 0.5rem 0 0 0;
+              font-weight: 500;
+              
+              &.success {
+                color: var(--ion-color-success);
+              }
+              
+              &.error {
+                color: var(--ion-color-danger);
+              }
+            }
+          }
+        }
+      }
+      
+      // Image Preview
+      .image-preview {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        
+        .preview-item {
+          position: relative;
+          border-radius: 8px;
+          overflow: hidden;
+          aspect-ratio: 1;
+          background: var(--ion-color-light);
+          
+          ion-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .delete-preview {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            --padding-start: 0.5rem;
+            --padding-end: 0.5rem;
+            --background: rgba(0, 0, 0, 0.6);
+            height: 32px;
+            
+            &:hover {
+              --background: var(--ion-color-danger);
+            }
+          }
+        }
+        
+        .add-more {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px dashed var(--ion-color-medium);
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            border-color: var(--ion-color-primary);
+            background: var(--ion-color-primary-tint);
+          }
+          
+          ion-icon {
+            font-size: 2rem;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Pulse animation for header icon
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+// Fade in animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Fade in up animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ========================================
+// FOOTER STYLES
+// ========================================
+ion-footer {
+  &.ion-no-border {
+    --border-width: 0;
   }
   
-  .unchecked-state::part(container) {
-    border-radius: 6px;
-    border: 2px solid #c30000;
-  }
-  ion-footer{
-    background: white;
-  }
-  ion-list-header{
-    font-size: 18px;
-  }
-
-
-  .welcome-image{
-    width: 350px;
-    display: block;
-    margin: auto;
-  }
-  .helpList li{
-    margin-bottom: 10px;
-  }
-
-
-
-  @media screen and (max-width: 700px) {
-    .welcome-image{
-      width: 250px;
-      display: block;
-      margin: auto;
-
-    }
-
-    .responsive_container,.responsive_footer{
-      width: 100%;
-      display: block;
-      margin: auto;
+  ion-toolbar {
+    --background: white;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+    
+    ion-button {
+      margin: 0;
+      font-weight: 600;
+      --border-radius: 12px;
+      height: 48px;
+      
+      ion-icon {
+        font-size: 1.5rem;
+      }
     }
   }
+}
+
+// Footer responsive en desktop
+@media (min-width: 768px) {
+  ion-footer {
+    background: transparent;
+    
+    ion-toolbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-left: 16px;
+      padding-right: 16px;
+      --background: transparent;
+      box-shadow: none;
+    }
+  }
+}
+
+// Agregar padding bottom al contenido cuando hay footer
+.receipts-container {
+  .receipts-content {
+    padding-bottom: 80px; // Espacio para el footer
+  }
+}

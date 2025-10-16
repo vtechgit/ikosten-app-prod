@@ -1,0 +1,480 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button *ngIf="currentStep > 1" (click)="backStep()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeProcess()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="wizard-container">
+  <div class="wizard-content" *ngIf="travelSelected">
+    
+    <!-- STEP 1: Selección de País -->
+    <div *ngIf="currentStep === 1" class="wizard-step" @fadeIn>
+      <div class="step-question">
+        <h1 class="question-title">{{ 'titles.modules.process.wizard.step1.question' | translate }}</h1>
+        <p class="question-subtitle">{{ 'titles.modules.process.wizard.step1.subtitle' | translate }}</p>
+      </div>
+
+      <div class="step-input">
+        <div class="country-selector" (click)="showModalPicker('inputs.select-country.title','country')">
+          <div class="selector-content">
+            <ion-icon name="flag-outline" class="selector-icon"></ion-icon>
+            <div class="selector-text">
+              <span class="selector-value" *ngIf="currencyBlockSelected">
+                {{ convertKey(currencyBlockSelected['country']) | translate}} ({{currencyBlockSelected['code']}})
+              </span>
+              <span class="selector-placeholder" *ngIf="!currencyBlockSelected">
+                {{ 'inputs.select-country.placeholder' | translate }}
+              </span>
+            </div>
+            <ion-icon name="chevron-forward" class="selector-chevron"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Subir Recibos -->
+    <div *ngIf="currentStep === 2" class="wizard-step" @fadeIn>
+      <div class="step-question">
+        <h1 class="question-title">{{ 'titles.modules.process.wizard.step2.question' | translate }}</h1>
+        <p class="question-subtitle">{{ 'titles.modules.process.wizard.step2.subtitle' | translate }}</p>
+      </div>
+
+      <!-- Chips de países seleccionados -->
+      <div class="selected-countries" *ngIf="isBillsArray() && getBillsArray().length > 0">
+        <p class="countries-label">{{ 'titles.modules.process.wizard.step2.selected-countries' | translate }}:</p>
+        <div class="country-chips">
+          <ion-chip
+            *ngFor="let bill of getBillsArray(); index as iBill"
+            [color]="this.billPos == iBill ? 'success' : 'light'"
+            (click)="selectCountry(iBill)">
+            <ion-icon name="flag"></ion-icon>
+            <ion-label>{{convertKey(bill.country) | translate}}</ion-label>
+          </ion-chip>
+          
+          <!-- Botón agregar país dentro de los chips -->
+          <ion-chip
+            color="light"
+            (click)="showModalPicker('inputs.select-country.title','add_country')">
+            <ion-icon name="add-circle"></ion-icon>
+            <ion-label>{{ 'buttons.add-country' | translate }}</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+
+      <div class="step-input">
+        <!-- Lista de recibos subidos -->
+        <div class="receipts-list" *ngIf="hasBillsAtCurrentPosition() && !isUploadingOther">
+          <div class="receipt-item" *ngFor="let billElement of getCurrentBillArray(); index as i"
+               [class.success]="billElement.status == 1 && billElement.vendor"
+               [class.error]="billElement.status == 500 || (billElement.status == 1 && !billElement.vendor)"
+               [class.loading]="billElement.status == 0">
+            
+            <div class="receipt-icon">
+              <ion-icon
+                name="checkmark-circle"
+                color="success"
+                *ngIf="billElement.status == 1 && billElement.vendor"></ion-icon>
+              <ion-icon
+                name="warning"
+                color="warning"
+                *ngIf="billElement.status == 1 && !billElement.vendor"></ion-icon>
+              <ion-icon
+                name="close-circle"
+                color="danger"
+                *ngIf="billElement.status == 500"></ion-icon>
+              <ion-spinner
+                name="crescent"
+                *ngIf="billElement.status == 0"></ion-spinner>
+            </div>
+
+            <div class="receipt-info">
+              <p class="receipt-vendor" *ngIf="billElement.status == 1 && billElement.vendor">
+                {{billElement.vendor}}
+              </p>
+              <p class="receipt-vendor error" *ngIf="billElement.status == 1 && !billElement.vendor">
+                {{ 'errors.file-uploads.cannot-read-vendor' | translate }}
+              </p>
+              <p class="receipt-vendor" *ngIf="billElement.status == 500">
+                {{billElement.original_name}}
+              </p>
+              <p class="receipt-vendor" *ngIf="billElement.status == 0">
+                {{ 'loadings.analysing' | translate }}...
+              </p>
+
+              <div class="receipt-details" *ngIf="billElement.status == 1">
+                <span class="detail-date">{{billElement.date | date: 'dd/MM/yyyy'}}</span>
+                <span class="detail-amount">${{billElement.total | number}} {{getCurrentBillCurrency()}}</span>
+              </div>
+            </div>
+
+            <ion-button
+              fill="clear"
+              color="danger"
+              size="small"
+              (click)="deleteBill(billPos, i, billElement.document_id)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="primary"
+            [disabled]="checkBillsErrors()"
+            (click)="openUploading()">
+            <ion-icon name="add" slot="start"></ion-icon>
+            {{ 'buttons.add-receipt' | translate }}
+          </ion-button>
+        </div>
+
+        <!-- Sección de subida de archivos -->
+        <div class="upload-section" *ngIf="!hasBillsAtCurrentPosition() || isUploadingOther">
+          <!-- Subida de fotos (solo móvil) -->
+          <div class="upload-option" *ngIf="(!imagesToUpload || imagesToUpload.length == 0) && !isUploading">
+            <div class="upload-card" (click)="takePhoto()">
+              <ion-icon name="camera" class="upload-icon"></ion-icon>
+              <p class="upload-title">{{ 'titles.modules.process.step2.file-input.take-picture' | translate }}</p>
+            </div>
+          </div>
+
+          <!-- Subida de archivos -->
+          <div class="upload-option" *ngIf="(!imagesToUpload || imagesToUpload.length == 0) && !isUploading">
+            <div class="upload-card" appDropFilesInput (fileDropped)="onFileDropped($event,'bills')">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,application/pdf"
+                multiple="true"
+                [disabled]="isUploading"
+                #fileDrop
+                id="fileDrop"
+                (change)="fileBrowseHandler($event,'bills')">
+              <ion-icon name="cloud-upload" class="upload-icon"></ion-icon>
+              <p class="upload-title">{{ 'titles.modules.process.step2.file-input.upload-file' | translate }}</p>
+            </div>
+          </div>
+
+          <ion-progress-bar type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+
+          <!-- Preview de imágenes -->
+          <div class="image-preview" *ngIf="imagesToUpload && imagesToUpload.length > 0">
+            <div class="preview-item" *ngFor="let image of imagesToUpload; index as i">
+              <ion-button
+                fill="clear"
+                color="danger"
+                class="delete-preview"
+                (click)="deleteImageToUpload(i)">
+                <ion-icon name="close" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-img [src]="image.dataUrl"></ion-img>
+            </div>
+            <div class="preview-item add-more" (click)="takePhoto()">
+              <ion-icon name="add"></ion-icon>
+            </div>
+          </div>
+
+          <ion-button
+            *ngIf="hasBillsAtCurrentPosition()"
+            expand="block"
+            fill="outline"
+            color="primary"
+            (click)="isUploadingOther=false">
+            {{ 'buttons.cancel' | translate }}
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Subir Extracto Bancario -->
+    <div *ngIf="currentStep === 3" class="wizard-step" @fadeIn>
+      <div class="step-question">
+        <h1 class="question-title">{{ 'titles.modules.process.wizard.step3.question' | translate }}</h1>
+        <p class="question-subtitle">{{ 'titles.modules.process.wizard.step3.subtitle' | translate }}</p>
+      </div>
+
+      <div class="step-input">
+        <!-- Extracto subido -->
+        <div class="extract-uploaded" *ngIf="this.extracts['extract']['file'] && this.extracts['extract']['file'] !=''">
+          <div class="extract-item"
+               [class.success]="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName']"
+               [class.error]="this.extracts['extract']['status'] == 500 || (this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName'])"
+               [class.loading]="this.extracts['extract']['status'] == 0">
+            
+            <div class="extract-icon">
+              <ion-icon
+                name="checkmark-circle"
+                color="success"
+                *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName']"></ion-icon>
+              <ion-icon
+                name="warning"
+                color="warning"
+                *ngIf="this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName']"></ion-icon>
+              <ion-icon
+                name="close-circle"
+                color="danger"
+                *ngIf="this.extracts['extract']['status'] == 500"></ion-icon>
+              <ion-spinner
+                name="crescent"
+                *ngIf="this.extracts['extract']['status'] == 0"></ion-spinner>
+            </div>
+
+            <div class="extract-info">
+              <p class="extract-bank" *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['bankName']">
+                {{this.extracts['extract']['bankName']}}
+              </p>
+              <p class="extract-bank error" *ngIf="this.extracts['extract']['status'] == 1 && !this.extracts['extract']['bankName']">
+                {{ 'errors.file-uploads.cannot-read-bank-name' | translate }}
+              </p>
+              <p class="extract-bank" *ngIf="this.extracts['extract']['status'] == 500">
+                {{ 'errors.file-uploads.cannot-read-file' | translate }}
+              </p>
+              <p class="extract-bank" *ngIf="this.extracts['extract']['status'] == 0">
+                {{this.extracts['extract']['original_name']}}
+              </p>
+
+              <div class="extract-details" *ngIf="this.extracts['extract']['status'] == 1 && this.extracts['extract']['startDate']">
+                <span>{{this.extracts['extract']['startDate'] | date: 'dd/MM/yyyy'}} - {{this.extracts['extract']['endDate'] | date: 'dd/MM/yyyy'}}</span>
+              </div>
+            </div>
+
+            <ion-button
+              fill="clear"
+              color="danger"
+              size="small"
+              (click)="deleteExtract(0, this.extracts['extract']['document_id'])">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- Upload de extracto -->
+        <div class="upload-section" *ngIf="!this.extracts['extract']['file'] || this.extracts['extract']['file'] == ''">
+          <div class="upload-card" appDropFilesInput (fileDropped)="onFileDropped($event,'extracts')">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,application/pdf"
+              [disabled]="isUploading"
+              #fileDrop
+              id="fileDrop"
+              (change)="fileBrowseHandler($event,'extracts')">
+            <ion-icon name="cloud-upload" class="upload-icon"></ion-icon>
+            <p class="upload-title">{{ 'titles.modules.process.step4.file-input.upload-file-note' | translate }}</p>
+          </div>
+
+          <ion-progress-bar type="indeterminate" *ngIf="isUploading"></ion-progress-bar>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Selección de Moneda del Extracto -->
+    <div *ngIf="currentStep === 4" class="wizard-step" @fadeIn>
+      <div class="step-question">
+        <h1 class="question-title">{{ 'titles.modules.process.wizard.step4.question' | translate }}</h1>
+        <p class="question-subtitle">{{ 'titles.modules.process.wizard.step4.subtitle' | translate }}</p>
+      </div>
+
+      <div class="step-input">
+        <!-- Tipo de extracto -->
+        <div class="input-group">
+          <label class="input-label">{{ 'inputs.extract-type.label' | translate }}</label>
+          <ion-select
+            interface="popover"
+            (ionChange)="changeExtractType()"
+            [(ngModel)]="extracts['extract']['type']"
+            placeholder="{{ 'inputs.extract-type.label' | translate }}">
+            <ion-select-option value="credit">
+              {{ 'inputs.extract-type.options.credit-card' | translate }}
+            </ion-select-option>
+            <ion-select-option value="debit">
+              {{ 'inputs.extract-type.options.debit-card' | translate }}
+            </ion-select-option>
+          </ion-select>
+        </div>
+
+        <!-- Selección de moneda -->
+        <div class="currency-selector" (click)="showModalPicker('inputs.select-currency.title','currency')">
+          <div class="selector-content">
+            <ion-icon name="cash-outline" class="selector-icon"></ion-icon>
+            <div class="selector-text">
+              <span class="selector-value" *ngIf="extracts['extract']['currency'] != ''">
+                {{extracts['extract']['currency']}}
+              </span>
+              <span class="selector-placeholder" *ngIf="extracts['extract']['currency'] == ''">
+                {{ 'inputs.select-currency.title' | translate }}
+              </span>
+            </div>
+            <ion-icon name="chevron-forward" class="selector-chevron"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Confirmar Datos de Usuario -->
+    <div *ngIf="currentStep === 5" class="wizard-step" @fadeIn>
+      <div class="step-question">
+        <h1 class="question-title">{{ 'titles.modules.process.wizard.step5.question' | translate }}</h1>
+        <p class="question-subtitle">{{ 'titles.modules.process.wizard.step5.subtitle' | translate }}</p>
+      </div>
+
+      <div class="step-input">
+        <!-- Información del usuario -->
+        <div class="input-group">
+          <label class="input-label">{{ 'inputs.user-name.title' | translate }}</label>
+          <ion-input
+            placeholder="{{ 'inputs.user-name.place-holder' | translate }}"
+            (ionChange)="changeExportSettings()"
+            [(ngModel)]="userName">
+          </ion-input>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">{{ 'inputs.user-email.title' | translate }}</label>
+          <ion-input
+            placeholder="{{ 'inputs.user-email.placeholder' | translate }}"
+            (ionChange)="changeExportSettings()"
+            [(ngModel)]="userEmail">
+          </ion-input>
+        </div>
+
+        <!-- Opciones de exportación -->
+        <div class="export-options">
+          <p class="options-label">{{ 'inputs.export-format.title' | translate }}</p>
+          
+          <div class="option-item" (click)="sendPdf = !sendPdf; changeExportSettings()">
+            <div class="option-info">
+              <ion-icon name="document-text" color="danger" class="option-icon"></ion-icon>
+              <div>
+                <p class="option-title">{{ 'inputs.export-format.send-pdf' | translate }}</p>
+                <p class="option-description">{{ 'inputs.export-format.pdf-description' | translate }}</p>
+              </div>
+            </div>
+            <ion-checkbox [(ngModel)]="sendPdf" (ionChange)="changeExportSettings()"></ion-checkbox>
+          </div>
+
+          <div class="option-item" (click)="sendExcel = !sendExcel; changeExportSettings()">
+            <div class="option-info">
+              <ion-icon name="grid" color="success" class="option-icon"></ion-icon>
+              <div>
+                <p class="option-title">{{ 'inputs.export-format.send-excel' | translate }}</p>
+                <p class="option-description">{{ 'inputs.export-format.excel-description' | translate }}</p>
+              </div>
+            </div>
+            <ion-checkbox [(ngModel)]="sendExcel" (ionChange)="changeExportSettings()"></ion-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modales y alertas (mantener los existentes) -->
+  <app-country-picker
+    (optionSelected)="pickerOptionSelected($event)"
+    (dismiss)="pickerDismissed()"
+    [selectedOption]="currencyBlockSelected"
+    [isModalOpen]="showPicker"
+    [modalTitle]="pickerTitle"
+    [type]="pickerType"
+    [options]="pickerOptions"
+    [temp]="pickerOptions">
+  </app-country-picker>
+
+  <!-- Alertas -->
+  <ion-alert
+    [isOpen]="isAlertDeleteExtract"
+    header="{{ 'alerts.delete-extract.title' | translate }}"
+    subHeader="{{ 'alerts.delete-extract.subtitle' | translate }}"
+    [buttons]="deleteExtractAlertButtons"
+    (didDismiss)="dismissDeleteExtract()">
+  </ion-alert>
+
+  <ion-alert
+    [isOpen]="isAlertDeleteBill"
+    header="{{ 'alerts.delete-bill.title' | translate }}"
+    subHeader="{{ 'alerts.delete-bill.subtitle' | translate }}"
+    [buttons]="deleteBillAlertButtons"
+    (didDismiss)="dismissDeleteBill()">
+  </ion-alert>
+
+  <ion-alert
+    [isOpen]="isAlertDeleteAll"
+    header="{{ 'alerts.delete-all-bills.title' | translate }}"
+    subHeader="{{ 'alerts.delete-all-bills.subtitle' | translate }}"
+    [buttons]="deleteAllAlertButtons"
+    (didDismiss)="dismissDeleteAll()">
+  </ion-alert>
+
+</ion-content>
+
+<ion-footer *ngIf="travelSelected">
+  <ion-toolbar>
+    <!-- Botón Paso 1 -->
+    <ion-button
+      *ngIf="currentStep === 1"
+      expand="block"
+      size="large"
+      color="primary"
+      [disabled]="!currencyBlockSelected"
+      (click)="goToStepTwo()">
+      {{ 'buttons.next' | translate }}
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+
+    <!-- Botón Paso 2 -->
+    <ion-button
+      *ngIf="currentStep === 2"
+      expand="block"
+      size="large"
+      color="primary"
+      [disabled]="!hasSuccessfulBills() || (imagesToUpload && imagesToUpload.length > 0)"
+      (click)="nextStep()">
+      {{ 'buttons.next' | translate }}
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+
+    <!-- Botón Paso 3 -->
+    <ion-button
+      *ngIf="currentStep === 3"
+      expand="block"
+      size="large"
+      color="primary"
+      [disabled]="!this.extracts['extract']['status'] || this.extracts['extract']['status'] == 0 || this.extracts['extract']['status'] == 500"
+      (click)="nextStep()">
+      {{ 'buttons.next' | translate }}
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+
+    <!-- Botón Paso 4 -->
+    <ion-button
+      *ngIf="currentStep === 4"
+      expand="block"
+      size="large"
+      color="primary"
+      [disabled]="extracts['extract']['type'] == '' || extracts['extract']['currency'] == ''"
+      (click)="goToStepFive()">
+      {{ 'buttons.next' | translate }}
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+
+    <!-- Botón Paso 5 -->
+    <ion-button
+      *ngIf="currentStep === 5"
+      expand="block"
+      size="large"
+      color="primary"
+      [disabled]="!userName || userName == '' || !userEmail || userEmail == '' || (!sendPdf && !sendExcel) || sendingForm"
+      (click)="sendResult()">
+      <ion-spinner *ngIf="sendingForm" name="crescent" slot="start"></ion-spinner>
+      <ion-icon *ngIf="!sendingForm" name="send" slot="start"></ion-icon>
+      {{ 'buttons.send' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

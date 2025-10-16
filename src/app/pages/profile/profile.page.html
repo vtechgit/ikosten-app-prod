@@ -1,104 +1,185 @@
-<ion-header [translucent]="true">
-
+<ion-header  class="header-primary">
   <ion-toolbar color="primary">
-
-    <ion-buttons slot="start" *ngIf="!platform.is('ios') || platform.is('ios') && this.platform.is('mobileweb')">
-      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
-
-    </ion-buttons>
-
+    <ion-menu-button color="light" slot="start"></ion-menu-button>
+    <ion-title>{{ 'menu.tabs.profile' | translate }}</ion-title>
   </ion-toolbar>
-
-
 </ion-header>
+<ion-content class="profile-container">
 
-<ion-content class="content-background">
-
-  <div class="responsive_container ion-padding">
-    <ion-card *ngIf="!this.userSession || this.userSession.lead_role == 0">
-      <ion-card-header>
-        <ion-card-title>{{'titles.modules.profile.plans.free.title' | translate}}</ion-card-title>
-        <ion-card-subtitle>{{'titles.modules.profile.active-plan' | translate}} <ion-icon name="ellipse" color="success"></ion-icon></ion-card-subtitle>
-      </ion-card-header>
-      <!-- uncomment
-            <ion-button fill="clear" color="primary" (click)="openMemberships()">{{'titles.modules.profile.upgrade-plan' | translate}} <ion-icon name="diamond-outline" slot="end"></ion-icon></ion-button>
-
-      -->
-    </ion-card>
-    <ion-card *ngIf="this.userSession && this.userSession.lead_role > 0 && this.activeMebership">
-      <ion-card-header>
-        <ion-card-title>{{activeMebership.purchasedMembership_description | translate}}</ion-card-title>
-        <ion-card-subtitle>{{'titles.modules.profile.active-plan' | translate}} <ion-icon name="ellipse" color="success"></ion-icon></ion-card-subtitle>
-      </ion-card-header>
-      <ion-button fill="clear" color="primary" *ngIf="this.userSession && this.userSession.lead_role < 3" (click)="openMemberships()">{{'titles.modules.profile.upgrade-plan' | translate}} <ion-icon name="diamond-outline" slot="end"></ion-icon></ion-button>
-
-    </ion-card>
-    <ion-list *ngIf="this.transactions && this.transactions.length > 0" class="ion-margin-bottom">
-      <ion-list-header>
-        <ion-label>{{'titles.modules.profile.history' | translate}}</ion-label>
-        <ion-button color="primary" (click)="openModalTransactions()">{{'buttons.see-more' | translate}}</ion-button>
-      </ion-list-header>
-      <ion-item *ngFor="let transaction of transactions">
-        <ion-label>
-          <h2>{{transaction.transaction_date | date :'MM/dd/yyy'}}</h2>
-          <p class="ion-text-capitalize" ><ion-icon name="ellipse" style="position: relative; top: 2px; margin-right: 5px;" [color]="transaction.transaction_status == 'approved' ? 'success': 'danger'"></ion-icon>{{'global.words.'+transaction.transaction_status | translate}}</p>
-        </ion-label>
-        <ion-label slot="end">
-          {{transaction.transaction_description | translate}}
-          <p>{{transaction.transaction_currency}} ${{transaction.transaction_value}}</p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-    <ion-list class="ion-margin-top">
-      <ion-list-header>
-        {{'titles.modules.profile.title' | translate}}
-      </ion-list-header>
-      <ion-item>
-        <ion-input label="{{'inputs.user-name.title' | translate}}" type="text" disabled="true"  [(ngModel)]="userName" labelPlacement="floating" requried placeholder="{{'inputs.user-name.place-holder' | translate}}"></ion-input>
-  
-      </ion-item>
-      <ion-item >
-        <ion-select label="{{'inputs.user-country.title' | translate}}" [(ngModel)]="selectedCountry" id="selectedCountryInput" #selectedCountryInput="ngModel" required label-placement="floating" placeholder="{{'inputs.user-country.placeholder' | translate}}">
-          <ion-select-option *ngFor="let country of availableCountries" [value]="country._id">{{convertKey(country.title) |translate}}</ion-select-option>
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-input label="{{'inputs.phone-number.title' | translate}}" type="phone" [(ngModel)]="userPhone" id="userPhoneInput" #userPhoneInput="ngModel" labelPlacement="floating" requried placeholder="{{'inputs.phone-number.placeholder' | translate}}"></ion-input>
-  
-      </ion-item>
-      <ion-item>
-        <ion-input label="{{'inputs.user-email.title' | translate}}" type="email" [(ngModel)]="userEmail" id="userEmailInput" #userEmailInput="ngModel" labelPlacement="floating" requried placeholder="{{'inputs.user-email.placeholder' | translate}}"></ion-input>
-  
-      </ion-item>
-      <ion-button class="ion-margin" (click)="updateUserInfo()" [disabled]="selectedCountryInput.invalid || userPhoneInput.invalid || userEmailInput.invalid || loadingButtons" expand="block">{{'buttons.save' | translate}}</ion-button>
-    </ion-list>
-
-    <ion-list>
-      <ion-button class="ion-margin" (click)="closeSession()" color="light" expand="block">{{'buttons.close-session' | translate}}</ion-button>
-      
-    </ion-list>
-  
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <ion-icon name="person-circle" class="welcome-icon"></ion-icon>
+      <h1 class="welcome-title">{{'titles.modules.profile.title' | translate}}</h1>
+      <p class="welcome-subtitle">{{'titles.modules.profile.subtitle' | translate}}</p>
+    </div>
   </div>
 
-  <div class="responsive_container ion-padding">
-    <ion-list>
-      <ion-list-header>
-        {{'titles.modules.profile.danger-zone' | translate}}
-      </ion-list-header>
-      <ion-button class="ion-margin" (click)="deleteAccount()" fill="outline" color="danger" expand="block">{{'buttons.delete-account' | translate}}</ion-button>
+  <div class="profile-content">
 
-    </ion-list>
+    <!-- Current Plan Section -->
+    <div class="section-card plan-section">
+      <div class="card-header">
+        <h2 class="section-title">{{'titles.modules.profile.current-plan' | translate}}</h2>
+      </div>
+      
+      <div class="plan-card" *ngIf="!this.userSession || this.userSession.lead_role == 0">
+        <div class="plan-info">
+          <div class="plan-details">
+            <h3 class="plan-title">{{'titles.modules.profile.plans.free.title' | translate}}</h3>
+            <div class="plan-status">
+              <ion-icon name="ellipse" color="success"></ion-icon>
+              <span>{{'titles.modules.profile.active-plan' | translate}}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Uncomment when needed
+        <ion-button class="upgrade-button" fill="solid" color="primary" (click)="openMemberships()">
+          {{'titles.modules.profile.upgrade-plan' | translate}}
+          <ion-icon name="diamond-outline" slot="end"></ion-icon>
+        </ion-button>
+        -->
+      </div>
+      <div class="plan-card premium-plan" *ngIf="this.userSession && this.userSession.lead_role > 0 && this.activeMebership">
+        <div class="plan-info">
+          <div class="plan-details">
+            <h3 class="plan-title">
+              {{activeMebership.membershipPlan?.membership_title || activeMebership.purchasedMembership_description | translate}}
+            </h3>
+            <p class="plan-description" *ngIf="activeMebership.membershipPlan?.membership_sub_title">
+              {{activeMebership.membershipPlan.membership_sub_title | translate}}
+            </p>
+            <div class="plan-status">
+              <ion-icon name="ellipse" color="success"></ion-icon>
+              <span>{{'titles.modules.profile.active-plan' | translate}}</span>
+            </div>
+            
+            <!-- Información adicional de la membresía -->
+            <div class="membership-details" *ngIf="activeMebership">
+              <div class="detail-item">
+                <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.start-date' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_date | date: 'dd/MM/yyyy'}}</span>
+              </div>
+              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_recurring">
+                <ion-icon name="sync-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.billing' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_currency}} ${{activeMebership.purchasedMembership_value}} / {{'titles.modules.profile.membership.month' | translate}}</span>
+              </div>
+              <div class="detail-item">
+                <ion-icon name="card-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.status' | translate}}:</span>
+                <span class="detail-value status-active">{{activeMebership.purchasedMembership_status}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ion-button class="upgrade-button" fill="solid" color="primary" *ngIf="this.userSession && this.userSession.lead_role < 3" (click)="openMemberships()">
+          {{'titles.modules.profile.upgrade-plan' | translate}}
+          <ion-icon name="diamond-outline" slot="end"></ion-icon>
+        </ion-button>
+        <ion-button class="cancel-button" fill="outline" color="danger" *ngIf="this.activeMebership && this.activeMebership.purchasedMembership_status === 'ACTIVE'" (click)="confirmCancelMembership()">
+          {{'buttons.cancel-membership' | translate}}
+          <ion-icon name="close-circle-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Transaction History Section -->
+    <div class="section-card transactions-section" *ngIf="this.transactions && this.transactions.length > 0">
+      <div class="card-header">
+        <h2 class="section-title">{{'titles.modules.profile.history' | translate}}</h2>
+        <ion-button class="see-more-button" fill="clear" color="primary" (click)="openModalTransactions()">
+          {{'buttons.see-more' | translate}}
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="transactions-list">
+        <div class="transaction-item" *ngFor="let transaction of transactions">
+          <div class="transaction-main">
+            <div class="transaction-date">{{transaction.transaction_date | date :'MM/dd/yyyy'}}</div>
+            <div class="transaction-status">
+              <ion-icon name="ellipse" [color]="transaction.transaction_status == 'approved' ? 'success': 'danger'"></ion-icon>
+              <span class="status-text">{{'global.words.'+transaction.transaction_status | translate}}</span>
+            </div>
+          </div>
+          <div class="transaction-details">
+            <div class="transaction-description">{{transaction.transaction_description | translate}}</div>
+            <div class="transaction-amount">{{transaction.transaction_currency}} ${{transaction.transaction_value}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Information Section -->
+    <div class="section-card profile-info-section">
+      <div class="card-header">
+        <h2 class="section-title">{{'titles.modules.profile.personal-info' | translate}}</h2>
+      </div>
+      
+      <div class="profile-form">
+        <div class="form-group">
+          <ion-input class="modern-input" label="{{'inputs.user-name.title' | translate}}" type="text" disabled="true" [(ngModel)]="userName" labelPlacement="floating" required placeholder="{{'inputs.user-name.place-holder' | translate}}"></ion-input>
+        </div>
+        
+        <div class="form-group">
+          <ion-select class="modern-select" label="{{'inputs.user-country.title' | translate}}" [(ngModel)]="selectedCountry" id="selectedCountryInput" #selectedCountryInput="ngModel" required label-placement="floating" placeholder="{{'inputs.user-country.placeholder' | translate}}">
+            <ion-select-option *ngFor="let country of availableCountries" [value]="country._id">{{convertKey(country.title) |translate}}</ion-select-option>
+          </ion-select>
+        </div>
+        
+        <div class="form-group">
+          <ion-input class="modern-input" label="{{'inputs.phone-number.title' | translate}}" type="phone" [(ngModel)]="userPhone" id="userPhoneInput" #userPhoneInput="ngModel" labelPlacement="floating" required placeholder="{{'inputs.phone-number.placeholder' | translate}}"></ion-input>
+        </div>
+        
+        <div class="form-group">
+          <ion-input class="modern-input" label="{{'inputs.user-email.title' | translate}}" type="email" [(ngModel)]="userEmail" id="userEmailInput" #userEmailInput="ngModel" labelPlacement="floating" required placeholder="{{'inputs.user-email.placeholder' | translate}}"></ion-input>
+        </div>
+        
+        <ion-button class="save-button" (click)="updateUserInfo()" [disabled]="selectedCountryInput.invalid || userPhoneInput.invalid || userEmailInput.invalid || loadingButtons" expand="block">
+          <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+          {{'buttons.save' | translate}}
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Account Actions Section -->
+    <div class="section-card actions-section">
+      <div class="card-header">
+        <h2 class="section-title">{{'titles.modules.profile.account-actions' | translate}}</h2>
+      </div>
+      
+      <div class="actions-list">
+        <ion-button class="action-button logout-button" (click)="closeSession()" color="medium" expand="block" fill="outline">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          {{'buttons.close-session' | translate}}
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Danger Zone Section -->
+    <div class="section-card danger-section">
+      <div class="card-header">
+        <h2 class="section-title danger-title">{{'titles.modules.profile.danger-zone' | translate}}</h2>
+      </div>
+      
+      <div class="danger-actions">
+        <ion-button class="danger-button" (click)="deleteAccount()" fill="outline" color="danger" expand="block">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          {{'buttons.delete-account' | translate}}
+        </ion-button>
+      </div>
+    </div>
+
   </div>
 
 </ion-content>
 
-<!--Alerts-->
-
-<!--Delete Account-->
-
+<!-- Alerts -->
 <ion-alert 
 [isOpen]="showAlertDeleteAccount"
-header="{{'alerts.delete-account.title' | translate}} "
+header="{{'alerts.delete-account.title' | translate}}"
 subHeader="{{'alerts.delete-account.subtitle' | translate}}"
 [buttons]="alertButtons"
 (didDismiss)="showAlertDeleteAccount = false;"
@@ -106,54 +187,74 @@ subHeader="{{'alerts.delete-account.subtitle' | translate}}"
 
 <ion-alert 
 [isOpen]="showAlertAccountDeleted"
-header="{{'alerts.deleted-account.title' | translate}} "
+header="{{'alerts.deleted-account.title' | translate}}"
 subHeader="{{'alerts.deleted-account.subtitle' | translate}}"
 [buttons]="['buttons.accept' | translate]"
 (didDismiss)="dissmisAccountDeletion()"
 ></ion-alert>
 
 <ion-alert
-  header="{{'alerts.general.header' | translate}}"
-  subHeader="{{'alerts.general.try-again-later' | translate}}"
-  [buttons]="['buttons.accept' | translate]"
-  [isOpen]="showAlertError"
+header="{{'alerts.general.header' | translate}}"
+subHeader="{{'alerts.general.try-again-later' | translate}}"
+[buttons]="['buttons.accept' | translate]"
+[isOpen]="showAlertError"
 ></ion-alert>
 
+<!-- Transaction History Modal -->
 <ion-modal [isOpen]="showModalAllTransacions" (willDismiss)="showModalAllTransacions=false;">
   <ng-template>
-    <ion-header [translucent]="true">
+    <ion-header >
       <ion-toolbar color="primary">
-        <ion-buttons slot="start" >
-          <ion-button color="light" (click)="showModalAllTransacions=false">{{'buttons.close' | translate}}</ion-button>
+        <ion-buttons slot="start">
+          <ion-button color="light" (click)="showModalAllTransacions=false">
+            <ion-icon name="close"></ion-icon>
+            {{'buttons.close' | translate}}
+          </ion-button>
         </ion-buttons>
-
+        <ion-title color="light">{{'titles.modules.profile.history' | translate}}</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content >
-      <div class="ion-padding">
-        <ion-list >
-          <ion-list-header>
-            <ion-label>{{'titles.modules.profile.history' | translate}}</ion-label>
-          </ion-list-header>
-          <div *ngIf="!isTransactionsLoading">
-            <ion-item *ngFor="let transaction of transactionsHistory">
-              <ion-label>
-                <h2>{{transaction.transaction_date | date :'MM/dd/yyy'}}</h2>
-                <p class="ion-text-capitalize" ><ion-icon name="ellipse" style="position: relative; top: 2px; margin-right: 5px;" [color]="transaction.transaction_status == 'approved' ? 'success': 'danger'"></ion-icon>{{'global.words.'+transaction.transaction_status | translate}}</p>
-              </ion-label>
-              <ion-label slot="end">
-                {{transaction.transaction_description | translate}}
-                <p>{{transaction.transaction_currency}} ${{transaction.transaction_value}}</p>
-              </ion-label>
-            </ion-item>
+    <ion-content class="modal-content">
+      <div class="modal-padding">
+        <div class="transactions-modal-list" *ngIf="!isTransactionsLoading">
+          <div class="transaction-item-modal" *ngFor="let transaction of transactionsHistory">
+            <div class="transaction-main">
+              <div class="transaction-date">{{transaction.transaction_date | date :'MM/dd/yyyy'}}</div>
+              <div class="transaction-status">
+                <ion-icon name="ellipse" [color]="transaction.transaction_status == 'approved' ? 'success': 'danger'"></ion-icon>
+                <span class="status-text">{{'global.words.'+transaction.transaction_status | translate}}</span>
+              </div>
+            </div>
+            <div class="transaction-details">
+              <div class="transaction-description">{{transaction.transaction_description | translate}}</div>
+              <div class="transaction-amount">{{transaction.transaction_currency}} ${{transaction.transaction_value}}</div>
+            </div>
           </div>
-          <ion-progress-bar *ngIf="isTransactionsLoading" type="indeterminate"></ion-progress-bar>
-
-        </ion-list>
-
-
+          
+          <!-- Mensaje si no hay transacciones -->
+          <div class="no-transactions-message" *ngIf="transactionsHistory.length === 0">
+            <ion-icon name="receipt-outline" color="medium"></ion-icon>
+            <p>{{'messages.no-transactions' | translate}}</p>
+          </div>
+        </div>
+        
+        <!-- Infinite Scroll -->
+        <ion-infinite-scroll 
+          *ngIf="!isTransactionsLoading"
+          threshold="200px" 
+          (ionInfinite)="loadMoreTransactions($event)"
+          [disabled]="!hasMoreTransactions">
+          <ion-infinite-scroll-content
+            loadingSpinner="crescent"
+            loadingText="{{ 'loadings.loading-more-transactions' | translate }}">
+          </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+        
+        <div class="loading-container" *ngIf="isTransactionsLoading">
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+          <p class="loading-text">{{'loading.transactions' | translate}}</p>
+        </div>
       </div>
-
     </ion-content> 
   </ng-template>
 </ion-modal>

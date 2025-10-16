@@ -1,0 +1,238 @@
+ion-menu ion-content {
+    --background: var(--ion-item-background, var(--ion-background-color, #fff));
+  }
+  
+  ion-menu.md ion-content {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --padding-top: 20px;
+    --padding-bottom: 20px;
+  }
+  
+  ion-menu.md ion-list {
+    padding: 20px 0;
+  }
+  
+  ion-menu.md ion-note {
+    margin-bottom: 30px;
+  }
+  
+  ion-menu.md ion-list-header,
+  ion-menu.md ion-note {
+    padding-left: 10px;
+  }
+  
+  ion-menu.md ion-list#inbox-list {
+    border-bottom: 1px solid var(--ion-background-color-step-150, #d7d8da);
+  }
+  #inbox-list{
+    height: 80%;
+    border-top: 1px solid rgb(216, 216, 216);
+  }
+  
+  ion-menu.md ion-list#inbox-list ion-list-header {
+    font-size: 22px;
+    font-weight: 600;
+  
+    min-height: 20px;
+  }
+  
+  ion-menu.md ion-list#labels-list ion-list-header {
+    font-size: 16px;
+  
+    margin-bottom: 18px;
+  
+    color: #757575;
+  
+    min-height: 26px;
+  }
+  
+  ion-menu.md ion-item {
+    --padding-start: 10px;
+    --padding-end: 10px;
+    border-radius: 4px;
+  }
+  
+  ion-menu.md ion-item.selected {
+    --background: rgba(var(--ion-color-primary-rgb), 0.14);
+  }
+  
+  ion-menu.md ion-item.selected ion-icon {
+    color: var(--ion-color-primary);
+  }
+  
+  ion-menu.md ion-item ion-icon {
+    color: #616e7e;
+  }
+  
+  ion-menu.md ion-item ion-label {
+    font-weight: 500;
+  }
+  
+  ion-menu.ios ion-content {
+    --padding-bottom: 20px;
+  }
+  
+  ion-menu.ios ion-list {
+    padding: 20px 0 0 0;
+  }
+  
+  ion-menu.ios ion-note {
+    line-height: 24px;
+    margin-bottom: 20px;
+  }
+  
+  ion-menu.ios ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 50px;
+  }
+  
+  ion-menu.ios ion-item.selected ion-icon {
+    color: var(--ion-color-primary);
+  }
+  
+  ion-menu.ios ion-item ion-icon {
+    font-size: 24px;
+    color: #73849a;
+  }
+  
+  ion-menu.ios ion-list#labels-list ion-list-header {
+    margin-bottom: 8px;
+  }
+  
+  ion-menu.ios ion-list-header,
+  ion-menu.ios ion-note {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  ion-menu.ios ion-note {
+    margin-bottom: 8px;
+  }
+  
+  ion-note {
+    display: inline-block;
+    font-size: 16px;
+  
+    color: var(--ion-color-medium-shade);
+  }
+  ion-menu{
+    width: 100%;
+    height: 100%;
+  }
+  ion-item.selected {
+    --color: var(--ion-color-primary);
+    --background: rgba(var(--ion-color-primary-rgb), 0.04);
+  }
+  .menu-image-container{
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* ============================================
+   * iOS Safe Area para el Slide Menu
+   * ============================================ */
+  
+  /* Ajuste específico para iOS - padding superior para el menú */
+  .ios ion-menu {
+    padding-top: env(safe-area-inset-top);
+    padding-top: constant(safe-area-inset-top); /* iOS 11.0 fallback */
+  }
+  
+  /* Espacio adicional para el contenedor del logo */
+  .ios .menu-image-container {
+    padding-top: calc(env(safe-area-inset-top) + 16px);
+    padding-top: calc(constant(safe-area-inset-top) + 16px);
+    padding-bottom: 16px;
+    min-height: calc(56px + env(safe-area-inset-top));
+    min-height: calc(56px + constant(safe-area-inset-top));
+    background: white; /* Fondo blanco para el logo */
+  }
+  
+  /* Contenido del menú con padding inferior */
+  .ios ion-menu ion-content {
+    --padding-top: 0;
+    --padding-bottom: env(safe-area-inset-bottom);
+    --padding-bottom: constant(safe-area-inset-bottom);
+  }
+  
+  /* Soporte adicional con max() para mejor compatibilidad */
+  @supports (padding: max(0px)) {
+    .ios .menu-image-container {
+      padding-top: calc(max(env(safe-area-inset-top), 20px) + 16px);
+      min-height: calc(56px + max(env(safe-area-inset-top), 20px));
+    }
+    
+    .ios ion-menu ion-content {
+      --padding-bottom: max(env(safe-area-inset-bottom), 20px);
+    }
+  }
+
+  // Estilo especial para el botón de Upgrade
+  .upgrade-item {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    margin-left: 8px;
+    margin-right: 8px;
+    --background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+    --color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    ion-icon {
+      font-size: 24px;
+      color: white !important;
+      --ion-color-base: white !important;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    ion-label {
+      font-weight: 700;
+      font-size: 15px;
+      color: white;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }

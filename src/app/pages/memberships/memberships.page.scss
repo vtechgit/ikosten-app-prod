@@ -1,308 +1,380 @@
-.card-memberships{
-    min-height: 530px;
-}
-.spacer{
-    width: 100%;
-    height: 21px;
-}
-.icon-recomended{
-    position: relative;
-    top: 5px;
-    left: 5px;
-
-}
-.card-recomended{
-    border: 2px solid #1e96fc;
-}
-
-/*credit card*/
-
-
-.credit-card-box {
-    width: 400px;
-    height: 260px;
-    border-radius: 12px;
-    background: white;
-    position: relative;
-    display: block;
-    margin: auto;
-    margin-top: 20px;
-
-    .front {
-      width: 400px;
-      height: 250px;
-      backface-visibility: hidden;
-      position: absolute;
-      color: #fff;
-      top: 0px;
-      left: 0px;
-      text-shadow: 0 1px 1px hsla(0, 0, 0, 0.3);
-      box-shadow: 0 1px 6px hsla(0, 0, 0, 0.3);
-      overflow: hidden;
-      border-radius: 12px;
+.memberships-container {
+  --background: #ffffff;
   
-      &::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 105px;
-        left: 0;
-        background-color: var(--ion-color-primary);
-        background-image: linear-gradient(to bottom, var(--ion-color-primary) 0%, royalblue 60%);
-        background-size: cover;
-        opacity: 1;
-      }
-    }
-  
-    .logo {
-      font-size: 20px;
-      font-weight: bold;
-      text-transform: uppercase;
-      position: absolute;
-      top: 0;
-      transform: translateX(20%) translateY(90%);
-      left: 0px;
-      border-radius: 4px;
-      padding: 8px 12px;
-      background: #f7f7f7;
-      color: #171717;
-    }
+  .welcome-section {
+    background: #1e96fc;
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 2rem;
     
-  
-    .wave {
-      position: absolute;
-      top: 30px;
-      left: 0;
-      right: 0;
-  
-      svg path {
-        fill: var(--ion-color-primary);
-      }
-    }
-  
-    .front {
-      z-index: 2;
-      transform: rotateY(0deg);
-    }
-  
-    .strip {
-      background: linear-gradient(135deg, hsl(0, 0, 25%), hsl(0, 0, 10%));
-      position: absolute;
-      width: 100%;
-      height: 50px;
-      top: 30px;
-      left: 0;
-    }
-  
-    .number {
-      position: absolute;
-      margin: 0 auto;
-      top: 103px;
-      left: 19px;
-      font-size: 38px;
+    .welcome-content {
+      text-align: center;
+      padding: 3rem 2rem 2.5rem 2rem;
+      color: white;
       
-    }
-  
-    label {
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-shadow: none;
-      text-transform: uppercase;
-      font-weight: normal;
-      opacity: 1;
-      display: block;
-      margin-bottom: 3px;
-      color: var(--ion-color-primary-contrast);
-    }
-  
-  
-    .card-holder,
-    .card-expiration-date {
-      position: absolute;
-      margin: 0 auto;
-      top: 160px;
-      left: 19px;
-      font-size: 22px;
-      text-transform: capitalize;
-      color: var(--ion-color-primary-contrast);
-    }
-  
-    .card-expiration-date {
-      text-align: right;
-      left: auto;
-      right: 20px;
-      color: var(--ion-color-primary-contrast);
-    }
-  
-    .card-number {
-      font-size: 18px;
-      margin-bottom: 12px;
-      font-weight: bold;
-      color: var(--ion-color-primary-contrast);
-    }
-  
-    .ccv {
-      height: 36px;
-      width: 91%;
-      border-radius: 5px;
-      top: 110px;
-      left: 0;
-      right: 0;
-      position: absolute;
-      margin: 0 auto;
-      color: #000;
-      text-align: right;
-      padding: 10px;
-      color: var(--ion-color-primary-contrast);
-  
-      label {
-        margin: -25px 0 14px;
-        color: var(--ion-color-primary-contrast);
+      .welcome-icon {
+        font-size: 4rem;
+        color: white;
+        margin-bottom: 1rem;
+      }
+      
+      .welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: white;
+      }
+      
+      .welcome-subtitle {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.5;
+        margin: 0;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
       }
     }
-  
-  
   }
   
-
-.box {
-    display: flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    margin-top: 50px;
-  }
-  
-  .layout-column {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .layout-row {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  .flex {
-    display: flex;
-  }
-  
-  
-  .card {
-    background: white;
-    box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
-    border-radius: 4px;
-  }
-  
-  .card-container {
-    padding: 8px;
-  }
-  
-  label {
-    font-size: 12px;
-    color: #0f0f0f;
-  }
-  .input-hint{
-    margin-bottom: 0px;
-  }
-  input {
-    padding: 12px;
-    border-radius: 4px;
-    border-width: 2px;
-    outline: none;
-    font-size: 14px;
-    border: 2px solid grey;
-    box-sizing: border-bottom;
-  
-  
-    &:focus {
-      border-bottom: 2px solid #000;
-    }
-  }
-  
-  .pa-50 {
-    padding: 50px;
-  }
-  
-  .mt-20 {
-    margin-top: 20px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-  }
-  
-  input {
-    width: 100%;
-  }
-  
-  button {
-    margin-top: 50px;
-    height: 44px;
-    background-color: var(--button-color);
-    border: none;
-    outline: 2px dashed var(--button-color);
-    outline-offset: 3px;
-    border-radius: 4px;
-    cursor: pointer;
-  
-    &:active {
-      outline: none;
-    }
-  }
-  
-  
-  .error-text {
-    margin-bottom: 0;
-    min-height: 16px;
-  }
-  
-  .card-container {
-    position: relative;
-    margin-top: 200px;
-  }
-  
-  .card-info {
-    justify-content: space-between;;
-  }
-  
-  .expiry-month,
-  .expiry-year {
-  
-    input {
-      max-width: 75px;
-    }
-  }
-  
-  .expiry-year {
-    margin-left: 8px;
-  }
-  
-  .cvv-number {
-    input {
-      max-width: 100px;
-    }
-  }
-  
-  
-  
-  credit-card {
-    position: absolute;
-    top: -215px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .form-container{
-    padding: 16px;
-  }
-/*end credit card*/
-
-@media screen and (max-width: 700px) {
-    .card-memberships{
-        min-height: auto !important;
+  .memberships-section {
+    padding: 0 1rem;
+    
+    .memberships-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      
+      @media (min-width: 1200px) {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
     
+    .membership-card {
+      position: relative;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
+      border: 2px solid var(--ion-color-light);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(30, 150, 252, 0.15);
+        border-color: var(--ion-color-secondary);
+      }
+      
+      &.featured {
+        border-color: var(--ion-color-warning);
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(255, 193, 7, 0.2);
+        
+        &:hover {
+          transform: scale(1.02) translateY(-8px);
+        }
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, var(--ion-color-warning), var(--ion-color-warning-shade));
+        }
+      }
+      
+      &.current {
+        border-color: var(--ion-color-success);
+        background: linear-gradient(to bottom, rgba(40, 167, 69, 0.02), #ffffff);
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, var(--ion-color-success), var(--ion-color-success-shade));
+        }
+      }
+      
+      .featured-badge,
+      .current-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--ion-color-warning);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        
+        .badge-icon {
+          font-size: 1rem;
+        }
+        
+        .badge-text {
+          white-space: nowrap;
+        }
+      }
+      
+      .current-badge {
+        background: var(--ion-color-success);
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+      }
+      
+      .card-header {
+        padding: 2rem 2rem 1rem 2rem;
+        text-align: center;
+        
+        .plan-image {
+          margin-bottom: 1.5rem;
+          height: 120px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+          }
+        }
+        
+        .plan-title {
+          color: var(--ion-color-dark);
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin: 0 0 0.5rem 0;
+          line-height: 1.3;
+        }
+        
+        .plan-subtitle {
+          color: var(--ion-color-medium);
+          font-size: 1rem;
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+      
+      .card-content {
+        padding: 0 2rem;
+        flex: 1;
+        
+        .features-list {
+          .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.8rem 1rem;
+            background: rgba(30, 150, 252, 0.03);
+            border-radius: 12px;
+            border-left: 3px solid var(--ion-color-primary);
+            transition: all 0.3s ease;
+            
+            &:hover {
+              background: rgba(30, 150, 252, 0.08);
+              transform: translateX(4px);
+            }
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            .feature-icon {
+              color: var(--ion-color-primary);
+              font-size: 1.2rem;
+              margin-right: 12px;
+              margin-top: 2px;
+              flex-shrink: 0;
+            }
+            
+            .feature-text {
+              color: var(--ion-color-dark);
+              font-size: 0.95rem;
+              line-height: 1.5;
+              flex: 1;
+            }
+          }
+        }
+      }
+      
+      .card-footer {
+        padding: 1.5rem 2rem 2rem 2rem;
+        
+        .purchase-button {
+          --border-radius: 16px;
+          --box-shadow: 0 4px 20px rgba(30, 150, 252, 0.3);
+          height: 56px;
+          font-weight: 600;
+          font-size: 1.1rem;
+          --background: linear-gradient(45deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+          margin: 0;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+            --box-shadow: 0 6px 25px rgba(30, 150, 252, 0.4);
+          }
+        }
+        
+        .current-button {
+          --border-radius: 16px;
+          height: 56px;
+          font-weight: 600;
+          font-size: 1.1rem;
+          --background: var(--ion-color-success);
+          margin: 0;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design for mobile
+@media (max-width: 480px) {
+  .memberships-container {
+    .welcome-section {
+      .welcome-content {
+        padding: 2rem 1rem;
+        
+        .welcome-icon {
+          font-size: 3.5rem;
+        }
+        
+        .welcome-title {
+          font-size: 1.7rem;
+        }
+        
+        .welcome-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .memberships-section {
+      padding: 0 0.5rem;
+      
+      .memberships-grid {
+        gap: 1.5rem;
+      }
+      
+      .membership-card {
+        &.featured {
+          transform: none;
+          
+          &:hover {
+            transform: translateY(-6px);
+          }
+        }
+        
+        .featured-badge,
+        .current-badge {
+          top: 0.5rem;
+          right: 0.5rem;
+          padding: 0.4rem 0.8rem;
+          font-size: 0.75rem;
+          
+          .badge-text {
+            display: none;
+          }
+        }
+        
+        .card-header {
+          padding: 1.5rem 1.5rem 1rem 1.5rem;
+          
+          .plan-image {
+            height: 80px;
+            margin-bottom: 1rem;
+          }
+          
+          .plan-title {
+            font-size: 1.2rem;
+          }
+          
+          .plan-subtitle {
+            font-size: 0.9rem;
+          }
+        }
+        
+        .card-content {
+          padding: 0 1.5rem;
+          
+          .features-list .feature-item {
+            padding: 0.6rem 0.8rem;
+            margin-bottom: 0.8rem;
+            
+            .feature-icon {
+              font-size: 1.1rem;
+              margin-right: 10px;
+            }
+            
+            .feature-text {
+              font-size: 0.9rem;
+            }
+          }
+        }
+        
+        .card-footer {
+          padding: 1rem 1.5rem;
+          
+          .purchase-button,
+          .current-button {
+            height: 48px;
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation for card entrance
+.membership-card {
+  animation: slideInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+  
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Focus states for accessibility
+.purchase-button:focus-visible,
+.current-button:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
 }

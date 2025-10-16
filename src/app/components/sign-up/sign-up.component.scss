@@ -1,0 +1,242 @@
+.register-container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 0;
+}
+
+// Welcome Section
+.welcome-section {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 2rem;
+  position: relative;
+  
+  .back-button-container {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+    
+    .back-button {
+      --color: white;
+      --background: rgba(255, 255, 255, 0.1);
+      --border-radius: 12px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      backdrop-filter: blur(10px);
+      
+      &:hover {
+        --background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+  
+  .welcome-content {
+    text-align: center;
+    padding: 4rem 2rem 2.5rem 2rem;
+    color: white;
+    
+    .full-logo-img {
+      height: 60px;
+      width: auto;
+      margin-bottom: 1.5rem;
+    }
+    
+    .welcome-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: white;
+    }
+    
+    .welcome-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}
+
+// Register Form Section
+.register-form-section {
+  padding: 0 1.5rem;
+  
+  .form-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(30, 150, 252, 0.08);
+    border: 1px solid var(--ion-color-light);
+    overflow: hidden;
+    
+    .register-form {
+      padding: 2rem;
+      
+      .form-fields {
+        margin-bottom: 2rem;
+        
+        .input-group {
+          margin-bottom: 1.5rem;
+          
+          .custom-input {
+            --background: #ffffff;
+            --border-radius: 16px;
+            --border-color: var(--ion-color-light);
+            --border-width: 2px;
+            --highlight-color-focused: var(--ion-color-primary);
+            --highlight-color-valid: var(--ion-color-success);
+            --highlight-color-invalid: var(--ion-color-danger);
+            --padding-start: 56px;
+            --padding-end: 16px;
+            margin: 0;
+            border: 2px solid var(--ion-color-light);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            
+            &:hover {
+              --border-color: var(--ion-color-secondary);
+            }
+            
+            &.ion-focused {
+              --border-color: var(--ion-color-primary);
+              box-shadow: 0 0 0 4px rgba(30, 150, 252, 0.1);
+            }
+            
+            &.error {
+              --border-color: var(--ion-color-danger);
+              
+              &.ion-focused {
+                box-shadow: 0 0 0 4px rgba(var(--ion-color-danger-rgb), 0.1);
+              }
+            }
+            
+            .input-icon {
+              position: absolute;
+              left: 16px;
+              color: var(--ion-color-medium);
+              font-size: 1.2rem;
+              z-index: 10;
+            }
+            
+            ion-input, ion-select {
+              --padding-bottom: 16px;
+              font-size: 1rem;
+            }
+            
+            ion-select {
+              --placeholder-color: var(--ion-color-medium);
+            }
+          }
+          
+          .error-message {
+            color: var(--ion-color-danger);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            margin-left: 1rem;
+            font-weight: 500;
+          }
+        }
+      }
+      
+      .register-button {
+        --border-radius: 16px;
+        --background: var(--ion-color-primary);
+        --background-activated: var(--ion-color-primary-shade);
+        --background-focused: var(--ion-color-primary-shade);
+        --background-hover: var(--ion-color-primary-tint);
+        --color: white;
+        --padding-top: 16px;
+        --padding-bottom: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 1.5rem 0;
+        box-shadow: 0 4px 16px rgba(30, 150, 252, 0.3);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(30, 150, 252, 0.4);
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          transform: none;
+          box-shadow: 0 4px 16px rgba(30, 150, 252, 0.2);
+        }
+      }
+      
+      .login-section {
+        text-align: center;
+        margin-top: 2rem;
+        
+        .login-link-button {
+          --color: var(--ion-color-primary);
+          --background: transparent;
+          --background-activated: rgba(30, 150, 252, 0.1);
+          --background-focused: rgba(30, 150, 252, 0.1);
+          --background-hover: rgba(30, 150, 252, 0.05);
+          --border-radius: 12px;
+          --padding-top: 12px;
+          --padding-bottom: 12px;
+          font-size: 1rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            --color: var(--ion-color-primary-shade);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .register-form-section {
+    padding: 0 1rem;
+    
+    .form-card .register-form {
+      padding: 1.5rem;
+    }
+  }
+  
+  .welcome-section .welcome-content {
+    padding: 3rem 1.5rem 2rem 1.5rem;
+    
+    .welcome-title {
+      font-size: 1.75rem;
+    }
+    
+    .welcome-subtitle {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .register-form-section {
+    padding: 0 0.75rem;
+    
+    .form-card .register-form {
+      padding: 1.25rem;
+    }
+  }
+}
+
+// Animation for form appearance
+.register-form-section {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

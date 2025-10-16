@@ -1,36 +1,63 @@
-<ion-header [translucent]="true">
 
+<ion-header class="header-primary">
   <ion-toolbar color="primary">
-
-    <ion-buttons slot="start" *ngIf="!platform.is('ios') || platform.is('ios') && this.platform.is('mobileweb')">
-      <ion-img class="full-logo-img" src="../../../assets/images/ikosten_identificador_blanco_no_slogan.png"></ion-img>
+    <ion-buttons slot="start">
+      <ion-menu-button color="light"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
 
     </ion-buttons>
-
   </ion-toolbar>
-
-
 </ion-header>
-
-<ion-content class="content-background">
-
-  <div class="responsive_container">
-
-    <ion-list class="ion-margin-top">
-      <ion-list-header>
-        {{'titles.modules.profile.language-title' | translate}}
-      </ion-list-header>
-      <ion-item >
-        <ion-select label="{{'inputs.app-language.title' | translate}}" [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage()" label-placement="floating">
-          <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">{{language.title}}</ion-select-option>
-        </ion-select>
-      </ion-item>
-  
-    </ion-list>
-
-  
+<ion-content class="language-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <ion-icon name="language-outline" class="welcome-icon"></ion-icon>
+      <h1 class="welcome-title">{{'titles.modules.profile.language-title' | translate}}</h1>
+      <p class="welcome-subtitle">{{'titles.modules.language.subtitle' | translate}}</p>
+    </div>
   </div>
 
+  <!-- Language Selection Section -->
+  <div class="language-selection-section">
+    <div class="selection-card">
+      <div class="card-header">
+        <ion-icon name="globe-outline" class="card-icon"></ion-icon>
+        <h2 class="card-title">{{'titles.modules.language.select-language' | translate}}</h2>
+        <p class="card-subtitle">{{'titles.modules.language.choose-language' | translate}}</p>
+      </div>
+      
+      <div class="language-input">
+        <ion-item class="custom-input">
+          <ion-select 
+            label="{{'inputs.app-language.title' | translate}}" 
+            [(ngModel)]="selectedLanguage" 
+            (ionChange)="changeLanguage()" 
+            labelPlacement="floating"
+            interface="popover">
+            <ion-select-option *ngFor="let language of availableLanguages" [value]="language.code">
+              {{language.title}}
+            </ion-select-option>
+          </ion-select>
+          <ion-icon name="language-outline" slot="start" class="input-icon"></ion-icon>
+        </ion-item>
+      </div>
 
-
+      <div class="language-info">
+        <div class="info-item">
+          <ion-icon name="checkmark-circle-outline" class="info-icon"></ion-icon>
+          <span>{{'titles.modules.language.info.immediate-changes' | translate}}</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="globe-outline" class="info-icon"></ion-icon>
+          <span>{{'titles.modules.language.info.fully-translated' | translate}}</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="refresh-outline" class="info-icon"></ion-icon>
+          <span>{{'titles.modules.language.info.change-anytime' | translate}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>

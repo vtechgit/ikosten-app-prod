@@ -1,0 +1,114 @@
+{
+  "identifier" : "2A6F8DA7",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6738988634",
+    "_developerTeamID" : "B4F4SXF22H",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 757735091.91408503,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21566896",
+      "localizations" : [
+
+      ],
+      "name" : "iKOSTEN Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "20.00",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6742588111",
+          "introductoryOffer" : {
+            "internalID" : "6742588112",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Full access to all iKOSTEN premium features including unlimited receipts processing, advanced analytics, and priority support.",
+              "displayName" : "iKOSTEN Pro Full",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Acceso completo a todas las funciones premium de iKOSTEN incluyendo procesamiento ilimitado de recibos, análisis avanzado y soporte prioritario.",
+              "displayName" : "iKOSTEN Pro Completo",
+              "locale" : "es_ES"
+            }
+          ],
+          "productID" : "ikosten_pro_full",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "iKOSTEN Pro Full Monthly",
+          "subscriptionGroupID" : "21566896",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
