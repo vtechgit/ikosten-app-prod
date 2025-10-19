@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
-        versionName '1.0.12'
+        versionName '1.0.11'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,7 +16,7 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
       versionCode 2
-      versionCode 1012
+      versionCode 1011
     }
     buildTypes {
         release {
@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
-
+    
     // Google Sign-In y Credential Manager para Android API 35
     implementation "com.google.android.gms:play-services-auth:$playServicesAuthVersion"
     implementation "androidx.credentials:credentials:$androidxCredentialsVersion"
