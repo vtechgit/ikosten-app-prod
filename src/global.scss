@@ -322,25 +322,48 @@ ion-badge{
       height: calc(56px + constant(safe-area-inset-bottom));
     }
 
-    /* Ajuste para modals y popups */
+    /* Ajuste para modals y popups - SOLO para modals fullscreen */
     ion-modal {
-      .ion-page {
-        ion-header {
-          padding-top: env(safe-area-inset-top);
-          padding-top: constant(safe-area-inset-top);
-          
-          ion-toolbar {
-            --min-height: 56px;
-            min-height: 56px;
+      &:not([initial-breakpoint]) {
+        .ion-page {
+          ion-header {
+            padding-top: env(safe-area-inset-top);
+            padding-top: constant(safe-area-inset-top);
+            
+            ion-toolbar {
+              --min-height: 56px;
+              min-height: 56px;
+            }
+          }
+
+          ion-footer {
+            ion-toolbar {
+              padding-bottom: env(safe-area-inset-bottom);
+              padding-bottom: constant(safe-area-inset-bottom);
+              min-height: calc(56px + env(safe-area-inset-bottom));
+              min-height: calc(56px + constant(safe-area-inset-bottom));
+            }
           }
         }
+      }
 
-        ion-footer {
-          ion-toolbar {
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-bottom: constant(safe-area-inset-bottom);
-            min-height: calc(56px + env(safe-area-inset-bottom));
-            min-height: calc(56px + constant(safe-area-inset-bottom));
+      /* Modal sheets (con breakpoints) NO deben tener safe area padding */
+      &[initial-breakpoint] {
+        .ion-page {
+          ion-header {
+            padding-top: 0;
+            
+            ion-toolbar {
+              --min-height: 56px;
+              min-height: 56px;
+            }
+          }
+
+          ion-footer {
+            ion-toolbar {
+              padding-bottom: 0;
+              min-height: 56px;
+            }
           }
         }
       }

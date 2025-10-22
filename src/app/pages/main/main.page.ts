@@ -1321,15 +1321,22 @@ export class MainPage implements OnInit {
     this.api.delete(`userReceipts/${this.receiptToDelete}`).subscribe({
       next: (res) => {
         console.log('✅ Receipt deleted successfully');
+        
+        // Actualizar inmediatamente la interfaz eliminando el recibo del array local
+        this.removeReceiptFromLocalData(this.receiptToDelete);
+        
         this.isAlertDeleteReceipt = false;
         this.receiptToDelete = '';
         
-        // Recargar recibos
-        this.loadUserReceipts();
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+        
+        console.log('🔄 Receipt removed from UI immediately');
       },
       error: (error) => {
         console.error('❌ Error deleting receipt:', JSON.stringify(error));
         this.isAlertDeleteReceipt = false;
+        this.receiptToDelete = '';
         alert('Error al eliminar el recibo');
       }
     });
@@ -1384,11 +1391,13 @@ export class MainPage implements OnInit {
         console.log('✅ All receipts deleted successfully');
         this.isAlertDeleteAllReceipts = false;
         
-        // Reiniciar el selector de país
-        this.currencyBlockSelected = undefined;
+        // Actualizar inmediatamente la interfaz eliminando todos los recibos del país actual
+        this.removeAllReceiptsFromCurrentCountry();
         
-        // Recargar recibos
-        this.loadUserReceipts();
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+        
+        console.log('🔄 All receipts removed from UI immediately');
       })
       .catch((error) => {
         console.error('❌ Error deleting receipts:', JSON.stringify(error));
@@ -1399,6 +1408,80 @@ export class MainPage implements OnInit {
 
   dismissDeleteAllReceipts() {
     this.isAlertDeleteAllReceipts = false;
+  }
+
+  // ============================================
+  // FUNCIONES DE ACTUALIZACIÓN LOCAL DE DATOS
+  // ============================================
+
+  /**
+   * Elimina un recibo específico de los datos locales sin recargar desde el servidor
+   * @param receiptId ID del recibo a eliminar
+   */
+  private removeReceiptFromLocalData(receiptId: string) {
+    if (!this.currentCountryData || !this.currentCountryData.receipts) {
+      console.warn('⚠️ No current country data to update');
+      return;
+    }
+
+    // Eliminar el recibo del array actual
+    const initialLength = this.currentCountryData.receipts.length;
+    this.currentCountryData.receipts = this.currentCountryData.receipts.filter(
+      (receipt: any) => receipt._id !== receiptId
+    );
+
+    const finalLength = this.currentCountryData.receipts.length;
+    console.log(`🗑️ Removed receipt ${receiptId}. Receipts: ${initialLength} → ${finalLength}`);
+
+    // Actualizar también en userCountries
+    const countryIndex = this.userCountries.findIndex(
+      country => country.country === this.currentCountryData.country
+    );
+
+    if (countryIndex >= 0) {
+      this.userCountries[countryIndex].receipts = this.currentCountryData.receipts;
+    }
+
+    // Si no quedan recibos en este país, cambiar el estado de la interfaz
+    if (this.currentCountryData.receipts.length === 0) {
+      this.isUploadingOther = true;
+      console.log('📝 No receipts left, switching to upload mode');
+    }
+  }
+
+  /**
+   * Elimina todos los recibos del país actual de los datos locales
+   */
+  private removeAllReceiptsFromCurrentCountry() {
+    if (!this.currentCountryData) {
+      console.warn('⚠️ No current country data to update');
+      return;
+    }
+
+    const country = this.currentCountryData.country;
+    const receiptsCount = this.currentCountryData.receipts?.length || 0;
+    
+    console.log(`🗑️ Removing all ${receiptsCount} receipts from ${country}`);
+
+    // Vaciar el array de recibos del país actual
+    this.currentCountryData.receipts = [];
+
+    // Actualizar también en userCountries
+    const countryIndex = this.userCountries.findIndex(
+      countryData => countryData.country === country
+    );
+
+    if (countryIndex >= 0) {
+      this.userCountries[countryIndex].receipts = [];
+    }
+
+    // Cambiar a modo de subida ya que no hay recibos
+    this.isUploadingOther = true;
+    
+    // Reiniciar el selector de país para permitir nueva selección
+    this.currencyBlockSelected = undefined;
+    
+    console.log('📝 All receipts removed, switching to upload mode');
   }
 
   // ============================================

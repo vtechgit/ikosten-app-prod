@@ -16,3 +16,39 @@ ion-footer {
         }
     }
 }
+
+/* ============================================
+ * Country Picker Modal - iOS Safe Area Override
+ * ============================================
+ * El country picker es un modal sheet que no ocupa toda la pantalla,
+ * por lo que NO debe tener safe area padding
+ */
+:host {
+    ion-modal {
+        // En iOS, remover el safe area padding para modals sheet
+        .ios & {
+            .ion-page {
+                ion-header {
+                    // Remover el padding-top que se aplica globalmente
+                    padding-top: 0 !important;
+                    background: transparent;
+                    
+                    ion-toolbar {
+                        // Mantener la altura estándar del toolbar
+                        --min-height: 56px;
+                        min-height: 56px;
+                        --background: var(--ion-color-primary);
+                    }
+                }
+                
+                ion-footer {
+                    ion-toolbar {
+                        // Remover también el padding-bottom si existe
+                        padding-bottom: 0 !important;
+                        min-height: 56px;
+                    }
+                }
+            }
+        }
+    }
+}
