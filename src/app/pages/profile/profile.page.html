@@ -74,10 +74,6 @@
             </div>
           </div>
         </div>
-        <ion-button class="upgrade-button" fill="solid" color="primary" *ngIf="this.userSession && this.userSession.lead_role < 3" (click)="openMemberships()">
-          {{'titles.modules.profile.upgrade-plan' | translate}}
-          <ion-icon name="diamond-outline" slot="end"></ion-icon>
-        </ion-button>
         <ion-button class="cancel-button" fill="outline" color="danger" *ngIf="this.activeMebership && this.activeMebership.purchasedMembership_status === 'ACTIVE'" (click)="confirmCancelMembership()">
           {{'buttons.cancel-membership' | translate}}
           <ion-icon name="close-circle-outline" slot="end"></ion-icon>
