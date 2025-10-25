@@ -86,6 +86,7 @@
             "paymentMode" : "free",
             "subscriptionPeriod" : "P1W"
           },
+          "gracePeriod" : "P16D",
           "localizations" : [
             {
               "description" : "Full access to all iKOSTEN premium features including unlimited receipts processing, advanced analytics, and priority support.",

@@ -43,6 +43,9 @@ export class MembershipModalComponent implements OnChanges {
   showAlertError: boolean = false;
   showAlertSuccess: boolean = false;
   
+  // 🆕 Specific alert types for better UX
+  currentAlertType: 'generic' | 'product-not-found' | 'store-error' | 'sandbox-required' = 'generic';
+  
   public errorButtons = [
     {
       text: 'buttons.accept',
@@ -218,7 +221,7 @@ export class MembershipModalComponent implements OnChanges {
     // Verificar que el plan tenga un product ID configurado
     if (!membership.membership_in_app_product_id) {
       console.error('❌ El plan no tiene un product ID configurado para In-App Purchase');
-      this.showAlertError = true;
+      this.handlePurchaseError('Producto no configurado para In-App Purchase');
       return;
     }
     
@@ -306,27 +309,84 @@ export class MembershipModalComponent implements OnChanges {
               },
               error: (err) => {
                 console.error('❌ Error actualizando usuario:', err);
-                this.showAlertError = true;
+                this.handlePurchaseError('Error updating user profile');
               }
             });
           },
           error: (err) => {
             console.error('❌ Error registrando compra:', err);
-            this.showAlertError = true;
+            this.handlePurchaseError('Error registering purchase');
           }
         });
       } else {
         console.error('❌ Compra fallida:', result.error);
-        
-        // Si el usuario canceló, no mostrar error
-        if (result.error && !result.error.includes('cancelada')) {
-          this.showAlertError = true;
-        }
+        this.handlePurchaseError(result.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error en compra con In-App Purchase:', error);
       this.isLoadingMemberships = false;
-      this.showAlertError = true;
+      this.handlePurchaseError(error.message || error.toString());
+    }
+  }
+
+  /**
+   * 🆕 Maneja errores específicos de compra con mensajes apropiados
+   */
+  private handlePurchaseError(errorMessage: string) {
+    console.log('🚨 Handling purchase error:', errorMessage);
+    
+    // Si el usuario canceló, no mostrar error
+    if (errorMessage?.includes('cancelada') || 
+        errorMessage?.includes('cancelled') ||
+        errorMessage?.includes('cancel')) {
+      console.log('👤 Usuario canceló la compra - no mostrar error');
+      return;
+    }
+    
+    // Determinar el tipo de error específico
+    if (errorMessage?.includes('Producto no encontrado') || 
+        errorMessage?.includes('not found') ||
+        errorMessage?.includes('not available') ||
+        errorMessage?.includes('under review') ||
+        errorMessage?.includes('sandbox Apple ID')) {
+      this.currentAlertType = 'product-not-found';
+    } else if (errorMessage?.includes('connection') || 
+               errorMessage?.includes('network') ||
+               errorMessage?.includes('internet')) {
+      this.currentAlertType = 'store-error';
+    } else {
+      this.currentAlertType = 'generic';
+    }
+    
+    this.showAlertError = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * 🆕 Obtiene el título del alert según el tipo de error
+   */
+  getAlertTitle(): string {
+    switch (this.currentAlertType) {
+      case 'product-not-found':
+        return this.translate.instant('alerts.iap.product-not-found.title');
+      case 'store-error':
+        return this.translate.instant('alerts.iap.store-error.title');
+      default:
+        return this.translate.instant('alerts.payment.error.title');
+    }
+  }
+
+  /**
+   * 🆕 Obtiene el mensaje del alert según el tipo de error
+   */
+  getAlertMessage(): string {
+    switch (this.currentAlertType) {
+      case 'product-not-found':
+        return this.translate.instant('alerts.iap.product-not-found.message');
+      case 'store-error':
+        return this.translate.instant('alerts.iap.store-error.message');
+      default:
+        return this.translate.instant('alerts.payment.error.subtitle');
     }
   }
 

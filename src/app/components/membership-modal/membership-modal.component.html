@@ -178,11 +178,11 @@
   </ng-template>
 </ion-modal>
 
-<!-- Alert de Error -->
+<!-- Alert de Error Dinámico -->
 <ion-alert
   [isOpen]="showAlertError"
-  header="{{ 'alerts.payment.error.title' | translate }}"
-  subHeader="{{ 'alerts.payment.error.subtitle' | translate }}"
+  [header]="getAlertTitle()"
+  [subHeader]="getAlertMessage()"
   [buttons]="errorButtons"
   (didDismiss)="showAlertError=false">
 </ion-alert>
