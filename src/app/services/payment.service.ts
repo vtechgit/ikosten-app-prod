@@ -29,8 +29,20 @@ export class PaymentService {
   private isInitialized: boolean = false;
 
   constructor(private platform: Platform) {
-    this.isNativePlatform = this.platform.is('ios') || this.platform.is('android');
+    // Verificar que sea plataforma nativa (iOS/Android) Y NO sea mobileweb
+    // mobileweb = navegador móvil, hybrid/capacitor = app nativa
+    this.isNativePlatform = (this.platform.is('ios') || this.platform.is('android')) && 
+                             !this.platform.is('mobileweb') &&
+                             (this.platform.is('capacitor') || this.platform.is('cordova') || this.platform.is('hybrid'));
     console.log('💳 PaymentService: Plataforma nativa detectada:', this.isNativePlatform);
+    console.log('📱 PaymentService: Plataforma detectada:', {
+      ios: this.platform.is('ios'),
+      android: this.platform.is('android'),
+      mobileweb: this.platform.is('mobileweb'),
+      capacitor: this.platform.is('capacitor'),
+      cordova: this.platform.is('cordova'),
+      hybrid: this.platform.is('hybrid')
+    });
   }
 
   /**

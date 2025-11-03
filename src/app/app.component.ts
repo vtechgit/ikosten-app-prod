@@ -116,8 +116,12 @@ export class AppComponent implements OnInit  {
 
   private async initializePaymentService() {
     try {
-      // Solo inicializar en plataformas nativas
-      if (this.platform.is('ios') || this.platform.is('android')) {
+      // Solo inicializar en plataformas nativas (NO en mobileweb = navegador móvil)
+      const isNativePlatform = (this.platform.is('ios') || this.platform.is('android')) && 
+                                !this.platform.is('mobileweb') &&
+                                (this.platform.is('capacitor') || this.platform.is('cordova') || this.platform.is('hybrid'));
+      
+      if (isNativePlatform) {
         console.log('💳 Inicializando PaymentService...');
         
         // IMPORTANT: RevenueCat genera un API Key público diferente para cada plataforma
