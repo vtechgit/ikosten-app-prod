@@ -35,6 +35,7 @@ export class SigInComponent  implements OnInit {
   loadingMessage:string='titles.modules.login.loading-message'; // Default message
 
   availableCountries = [];
+  countriesLoaded:boolean=false; // Control para saber si los países ya se cargaron
 
   alertButtons = ['Ok'];
   showAlertCodeError:boolean=false;
@@ -98,9 +99,14 @@ export class SigInComponent  implements OnInit {
 
   }
   getAvailableCountries(){
+    console.log('🌍 Cargando países disponibles...');
+    this.countriesLoaded = false; // Marcar como no cargados mientras se hace la petición
+    
     this.api.read('availableCountries').subscribe({
       next: (response) => {
         this.availableCountries = response.body || response;
+        this.countriesLoaded = true; // Marcar como cargados después de recibir la respuesta
+        console.log('✅ Países cargados:', this.availableCountries.length);
         
         // Establecer un país por defecto si no hay ninguno seleccionado
         if (this.availableCountries.length > 0 && !this.selectedCountry) {
@@ -111,10 +117,12 @@ export class SigInComponent  implements OnInit {
           ) || this.availableCountries[0];
           
           this.selectedCountry = defaultCountry;
+          console.log('🏳️ País por defecto seleccionado:', this.selectedCountry.title);
         }
       },
       error: (error) => {
-        console.error('Error obteniendo países:', JSON.stringify(error));
+        console.error('❌ Error obteniendo países:', JSON.stringify(error));
+        this.countriesLoaded = false; // Mantener como no cargados en caso de error
       }
     });
   }
@@ -473,7 +481,7 @@ export class SigInComponent  implements OnInit {
       
       console.log('🔍 Verificando país seleccionado:', this.selectedCountry);
       
-      // Verificar que tenemos el país seleccionado
+      // Verificar país seleccionado
       if (!this.selectedCountry) {
         console.error('❌ No hay país seleccionado');
         this.handleLoginError('Por favor selecciona un país');
@@ -507,7 +515,7 @@ export class SigInComponent  implements OnInit {
     console.log('🎯 handleGoogleLoginSuccess iniciado con usuario:', user);
     
     try {
-      // Verificar que tenemos el país seleccionado
+      // Verificar país seleccionado
       if (!this.selectedCountry) {
         console.error('❌ No hay país seleccionado en handleGoogleLoginSuccess');
         this.handleLoginError('Por favor selecciona un país');
@@ -625,7 +633,6 @@ export class SigInComponent  implements OnInit {
 
   private navigateAfterLogin() {
     // Mantener isLoading = true hasta que navegue para mostrar feedback visual
-    // La navegación con window.location.href recargará la página de todas formas
     this.loadingMessage = 'titles.modules.login.redirecting';
 
     // Verificar si el usuario ha completado el onboarding
@@ -653,8 +660,9 @@ export class SigInComponent  implements OnInit {
     console.log('🔍 navigateAfterLogin - hasCompletedOnboarding (calculado):', hasCompletedOnboarding);
     
     if (currentUser && !hasCompletedOnboarding) {
-      console.log('🎯 Usuario no ha completado onboarding (o es undefined/null/false), redirigiendo a /onboarding...');
-      window.location.href = '/onboarding';
+      console.log('🎯 Usuario no ha completado onboarding (o es undefined/null/false), navegando a /onboarding...');
+      this.isLoading = false;
+      this.router.navigate(['/onboarding']);
       return;
     }
 
@@ -663,21 +671,24 @@ export class SigInComponent  implements OnInit {
     // Si tiene backParams, navegar según los parámetros
     if (this.backParams && this.backParams.back && this.backParams.back !== '') {
       let url = `/customer/${this.backParams.back}`;
+      let queryParams: any = {};
       
       if (this.backParams.membership && this.backParams.membership !== '') {
-        url += `/?membership=${this.backParams.membership}`;
+        queryParams.membership = this.backParams.membership;
       } else if (this.backParams.trip && this.backParams.trip !== '') {
-        url += `/?trip=${this.backParams.trip}`;
+        queryParams.trip = this.backParams.trip;
         if (this.backParams.step && this.backParams.step) {
-          url += `&step=${this.backParams.step}`;
+          queryParams.step = this.backParams.step;
         }
       }
       
-      console.log('🔄 Navegando con backParams a:', url);
-      window.location.href = url;
+      console.log('🔄 Navegando con backParams a:', url, queryParams);
+      this.isLoading = false;
+      this.router.navigate([url], { queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined });
     } else {
       console.log('🔄 Navegando a trips por defecto');
-      window.location.href = '/customer/trips';
+      this.isLoading = false;
+      this.router.navigate(['/customer/trips']);
     }
   }
 

@@ -104,10 +104,28 @@
           </div>
         </div>
 
+
+
         <!-- Garantía y beneficios -->
         <div class="trial-guarantee">
           <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
           <p>{{ 'trial.guarantee' | translate }}</p>
+        </div>
+                <!-- Términos y Condiciones -->
+        <div class="terms-conditions">
+          <h4>{{ 'trial.terms.title' | translate }}</h4>
+          <ul class="terms-list">
+            <li>
+              <a href="https://ikosten.com/privacy-policy/" target="_blank" rel="noopener noreferrer">
+                {{ 'trial.terms.privacy-policy' | translate }}
+              </a>
+            </li>
+            <li *ngIf="isIOS">
+              <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener noreferrer">
+                {{ 'trial.terms.eula' | translate }}
+              </a>
+            </li>
+          </ul>
         </div>
 
         <!-- Botón para cerrar -->
