@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { PaymentService } from './payment.service';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -40,7 +41,8 @@ export class AuthService {
     private apiService: ApiService,
     private paymentService: PaymentService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private translate: TranslateService
   ) {
     // Verificar si hay usuario guardado al inicializar
     const savedUser = this.apiService.getUserData();
@@ -287,9 +289,9 @@ export class AuthService {
       }),
       tap(success => {
         if (success) {
-          this.showSuccessToast('Bienvenido de vuelta');
+          this.showSuccessToast(this.translate.instant('auth.toast.welcome-back'));
         } else {
-          this.showErrorToast('Credenciales inválidas');
+          this.showErrorToast(this.translate.instant('auth.toast.invalid-credentials'));
         }
       })
     );
@@ -307,9 +309,9 @@ export class AuthService {
       }),
       tap(success => {
         if (success) {
-          this.showSuccessToast('Cuenta creada exitosamente');
+          this.showSuccessToast(this.translate.instant('auth.toast.account-created'));
         } else {
-          this.showErrorToast('Error al crear la cuenta');
+          this.showErrorToast(this.translate.instant('auth.toast.account-creation-error'));
         }
       })
     );
@@ -326,9 +328,9 @@ export class AuthService {
       }),
       tap(success => {
         if (success) {
-          this.showSuccessToast('Bienvenido de vuelta');
+          this.showSuccessToast(this.translate.instant('auth.toast.welcome-back'));
         } else {
-          this.showErrorToast('Error en la autenticación social');
+          this.showErrorToast(this.translate.instant('auth.toast.social-auth-error'));
         }
       })
     );
@@ -348,7 +350,7 @@ export class AuthService {
     this.apiService.clearAuthData();
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
-    this.showSuccessToast('Sesión cerrada exitosamente');
+    this.showSuccessToast(this.translate.instant('auth.toast.session-closed'));
   }
 
   isLoggedIn(): boolean {
