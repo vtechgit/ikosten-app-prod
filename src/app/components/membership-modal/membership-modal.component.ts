@@ -6,6 +6,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService, PaymentProduct } from '../../services/payment.service';
 import { IPayPalConfig, ICreateSubscriptionRequest } from 'ngx-paypal';
+declare var ttq;
 
 @Component({
   selector: 'app-membership-modal',
@@ -90,6 +91,7 @@ export class MembershipModalComponent implements OnChanges {
       hybrid: this.platform.is('hybrid')
     });
   }
+                  
 
   ngOnChanges(changes: SimpleChanges) {
     // Cuando el modal se abre, cargar las membresías
@@ -315,6 +317,24 @@ export class MembershipModalComponent implements OnChanges {
                 this.authService.updateCurrentUser(updatedUser);
                 console.log('🔄 AuthService actualizado con el nuevo rol del usuario:', updatedUser);
                 
+                // 📊 Registrar evento de TikTok Ads solo para web (no apps nativas)
+                if (!this.isNativePlatform && typeof ttq !== 'undefined') {
+                  try {
+                    ttq.track('CompletePurchase', {
+                      "contents": [
+                        {
+                          "content_id": this.userSession.id,
+                          "content_type": "in-app-purchase",
+                          "content_name": "Free trial started"
+                        }
+                      ],
+                    });
+                    console.log('📊 TikTok Ads: CompletePurchase event enviado (In-App Purchase)');
+                  } catch (error) {
+                    console.error('❌ Error al enviar evento de TikTok Ads:', error);
+                  }
+                }
+                
                 // Mostrar alerta de éxito
                 this.showAlertSuccess = true;
                 this.cdr.detectChanges();
@@ -491,6 +511,24 @@ export class MembershipModalComponent implements OnChanges {
               
               this.authService.updateCurrentUser(updatedUser);
               console.log('🔄 AuthService actualizado con el nuevo rol del usuario:', updatedUser);
+              
+              // 📊 Registrar evento de TikTok Ads solo para web (no apps nativas)
+              if (!this.isNativePlatform && typeof ttq !== 'undefined') {
+                try {
+                  ttq.track('CompletePurchase', {
+                    "contents": [
+                      {
+                        "content_id": this.userSession.id,
+                        "content_type": "paypal",
+                        "content_name": "Free trial started"
+                      }
+                    ],
+                  });
+                  console.log('📊 TikTok Ads: CompletePurchase event enviado (PayPal)');
+                } catch (error) {
+                  console.error('❌ Error al enviar evento de TikTok Ads:', error);
+                }
+              }
               
               // Mostrar alerta de éxito
               this.currentStep = 'plans'; // Volver al paso de planes
