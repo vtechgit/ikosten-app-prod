@@ -47,11 +47,22 @@ export class AuthService {
     // Verificar si hay usuario guardado al inicializar
     const savedUser = this.apiService.getUserData();
     
+    console.log('🔍 AuthService constructor - Usuario guardado:', savedUser);
+    console.log('🔍 AuthService constructor - onboarding_completed:', savedUser?.onboarding_completed);
+    
     if (savedUser) {
+      // 🔧 Si el usuario guardado no tiene onboarding_completed, asumir true para usuarios existentes
+      if (savedUser.onboarding_completed === undefined) {
+        console.log('⚠️ Usuario sin onboarding_completed, estableciendo como true (usuario existente)');
+        savedUser.onboarding_completed = true;
+        // Actualizar en localStorage
+        this.apiService.setUserData(savedUser);
+      }
+      
       this.currentUserSubject.next(savedUser);
       // Verificar si el token necesita ser renovado
       this.checkAndRefreshToken();
-      // Verificar datos del usuario desde el backend
+      // Verificar datos del usuario desde el backend (esto lo actualizará con el valor real)
       this.checkAndRefreshUserData();
     }
   }
@@ -150,11 +161,24 @@ export class AuthService {
             // Mapear lead_onboarding_completed a onboarding_completed
             const onboardingCompleted = updatedUserData.lead_onboarding_completed !== undefined 
               ? updatedUserData.lead_onboarding_completed 
-              : updatedUserData.onboarding_completed;
+              : updatedUserData.onboarding_completed !== undefined
+              ? updatedUserData.onboarding_completed
+              : true; // Por defecto true para usuarios existentes
             
-            // Verificar si el lead_role cambió
-            if (updatedUserData.lead_role !== currentUser.role) {
-              console.log(`🔄 lead_role actualizado: ${currentUser.role} → ${updatedUserData.lead_role}`);
+            // Verificar si cambió el lead_role o el onboarding_completed
+            const roleChanged = updatedUserData.lead_role !== currentUser.role;
+            const onboardingChanged = onboardingCompleted !== currentUser.onboarding_completed;
+            
+            if (roleChanged || onboardingChanged || currentUser.onboarding_completed === undefined) {
+              if (roleChanged) {
+                console.log(`🔄 lead_role actualizado: ${currentUser.role} → ${updatedUserData.lead_role}`);
+              }
+              if (onboardingChanged) {
+                console.log(`🔄 onboarding_completed actualizado: ${currentUser.onboarding_completed} → ${onboardingCompleted}`);
+              }
+              if (currentUser.onboarding_completed === undefined) {
+                console.log(`✅ onboarding_completed establecido: ${onboardingCompleted}`);
+              }
               
               // Actualizar el usuario con los nuevos datos
               const updatedUser: User = {
@@ -166,11 +190,11 @@ export class AuthService {
               this.updateCurrentUser(updatedUser);
               
               // Si el usuario perdió su membresía, mostrar notificación
-              if (currentUser.role > 0 && updatedUserData.lead_role === 0) {
+              if (roleChanged && currentUser.role > 0 && updatedUserData.lead_role === 0) {
                 this.showInfoToast('Tu membresía ha expirado. Ahora tienes acceso limitado.');
               }
             } else {
-              console.log('✅ lead_role sin cambios:', currentUser.role);
+              console.log('✅ Datos del usuario sin cambios - role:', currentUser.role, 'onboarding:', onboardingCompleted);
             }
           }
           
@@ -410,15 +434,28 @@ export class AuthService {
       this.apiService.setToken(authData.tokens.accessToken);
       this.apiService.setRefreshToken(authData.tokens.refreshToken);
       
+      // 🔧 Mapear lead_onboarding_completed a onboarding_completed si existe
+      const userData = authData.user;
+      const userDataWithOnboarding: User = {
+        ...userData,
+        onboarding_completed: (userData as any).lead_onboarding_completed !== undefined 
+          ? (userData as any).lead_onboarding_completed 
+          : userData.onboarding_completed !== undefined
+          ? userData.onboarding_completed
+          : true // Por defecto true para usuarios existentes
+      };
+      
+      console.log('✅ Usuario con onboarding_completed:', userDataWithOnboarding.onboarding_completed);
+      
       // Guardar datos de usuario
-      this.apiService.setUserData(authData.user);
-      this.currentUserSubject.next(authData.user);
+      this.apiService.setUserData(userDataWithOnboarding);
+      this.currentUserSubject.next(userDataWithOnboarding);
       
       // ✅ Identificar usuario en PaymentService de forma asíncrona (sin bloquear)
       // Esto evita que el login se demore esperando por RevenueCat
-      if (authData.user && authData.user.id) {
+      if (userDataWithOnboarding && userDataWithOnboarding.id) {
         // No usar await para no bloquear el flujo de login
-        this.paymentService.identifyUser(authData.user.id).then(() => {
+        this.paymentService.identifyUser(userDataWithOnboarding.id).then(() => {
           console.log('👤 Usuario identificado en PaymentService después del login');
         }).catch(error => {
           console.error('⚠️ Error identificando usuario en PaymentService (no crítico):', error);
