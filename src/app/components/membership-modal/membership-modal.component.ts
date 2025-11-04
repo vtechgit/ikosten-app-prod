@@ -35,6 +35,7 @@ export class MembershipModalComponent implements OnChanges {
   
   // Platform detection
   isNativePlatform: boolean = false;
+  isIOS: boolean = false;
   
   // Trial tracking
   modalOpenTime: number = 0;
@@ -81,7 +82,12 @@ export class MembershipModalComponent implements OnChanges {
     this.isNativePlatform = (this.platform.is('ios') || this.platform.is('android')) && 
                              !this.platform.is('mobileweb') &&
                              (this.platform.is('capacitor') || this.platform.is('cordova') || this.platform.is('hybrid'));
+    
+    // Detectar específicamente iOS
+    this.isIOS = this.platform.is('ios') && !this.platform.is('mobileweb');
+    
     console.log('💳 MembershipModal: Plataforma nativa:', this.isNativePlatform);
+    console.log('🍎 MembershipModal: Es iOS:', this.isIOS);
     console.log('📱 MembershipModal: Plataforma detectada:', {
       ios: this.platform.is('ios'),
       android: this.platform.is('android'),
