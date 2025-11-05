@@ -8,6 +8,7 @@ import { Platform } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Device } from '@capacitor/device';
 import { trigger, transition, style, animate } from '@angular/animations';
+declare var ttq;
 
 const enterTransition = transition(':enter', [
   style({ opacity: 0 }),
@@ -131,6 +132,9 @@ export class MainPage implements OnInit {
       this.router.navigate(['/customer/login']);
       return;
     }
+    
+    // Identificar usuario en TikTok Ads con datos hasheados
+    this.identifyUserInTikTok();
 
     // Inicializar idioma antes de cualquier llamada al API
     this.initializeLanguage();
@@ -140,6 +144,68 @@ export class MainPage implements OnInit {
     this.loadUserReceipts();
     
     // loadCurrencies() se llamará desde translateWords() después de cargar los idiomas
+  }
+
+  /**
+   * Identifica al usuario en TikTok Ads con datos hasheados SHA-256
+   */
+  private async identifyUserInTikTok() {
+    if (typeof ttq === 'undefined') {
+      console.warn('⚠️ TikTok Pixel no disponible');
+      return;
+    }
+
+    try {
+      // Hashear email si existe
+      const hashedEmail = this.userSession?.email 
+        ? await this.sha256Hash(this.userSession.email.toLowerCase().trim())
+        : undefined;
+
+      // Hashear teléfono si existe (remover espacios y caracteres especiales)
+      const cleanPhone = this.userSession?.phone?.replace(/[\s\-\(\)]/g, '');
+      const hashedPhone = cleanPhone 
+        ? await this.sha256Hash(cleanPhone)
+        : undefined;
+
+      // Hashear ID de usuario
+      const hashedExternalId = this.userSession?.id 
+        ? await this.sha256Hash(this.userSession.id)
+        : undefined;
+
+      // Identificar en TikTok Ads
+      ttq.identify({
+        "email": hashedEmail,
+        "phone_number": hashedPhone,
+        "external_id": hashedExternalId
+      });
+
+      console.log('📊 Usuario identificado en TikTok Ads:', {
+        email: hashedEmail ? 'hashed' : 'N/A',
+        phone: hashedPhone ? 'hashed' : 'N/A',
+        externalId: hashedExternalId ? 'hashed' : 'N/A'
+      });
+    } catch (error) {
+      console.error('❌ Error identificando usuario en TikTok Ads:', error);
+    }
+  }
+
+  /**
+   * Genera hash SHA-256 de un string
+   * @param message String a hashear
+   * @returns Promise con el hash en formato hexadecimal
+   */
+  private async sha256Hash(message: string): Promise<string> {
+    // Convertir string a array de bytes
+    const msgBuffer = new TextEncoder().encode(message);
+    
+    // Generar hash
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    
+    // Convertir array buffer a hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
   }
 
   ionViewWillEnter() {

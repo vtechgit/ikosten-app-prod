@@ -110,6 +110,9 @@ export class MembershipModalComponent implements OnChanges {
       this.loadMemberships();
       this.loadUserSession();
       this.translateWords(); // Traducir textos de botones
+      
+      // 📊 Registrar evento de TikTok Ads cuando se abre el modal (solo web)
+      this.trackInitiateCheckout();
     }
   }
 
@@ -326,16 +329,24 @@ export class MembershipModalComponent implements OnChanges {
                 // 📊 Registrar evento de TikTok Ads solo para web (no apps nativas)
                 if (!this.isNativePlatform && typeof ttq !== 'undefined') {
                   try {
-                    ttq.track('CompletePurchase', {
+                    ttq.track('Purchase', {
                       "contents": [
                         {
-                          "content_id": this.userSession.id,
-                          "content_type": "in-app-purchase",
-                          "content_name": "Free trial started"
+                          "content_id": membership._id,
+                          "content_type": "membership",
+                          "content_name": membership.membership_title || "Membership Plan"
                         }
                       ],
+                      "value": purchaseValue,
+                      "currency": membership.membership_currency || "USD"
                     });
-                    console.log('📊 TikTok Ads: CompletePurchase event enviado (In-App Purchase)');
+                    console.log('📊 TikTok Ads: Purchase event enviado (In-App Purchase)', {
+                      planId: membership._id,
+                      planName: membership.membership_title,
+                      value: purchaseValue,
+                      currency: membership.membership_currency,
+                      isTrial: isTrialPurchase
+                    });
                   } catch (error) {
                     console.error('❌ Error al enviar evento de TikTok Ads:', error);
                   }
@@ -521,16 +532,23 @@ export class MembershipModalComponent implements OnChanges {
               // 📊 Registrar evento de TikTok Ads solo para web (no apps nativas)
               if (!this.isNativePlatform && typeof ttq !== 'undefined') {
                 try {
-                  ttq.track('CompletePurchase', {
+                  ttq.track('Purchase', {
                     "contents": [
                       {
-                        "content_id": this.userSession.id,
-                        "content_type": "paypal",
-                        "content_name": "Free trial started"
+                        "content_id": membership._id,
+                        "content_type": "membership",
+                        "content_name": membership.membership_title || "Membership Plan"
                       }
                     ],
+                    "value": membership.membership_price,
+                    "currency": membership.membership_currency || "USD"
                   });
-                  console.log('📊 TikTok Ads: CompletePurchase event enviado (PayPal)');
+                  console.log('📊 TikTok Ads: Purchase event enviado (PayPal)', {
+                    planId: membership._id,
+                    planName: membership.membership_title,
+                    value: membership.membership_price,
+                    currency: membership.membership_currency
+                  });
                 } catch (error) {
                   console.error('❌ Error al enviar evento de TikTok Ads:', error);
                 }
@@ -648,5 +666,66 @@ export class MembershipModalComponent implements OnChanges {
 
     // Resetear contador para evitar envíos duplicados
     this.modalOpenTime = 0;
+  }
+
+  /**
+   * Registra evento InitiateCheckout en TikTok Ads cuando se abre el modal de membresías
+   * Solo se ejecuta en plataforma web (no apps nativas)
+   */
+  private trackInitiateCheckout() {
+    // Solo ejecutar en web (no apps nativas)
+    if (this.isNativePlatform) {
+      console.log('📱 Plataforma nativa: no se envía evento InitiateCheckout a TikTok Ads');
+      return;
+    }
+
+    // Verificar que TikTok Pixel esté disponible
+    if (typeof ttq === 'undefined') {
+      console.warn('⚠️ TikTok Pixel no disponible para InitiateCheckout');
+      return;
+    }
+
+    try {
+      // Si ya hay membresías cargadas, enviar evento con el primer plan
+      if (this.membershipPlans && this.membershipPlans.length > 0) {
+        const firstPlan = this.membershipPlans[0];
+        
+        ttq.track('InitiateCheckout', {
+          "contents": [
+            {
+              "content_id": firstPlan._id,
+              "content_type": "membership",
+              "content_name": firstPlan.membership_title || "Membership Plan"
+            }
+          ],
+          "value": firstPlan.membership_price || 0,
+          "currency": firstPlan.membership_currency || "USD"
+        });
+
+        console.log('📊 TikTok Ads: InitiateCheckout event enviado', {
+          planId: firstPlan._id,
+          planName: firstPlan.membership_title,
+          value: firstPlan.membership_price,
+          currency: firstPlan.membership_currency
+        });
+      } else {
+        // Si aún no hay planes cargados, enviar evento genérico
+        ttq.track('InitiateCheckout', {
+          "contents": [
+            {
+              "content_id": "membership_modal",
+              "content_type": "membership",
+              "content_name": "Membership Plans"
+            }
+          ],
+          "value": 0,
+          "currency": "USD"
+        });
+
+        console.log('📊 TikTok Ads: InitiateCheckout event enviado (genérico)');
+      }
+    } catch (error) {
+      console.error('❌ Error al enviar InitiateCheckout a TikTok Ads:', error);
+    }
   }
 }
