@@ -613,18 +613,33 @@ export class MembershipModalComponent implements OnChanges {
   /**
    * Obtiene el precio formateado de In-App Purchase para un plan
    * Si no está disponible, retorna el precio por defecto del backend
+   * Incluye el período (mensual o anual) traducido
    */
   getFormattedPrice(membership: any): string {
+    let priceString = '';
+    
     if (this.isNativePlatform && membership.membership_in_app_product_id) {
       const product = this.inAppProducts.find(
         p => p.id === membership.membership_in_app_product_id
       );
       if (product) {
-        return product.price;
+        priceString = product.price;
+      } else {
+        // Fallback al precio del backend si el producto no se encuentra
+        priceString = `$${membership.membership_price} ${membership.membership_currency}`;
       }
+    } else {
+      // Fallback al precio del backend para plataforma web
+      priceString = `$${membership.membership_price} ${membership.membership_currency}`;
     }
-    // Fallback al precio del backend
-    return `$${membership.membership_price} ${membership.membership_currency}`;
+    
+    // Agregar el período según membership_recurring (traducido)
+    const periodKey = membership.membership_recurring === 'year' 
+      ? 'global.periods.per-year-short' 
+      : 'global.periods.per-month-short';
+    const period = this.translate.instant(periodKey);
+    
+    return `${priceString}${period}`;
   }
 
   /**

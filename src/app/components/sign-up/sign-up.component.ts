@@ -47,6 +47,8 @@ export class SignUpComponent  implements OnInit {
     this.registerForm = new FormGroup({
       registerName:new FormControl('', [
         Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(100)
       ]),
       registerEmail:new FormControl('', [
         Validators.required,
@@ -60,7 +62,8 @@ export class SignUpComponent  implements OnInit {
       ]),
       registerPass:new FormControl('', [
         Validators.required,
-        Validators.minLength(6)
+        Validators.minLength(8),
+        this.passwordStrengthValidator()
       ]),
 
     });
@@ -242,6 +245,48 @@ export class SignUpComponent  implements OnInit {
         })
           
       }
+  }
+
+  /**
+   * Validador personalizado para la fortaleza de la contraseña
+   * Requiere: 1 mayúscula, 1 minúscula, 1 número
+   * Permite caracteres especiales opcionalmente
+   */
+  passwordStrengthValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      
+      if (!value) {
+        return null; // Si está vacío, lo maneja el required
+      }
+
+      // Verificar que tenga al menos una mayúscula
+      const hasUpperCase = /[A-Z]/.test(value);
+      
+      // Verificar que tenga al menos una minúscula
+      const hasLowerCase = /[a-z]/.test(value);
+      
+      // Verificar que tenga al menos un número
+      const hasNumber = /\d/.test(value);
+      
+      // Verificar que solo contenga caracteres permitidos
+      const validCharacters = /^[A-Za-z\d@$!%*?&#]+$/.test(value);
+
+      const passwordValid = hasUpperCase && hasLowerCase && hasNumber && validCharacters;
+
+      if (!passwordValid) {
+        return {
+          passwordStrength: {
+            hasUpperCase,
+            hasLowerCase,
+            hasNumber,
+            validCharacters
+          }
+        };
+      }
+
+      return null;
+    };
   }
 
   get name() {

@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "163099486974-62eoovhp61rk0k9483och5mas722g9d2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ikosten.app",
+            "certificate_hash": "962272d8e041ae5f6c4884bb3b927957d5200f14"
+          }
+        },
+        {
           "client_id": "163099486974-bhikjb7e8hcngh2lbaui24s5au2l0sm5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
