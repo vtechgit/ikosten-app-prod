@@ -31,19 +31,122 @@ export class AppComponent implements OnInit  {
     private activatedRoute:ActivatedRoute,
     private router: Router
   ) {
-    this.activatedRoute.queryParams.subscribe(params=>{
-
-      if(params['source']){
-        localStorage.setItem('clientSource', params['source']);
-        this.api.create('sources/register_visits',{source_name:params['source']}).subscribe(res=>{
-          console.log('register visits ',res)
-        })
+    console.log('🚀 app.component constructor iniciado');
+    
+    // Capturar params de la URL inicial INMEDIATAMENTE
+    const initialUrl = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('🔍 URL inicial completa:', initialUrl);
+    
+    // Convertir URLSearchParams a objeto simple para logging
+    const paramsObj: any = {};
+    urlParams.forEach((value, key) => {
+      paramsObj[key] = value;
+    });
+    console.log('🔍 Query params en URL inicial:', paramsObj);
+    
+    // Procesar params de la URL inicial usando URLSearchParams
+    this.processUrlSearchParams(urlParams);
+    
+    // Capturar query params después de cada navegación de Angular
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      console.log('🔄 NavigationEnd detectado:', event.url);
+      this.captureQueryParamsFromUrl(event.url);
+    });
+    
+    // También capturar usando ActivatedRoute (para rutas de Angular)
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.log('📋 ActivatedRoute.queryParams:', params);
+      if (params && Object.keys(params).length > 0) {
+        this.processQueryParams(params);
       }
-  
-    })
+    });
 
     // Initialize language synchronously to prevent undefined language errors
     this.initializeLanguage();
+  }
+
+  /**
+   * Procesa params desde URLSearchParams (URL nativa del navegador)
+   * @param urlParams - URLSearchParams object
+   */
+  private processUrlSearchParams(urlParams: URLSearchParams) {
+    const params: any = {};
+    urlParams.forEach((value, key) => {
+      params[key] = value;
+    });
+    
+    if (Object.keys(params).length > 0) {
+      console.log('📦 Procesando params desde URLSearchParams:', params);
+      this.processQueryParams(params);
+    }
+  }
+
+  /**
+   * Captura query params desde una URL string
+   * @param url - URL completa o path con query string
+   */
+  private captureQueryParamsFromUrl(url: string) {
+    try {
+      const urlObj = new URL(url, window.location.origin);
+      const params = new URLSearchParams(urlObj.search);
+      
+      if (params.toString()) {
+        console.log('🔗 Capturando params de URL:', url);
+        this.processUrlSearchParams(params);
+      }
+    } catch (error) {
+      console.warn('⚠️ Error procesando URL:', url, error);
+    }
+  }
+
+  /**
+   * Captura query params de la ruta actual usando ActivatedRoute
+   * Se ejecuta después de cada navegación
+   */
+  private captureQueryParams() {
+    const params = this.activatedRoute.snapshot.queryParams;
+    if (params && Object.keys(params).length > 0) {
+      console.log('📋 Query params detectados después de navegación:', params);
+      this.processQueryParams(params);
+    }
+  }
+
+  /**
+   * Procesa y guarda los query params relevantes
+   * @param params - Query parameters de la URL
+   */
+  private processQueryParams(params: any) {
+    console.log('🔍 processQueryParams llamado con:', params);
+    console.log('🔍 Tipo de params:', typeof params);
+    console.log('🔍 Keys de params:', Object.keys(params));
+    
+    // Sistema de tracking legacy (source)
+    if(params['source'] && params['source'] != ''){
+      localStorage.setItem('clientSource', params['source']);
+      console.log('✅ clientSource guardado:', params['source']);
+      this.api.create('sources/register_visits',{source_name:params['source']}).subscribe(res=>{
+        console.log('✅ register visits:', res);
+      });
+    }
+    
+    // Sistema de tracking moderno (lead_source)
+    if(params['lead_source'] && params['lead_source'] != ''){
+      localStorage.setItem('lead_source', params['lead_source']);
+      console.log('✅✅✅ lead_source guardado en localStorage desde app.component:', params['lead_source']);
+      console.log('✅✅✅ Verificando inmediatamente:', localStorage.getItem('lead_source'));
+    } else {
+      console.log('⚠️ lead_source NO encontrado en params');
+      console.log('⚠️ Valor de params["lead_source"]:', params['lead_source']);
+    }
+
+    // Sistema de invitación (utm_lead)
+    if(params['utm_lead'] && params['utm_lead'] != ''){
+      localStorage.setItem('utm_lead', params['utm_lead']);
+      console.log('✅ utm_lead guardado en localStorage desde app.component:', params['utm_lead']);
+    }
   }
 
   private async initializeLanguage() {
@@ -150,6 +253,20 @@ export class AppComponent implements OnInit  {
   }
 
     ngOnInit() {
+      console.log('🎯 app.component ngOnInit iniciado');
+      
+      // Capturar params una vez más en ngOnInit por si el constructor fue muy temprano
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.toString()) {
+        // Convertir URLSearchParams a objeto simple para logging
+        const paramsObj: any = {};
+        urlParams.forEach((value, key) => {
+          paramsObj[key] = value;
+        });
+        console.log('🔄 Re-capturando params en ngOnInit:', paramsObj);
+        this.processUrlSearchParams(urlParams);
+      }
+      
       // Suscribirse al estado de autenticación del nuevo sistema de sesiones
       this.authService.currentUser$.subscribe(user => {
         this.isLogged = !!user;

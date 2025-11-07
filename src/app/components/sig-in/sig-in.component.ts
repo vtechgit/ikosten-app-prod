@@ -76,24 +76,18 @@ export class SigInComponent  implements OnInit {
     console.log('📋 Formulario de login inicializado:', this.loginForm);
     console.log('✅ SigInComponent: ngOnInit completado');
     
-    // Capturar utm_lead desde localStorage (guardado previamente)
+    // Capturar utm_lead desde localStorage (guardado previamente en app.component o login.component)
     this.utm_lead = localStorage.getItem('utm_lead');
-    
-    // Capturar lead_source desde URL
-    const leadSourceFromUrl = this.activatedRoute.snapshot.queryParamMap.get('lead_source');
-    if(leadSourceFromUrl && leadSourceFromUrl != ''){
-      this.lead_source = leadSourceFromUrl;
-      localStorage.setItem('lead_source', leadSourceFromUrl);
-      console.log('✅ lead_source capturado desde URL en login:', leadSourceFromUrl);
+    if(this.utm_lead && this.utm_lead != ''){
+      console.log('✅ utm_lead recuperado de localStorage:', this.utm_lead);
     }
     
-    // Si no hay lead_source en URL, verificar localStorage
-    if(!this.lead_source){
-      const storedSource = localStorage.getItem('lead_source');
-      if(storedSource){
-        this.lead_source = storedSource;
-        console.log('ℹ️  lead_source recuperado de localStorage en login:', storedSource);
-      }
+    // Capturar lead_source desde localStorage (guardado previamente en app.component)
+    this.lead_source = localStorage.getItem('lead_source');
+    if(this.lead_source && this.lead_source != ''){
+      console.log('✅ lead_source recuperado de localStorage en login:', this.lead_source);
+    } else {
+      console.log('ℹ️  No hay lead_source en localStorage, se usará "direct" como fallback');
     }
     
     this.getAvailableCountries();
@@ -383,7 +377,38 @@ export class SigInComponent  implements OnInit {
       }
     } catch (error) {
       console.error('💥 Error en Firebase Apple Authentication:', error);
-      this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
+      console.error('💥 Error code:', error?.code);
+      console.error('💥 Error message:', error?.message);
+      console.error('💥 Error stringified:', JSON.stringify(error));
+      
+      // Detectar si el usuario canceló el popup
+      const errorCode = error?.code || '';
+      const errorMessage = error?.message || '';
+      const errorString = JSON.stringify(error).toLowerCase();
+      
+      const isCancelled = errorCode === 'auth/popup-closed-by-user' ||
+                          errorCode === 'auth/cancelled-popup-request' ||
+                          errorCode === 'auth/user-cancelled' ||
+                          errorCode === '1001' ||
+                          errorMessage.toLowerCase().includes('popup') ||
+                          errorMessage.toLowerCase().includes('cancel') ||
+                          errorMessage.toLowerCase().includes('closed') ||
+                          errorString.includes('cancel') ||
+                          errorString.includes('popup') ||
+                          errorString.includes('closed') ||
+                          errorString.includes('1001');
+      
+      console.log('🔍 isCancelled:', isCancelled);
+      
+      if (isCancelled) {
+        console.log('ℹ️ Usuario canceló la autenticación con Apple');
+        // Solo ocultar el loading, no mostrar error
+        this.isLoading = false;
+        this.isLoginApple = false;
+      } else {
+        // Error real, mostrar mensaje
+        this.handleAppleLoginError(`Error al iniciar sesión con Apple: ${error.message || error}`);
+      }
     }
   }
 
@@ -507,8 +532,37 @@ export class SigInComponent  implements OnInit {
         this.handleLoginError('No se pudo obtener información del usuario de Google');
       }
     } catch (error) {
-      console.error('💥 Error en Firebase Authentication:', JSON.stringify(error));
-      this.handleLoginError(`Error al iniciar sesión con Google: ${error.message || error}`);
+      console.error('💥 Error en Firebase Authentication:', error);
+      console.error('💥 Error code:', error?.code);
+      console.error('💥 Error message:', error?.message);
+      console.error('💥 Error stringified:', JSON.stringify(error));
+      
+      // Detectar si el usuario canceló el popup
+      const errorCode = error?.code || '';
+      const errorMessage = error?.message || '';
+      const errorString = JSON.stringify(error).toLowerCase();
+      
+      const isCancelled = errorCode === 'auth/popup-closed-by-user' ||
+                          errorCode === 'auth/cancelled-popup-request' ||
+                          errorCode === 'auth/user-cancelled' ||
+                          errorMessage.toLowerCase().includes('popup') ||
+                          errorMessage.toLowerCase().includes('cancel') ||
+                          errorMessage.toLowerCase().includes('closed') ||
+                          errorString.includes('cancel') ||
+                          errorString.includes('popup') ||
+                          errorString.includes('closed');
+      
+      console.log('🔍 isCancelled:', isCancelled);
+      
+      if (isCancelled) {
+        console.log('ℹ️ Usuario canceló la autenticación con Google');
+        // Solo ocultar el loading, no mostrar error
+        this.isLoading = false;
+        this.isLoginGoogle = false;
+      } else {
+        // Error real, mostrar mensaje
+        this.handleLoginError(`Error al iniciar sesión con Google: ${error.message || error}`);
+      }
     }
   }
 
@@ -543,7 +597,10 @@ export class SigInComponent  implements OnInit {
         lead_country: country,
         lead_country_digit: countryDigit,
         lead_role: 0,
-        lead_source: localStorage.getItem('clientSource')
+        lead_source: this.lead_source || 
+                     localStorage.getItem('lead_source') || 
+                     localStorage.getItem('clientSource') || 
+                     'direct'
       };
 
       // Si hay un lead de invitación, agregarlo
@@ -876,6 +933,14 @@ export class SigInComponent  implements OnInit {
   
               let country = this.selectedCountry._id;
               let countryDigit = this.selectedCountry.digit;
+              
+              // Determinar lead_source con sistema de prioridades
+              const finalLeadSource = this.lead_source || 
+                                      localStorage.getItem('lead_source') || 
+                                      localStorage.getItem('clientSource') || 
+                                      'direct';
+              console.log('📊 lead_source final para phone login:', finalLeadSource);
+              
               var obj = {};
               if(this.utm_lead && this.utm_lead != ''){
                 obj ={
@@ -889,7 +954,7 @@ export class SigInComponent  implements OnInit {
                   lead_role:0,
                   lead_id: this.utm_lead,
                   lead_invitation_status: 'active',
-                  lead_source: localStorage.getItem('clientSource')
+                  lead_source: finalLeadSource
                 }
               }else{
                 obj ={
@@ -901,7 +966,7 @@ export class SigInComponent  implements OnInit {
                   lead_country: country,
                   lead_country_digit: countryDigit,
                   lead_role:0,
-                  lead_source: localStorage.getItem('clientSource')
+                  lead_source: finalLeadSource
                 }
               }
 

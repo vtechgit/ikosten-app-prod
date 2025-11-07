@@ -25,9 +25,19 @@ export class LoginComponent  implements OnInit {
     let trip = this.activatedRoute.snapshot.queryParamMap.get('trip');
     let membership = this.activatedRoute.snapshot.queryParamMap.get('membership');
     let step = this.activatedRoute.snapshot.queryParamMap.get('step');
+    
+    // Capturar utm_lead desde URL y guardar en localStorage
     let utm_lead = this.activatedRoute.snapshot.queryParamMap.get('utm_lead');
     if(utm_lead && utm_lead != ''){
       localStorage.setItem('utm_lead', utm_lead);
+      console.log('✅ utm_lead guardado desde login.component:', utm_lead);
+    }
+
+    // Capturar lead_source desde URL y guardar en localStorage
+    let lead_source = this.activatedRoute.snapshot.queryParamMap.get('lead_source');
+    if(lead_source && lead_source != ''){
+      localStorage.setItem('lead_source', lead_source);
+      console.log('✅ lead_source guardado desde login.component:', lead_source);
     }
 
     this.backParams = {
