@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from 'src/environments/environment';
+declare var ttq: any;
 
 @Component({
   selector: 'app-sig-in',
@@ -567,6 +568,10 @@ export class SigInComponent  implements OnInit {
             const currentUser = this.authService.getCurrentUser();
             if (currentUser) {
               console.log('👤 Usuario Google actual:', currentUser);
+              
+              // 📊 Registrar evento de TikTok Ads - CompleteRegistration
+              this.trackCompleteRegistration(currentUser.id, currentUser.email, 'google');
+              
               // Manejar viajes en sesión y navegar
               this.handleTravelsInSession(currentUser.id);
             } else {
@@ -768,6 +773,10 @@ export class SigInComponent  implements OnInit {
             const currentUser = this.authService.getCurrentUser();
             if (currentUser) {
               console.log('👤 Usuario Apple actual:', currentUser);
+              
+              // 📊 Registrar evento de TikTok Ads - CompleteRegistration
+              this.trackCompleteRegistration(currentUser.id, currentUser.email, 'apple');
+              
               // Manejar viajes en sesión y navegar
               this.handleTravelsInSession(currentUser.id);
             } else {
@@ -1013,6 +1022,59 @@ export class SigInComponent  implements OnInit {
   }
   get password() {
     return this.loginForm.get('loginPass');
+  }
+
+  /**
+   * Registra evento CompleteRegistration en TikTok Ads cuando el usuario inicia sesión por primera vez
+   * Usa localStorage para evitar disparar el evento múltiples veces para el mismo usuario
+   * @param userId - ID del usuario
+   * @param userEmail - Email del usuario
+   * @param loginType - Tipo de login: 'google', 'apple', 'email', 'phone'
+   */
+  private trackCompleteRegistration(userId: string, userEmail: string, loginType: string) {
+    // Verificar que TikTok Pixel esté disponible
+    if (typeof ttq === 'undefined') {
+      console.warn('⚠️ TikTok Pixel no disponible para CompleteRegistration');
+      return;
+    }
+
+    // Verificar si ya se disparó el evento para este usuario
+    const registrationTrackedKey = `ttq_registration_tracked_${userId}`;
+    const alreadyTracked = localStorage.getItem(registrationTrackedKey);
+    
+    if (alreadyTracked === 'true') {
+      console.log('ℹ️ CompleteRegistration ya fue enviado para este usuario, omitiendo...');
+      return;
+    }
+
+    try {
+      // Generar event_id único para evitar duplicados
+      const eventId = `${Date.now()}_${userId}`;
+      
+      ttq.track('CompleteRegistration', {
+        "contents": [
+          {
+            "content_id": userId,
+            "content_type": "user",
+            "content_name": `New User Registration - ${loginType}`
+          }
+        ]
+      }, {
+        "event_id": eventId
+      });
+
+      // Marcar como enviado en localStorage
+      localStorage.setItem(registrationTrackedKey, 'true');
+
+      console.log('📊 TikTok Ads: CompleteRegistration event enviado', {
+        userId: userId,
+        userEmail: userEmail,
+        loginType: loginType,
+        eventId: eventId
+      });
+    } catch (error) {
+      console.error('❌ Error al enviar CompleteRegistration a TikTok Ads:', error);
+    }
   }
 
   // Método de testing - para llamar desde consola del navegador

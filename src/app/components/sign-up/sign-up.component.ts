@@ -7,6 +7,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Device } from '@capacitor/device';
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 import { environment } from 'src/environments/environment';
+declare var ttq: any;
+
 @Component({
   selector: 'app-sign-up',
   standalone:false,
@@ -203,6 +205,9 @@ export class SignUpComponent  implements OnInit {
                 
                 console.log('✅ Sesión guardada, redirigiendo a onboarding o trips');
                 
+                // 📊 Registrar evento de TikTok Ads - CompleteRegistration
+                this.trackCompleteRegistration(userData.id, userData.email);
+                
                 // Redirigir según si completó el onboarding
                 if (userData.onboarding_completed) {
                   window.location.href = '/customer/trips';
@@ -255,4 +260,54 @@ export class SignUpComponent  implements OnInit {
     return this.registerForm.get('registerPass');
   }
 
+  /**
+   * Registra evento CompleteRegistration en TikTok Ads cuando el usuario se registra exitosamente
+   * Usa localStorage para evitar disparar el evento múltiples veces para el mismo usuario
+   * @param userId - ID del usuario registrado
+   * @param userEmail - Email del usuario registrado
+   */
+  private trackCompleteRegistration(userId: string, userEmail: string) {
+    // Verificar que TikTok Pixel esté disponible
+    if (typeof ttq === 'undefined') {
+      console.warn('⚠️ TikTok Pixel no disponible para CompleteRegistration');
+      return;
+    }
+
+    // Verificar si ya se disparó el evento para este usuario
+    const registrationTrackedKey = `ttq_registration_tracked_${userId}`;
+    const alreadyTracked = localStorage.getItem(registrationTrackedKey);
+    
+    if (alreadyTracked === 'true') {
+      console.log('ℹ️ CompleteRegistration ya fue enviado para este usuario, omitiendo...');
+      return;
+    }
+
+    try {
+      // Generar event_id único para evitar duplicados
+      const eventId = `${Date.now()}_${userId}`;
+      
+      ttq.track('CompleteRegistration', {
+        "contents": [
+          {
+            "content_id": userId,
+            "content_type": "user",
+            "content_name": "New User Registration"
+          }
+        ]
+      }, {
+        "event_id": eventId
+      });
+
+      // Marcar como enviado en localStorage
+      localStorage.setItem(registrationTrackedKey, 'true');
+
+      console.log('📊 TikTok Ads: CompleteRegistration event enviado', {
+        userId: userId,
+        userEmail: userEmail,
+        eventId: eventId
+      });
+    } catch (error) {
+      console.error('❌ Error al enviar CompleteRegistration a TikTok Ads:', error);
+    }
+  }
 }
