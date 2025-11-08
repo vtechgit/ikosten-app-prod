@@ -119,6 +119,45 @@ export class ProfilePage implements OnInit {
       }
     })
 
+    // 🔄 Recargar membresía activa cada vez que se entra a la página
+    // Esto actualiza la UI cuando el usuario compra una membresía
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (currentUser && currentUser.id) {
+      console.log('🔄 Recargando datos del usuario y membresía...');
+      
+      // Recargar datos completos del usuario desde el backend
+      this.api.read('leads/' + currentUser.id).subscribe(res => {
+        if(res && res['body']){
+          const userData = res['body'];
+          
+          // Actualizar userSession con los datos más recientes
+          this.userSession = {
+            _id: userData._id,
+            lead_name: userData.lead_name,
+            lead_email: userData.lead_email,
+            lead_phone: userData.lead_phone || '',
+            lead_country: userData.lead_country || '',
+            lead_role: userData.lead_role,
+            lead_preferred_language: userData.lead_preferred_language || ''
+          };
+          
+          console.log('✅ Datos del usuario actualizados, role:', userData.lead_role);
+          
+          // Si el usuario ahora tiene rol premium, cargar su membresía
+          if(userData.lead_role > 0){
+            console.log('🔍 Cargando membresía activa...');
+            this.getActiveMembership();
+          } else {
+            console.log('ℹ️ Usuario sin rol premium, no hay membresía');
+            this.activeMebership = null;
+          }
+        }
+      }, error => {
+        console.error('❌ Error recargando datos del usuario:', error);
+      });
+    }
+
   }
   ngOnInit() {
 
@@ -327,6 +366,8 @@ export class ProfilePage implements OnInit {
       return;
     }
 
+    // Cancelar con período de gracia (sin immediate: true)
+    // El usuario mantiene acceso hasta el próximo ciclo de facturación
     this.api.update(`purchasedMemberships/cancel/${this.activeMebership._id}`, {}).subscribe(
       (res) => {
         if (!res['error']) {
@@ -338,14 +379,11 @@ export class ProfilePage implements OnInit {
             alert.present();
           });
           
-          // NO cambiar lead_role aquí - el usuario mantiene acceso hasta el fin del período
-          // El backend y el job periódico se encargan de actualizar el rol cuando expire
-          
           // Forzar actualización de datos del usuario desde el backend
-          // Esto asegura que cualquier cambio se refleje inmediatamente
           this.authService.forceRefreshUserData();
           
           // Recargar datos de membresía
+          // La membresía CANCELADA aún debe mostrarse porque está en período de gracia
           this.getActiveMembership();
         } else {
           this.showAlertError = true;

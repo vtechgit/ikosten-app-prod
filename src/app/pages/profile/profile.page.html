@@ -49,10 +49,22 @@
             <p class="plan-description" *ngIf="activeMebership.membershipPlan?.membership_sub_title">
               {{activeMebership.membershipPlan.membership_sub_title | translate}}
             </p>
-            <div class="plan-status">
+            
+            <!-- Estado de la membresía -->
+            <div class="plan-status" *ngIf="activeMebership.purchasedMembership_status === 'ACTIVE'">
               <ion-icon name="ellipse" color="success"></ion-icon>
               <span>{{'titles.modules.profile.active-plan' | translate}}</span>
             </div>
+            <div class="plan-status" *ngIf="activeMebership.purchasedMembership_status === 'CANCELLED'">
+              <ion-icon name="ellipse" color="warning"></ion-icon>
+              <span>{{'titles.modules.profile.cancelled-plan' | translate}}</span>
+            </div>
+            
+            <!-- Mensaje de cancelación con período de gracia -->
+            <ion-note color="warning" *ngIf="activeMebership.purchasedMembership_status === 'CANCELLED' && activeMebership.purchasedMembership_next_billing" class="grace-period-note">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              {{'titles.modules.profile.membership.grace-period' | translate}} {{activeMebership.purchasedMembership_next_billing | date: 'dd/MM/yyyy'}}
+            </ion-note>
             
             <!-- Información adicional de la membresía -->
             <div class="membership-details" *ngIf="activeMebership">
@@ -61,7 +73,17 @@
                 <span class="detail-label">{{'titles.modules.profile.membership.start-date' | translate}}:</span>
                 <span class="detail-value">{{activeMebership.purchasedMembership_date | date: 'dd/MM/yyyy'}}</span>
               </div>
-              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_recurring">
+              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_cancelled_date">
+                <ion-icon name="close-circle-outline" color="warning"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.cancelled-date' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_cancelled_date | date: 'dd/MM/yyyy'}}</span>
+              </div>
+              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_next_billing">
+                <ion-icon name="calendar-clear-outline" color="medium"></ion-icon>
+                <span class="detail-label">{{'titles.modules.profile.membership.expires' | translate}}:</span>
+                <span class="detail-value">{{activeMebership.purchasedMembership_next_billing | date: 'dd/MM/yyyy'}}</span>
+              </div>
+              <div class="detail-item" *ngIf="activeMebership.purchasedMembership_recurring && activeMebership.purchasedMembership_status === 'ACTIVE'">
                 <ion-icon name="sync-outline" color="medium"></ion-icon>
                 <span class="detail-label">{{'titles.modules.profile.membership.billing' | translate}}:</span>
                 <span class="detail-value">{{activeMebership.purchasedMembership_currency}} ${{activeMebership.purchasedMembership_value}} / {{'titles.modules.profile.membership.month' | translate}}</span>
@@ -69,7 +91,9 @@
               <div class="detail-item">
                 <ion-icon name="card-outline" color="medium"></ion-icon>
                 <span class="detail-label">{{'titles.modules.profile.membership.status' | translate}}:</span>
-                <span class="detail-value status-active">{{activeMebership.purchasedMembership_status}}</span>
+                <span class="detail-value" [class.status-active]="activeMebership.purchasedMembership_status === 'ACTIVE'" [class.status-cancelled]="activeMebership.purchasedMembership_status === 'CANCELLED'">
+                  {{activeMebership.purchasedMembership_status}}
+                </span>
               </div>
             </div>
           </div>

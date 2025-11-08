@@ -284,12 +284,25 @@ export class MembershipsPage implements OnInit {
             actions.subscription.get().then(details => {
               console.log('onApprove - you can get full order details inside onApprove: ', details);
 
+              // Detectar si es trial: si el membership tiene trial_days > 0, el valor inicial es 0
+              const isTrialSubscription = membership.membership_trial_days && membership.membership_trial_days > 0;
+              const initialValue = isTrialSubscription ? '0' : membership.membership_price;
+              
+              console.log('📋 Creando purchased membership:', {
+                membershipId: membership._id,
+                hasTrial: isTrialSubscription,
+                trialDays: membership.membership_trial_days,
+                initialValue: initialValue,
+                regularPrice: membership.membership_price,
+                fullMembershipObject: membership
+              });
+
               this.api.create('purchasedMemberships/new',{
                 order_id: data.orderID,
                 subscription_id: data.subscriptionID,
                 lead_id: this.userSession._id,
                 payer_id: details.subscriber.payer_id,
-                value: membership.membership_price,
+                value: initialValue, // 0 si hay trial, precio regular si no hay trial
                 membership_plan_id: membership._id,
                 plan_id: details.plan_id,
                 error: '',

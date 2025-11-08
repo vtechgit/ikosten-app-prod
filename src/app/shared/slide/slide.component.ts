@@ -135,6 +135,11 @@ export class SlideComponent  implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
+          // Ignorar errores de cancelación (status 0) que ocurren cuando el componente se destruye
+          if (error.status === 0) {
+            console.log('ℹ️ Petición de actualización cancelada (componente destruido o navegación)');
+            return;
+          }
           console.error('❌ Error al actualizar datos del usuario:', error);
           // No es crítico, simplemente mantener los datos actuales
         }

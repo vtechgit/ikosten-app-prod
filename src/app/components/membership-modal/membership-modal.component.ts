@@ -41,6 +41,9 @@ export class MembershipModalComponent implements OnChanges {
   modalOpenTime: number = 0;
   viewedPlans: string[] = [];
   
+  // Payment success flag (to avoid sending trial declined webhook on successful payment)
+  paymentSuccessful: boolean = false;
+  
   // Alerts
   showAlertError: boolean = false;
   showAlertSuccess: boolean = false;
@@ -104,6 +107,7 @@ export class MembershipModalComponent implements OnChanges {
     if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
       this.modalOpenTime = Date.now(); // Registrar tiempo de apertura
       this.viewedPlans = []; // Resetear planes vistos
+      this.paymentSuccessful = false; // Resetear bandera de pago exitoso
       this.currentStep = 'plans'; // Resetear al paso inicial
       this.membershipSelected = null; // Limpiar selección previa
       this.payPalConfig = undefined; // Limpiar configuración de PayPal
@@ -352,6 +356,9 @@ export class MembershipModalComponent implements OnChanges {
                   }
                 }
                 
+                // Marcar pago como exitoso
+                this.paymentSuccessful = true;
+                
                 // Mostrar alerta de éxito
                 this.showAlertSuccess = true;
                 this.cdr.detectChanges();
@@ -473,13 +480,25 @@ export class MembershipModalComponent implements OnChanges {
         actions.subscription.get().then(details => {
           console.log('onApprove - subscription details: ', details);
 
+          // Detectar si es trial: si el membership tiene trial_days > 0, el valor inicial es 0
+          const isTrialSubscription = membership.membership_trial_days && membership.membership_trial_days > 0;
+          const initialValue = isTrialSubscription ? '0' : membership.membership_price;
+          
+          console.log('📋 Creando purchased membership:', {
+            membershipId: membership._id,
+            hasTrial: isTrialSubscription,
+            trialDays: membership.membership_trial_days,
+            initialValue: initialValue,
+            regularPrice: membership.membership_price
+          });
+
           // Crear registro de membresía comprada
           this.api.create('purchasedMemberships/new', {
             order_id: data.orderID,
             subscription_id: data.subscriptionID,
             lead_id: this.userSession.id,
             payer_id: details.subscriber.payer_id,
-            value: membership.membership_price,
+            value: initialValue, // 0 si hay trial, precio regular si no hay trial
             membership_plan_id: membership._id,
             plan_id: details.plan_id,
             error: '',
@@ -554,6 +573,9 @@ export class MembershipModalComponent implements OnChanges {
                 }
               }
               
+              // Marcar pago como exitoso
+              this.paymentSuccessful = true;
+              
               // Mostrar alerta de éxito
               this.currentStep = 'plans'; // Volver al paso de planes
               this.showAlertSuccess = true;
@@ -605,9 +627,16 @@ export class MembershipModalComponent implements OnChanges {
 
   onSuccessPayment() {
     this.showAlertSuccess = false;
-    this.closeModal();
-    // Recargar la página para reflejar los cambios
-    window.location.reload();
+    
+    // Marcar que el pago fue exitoso para evitar el webhook de trial declined
+    this.paymentSuccessful = true;
+    
+    // Emitir el dismiss sin tracking de rechazo
+    this.dismiss.emit();
+    
+    // Navegar a la página de trips después de comprar
+    console.log('🎉 Navegando a /customer/trips después de compra exitosa');
+    this.router.navigate(['/customer/trips']);
   }
 
   /**
@@ -647,6 +676,12 @@ export class MembershipModalComponent implements OnChanges {
    * @param action - Tipo de acción: 'maybe_later', 'close_button', 'modal_dismiss'
    */
   private sendTrialDeclined(action: 'maybe_later' | 'close_button' | 'modal_dismiss') {
+    // NO enviar si el pago fue exitoso
+    if (this.paymentSuccessful) {
+      console.log('✅ Pago exitoso: no se envía webhook de trial declined');
+      return;
+    }
+    
     // Solo enviar si el modal estuvo abierto (evitar duplicados)
     if (this.modalOpenTime === 0) {
       return;
