@@ -19,6 +19,9 @@ export const environment = {
     tokenStorageKey: 'ikosten_access_token',
     refreshTokenStorageKey: 'ikosten_refresh_token',
     userStorageKey: 'ikosten_user_data'
+  },
+  paypal: {
+    clientId: 'ASDX2c3inPc0fEtqcE4TIY_Kj6cXg3caX0pu5PuWJwcIacT0JhqXQO14LM5D0LNTkCrjqot2UGjmrCBa'
   }
 };
 

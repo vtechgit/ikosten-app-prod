@@ -6,6 +6,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { PaymentService, PaymentProduct } from '../../services/payment.service';
 import { IPayPalConfig, ICreateSubscriptionRequest } from 'ngx-paypal';
+import { environment } from '../../../environments/environment';
 declare var ttq;
 
 @Component({
@@ -462,7 +463,7 @@ export class MembershipModalComponent implements OnChanges {
     // Configurar PayPal
     this.payPalConfig = {
       currency: 'USD',
-      clientId: 'ASDX2c3inPc0fEtqcE4TIY_Kj6cXg3caX0pu5PuWJwcIacT0JhqXQO14LM5D0LNTkCrjqot2UGjmrCBa',      
+      clientId: environment.paypal.clientId,      
       createSubscriptionOnClient: (data) => <ICreateSubscriptionRequest>{
         plan_id: this.membershipSelected.membership_sub_id,
       },
