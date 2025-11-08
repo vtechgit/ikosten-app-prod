@@ -560,14 +560,16 @@ export class MembershipModalComponent implements OnChanges {
                         "content_name": membership.membership_title || "Membership Plan"
                       }
                     ],
-                    "value": membership.membership_price,
+                    "value": initialValue, // Usar initialValue en lugar de membership_price
                     "currency": membership.membership_currency || "USD"
                   });
                   console.log('📊 TikTok Ads: Purchase event enviado (PayPal)', {
                     planId: membership._id,
                     planName: membership.membership_title,
-                    value: membership.membership_price,
-                    currency: membership.membership_currency
+                    value: initialValue, // 0 si es trial, 20 si no
+                    regularPrice: membership.membership_price,
+                    currency: membership.membership_currency,
+                    isTrial: isTrialSubscription
                   });
                 } catch (error) {
                   console.error('❌ Error al enviar evento de TikTok Ads:', error);
