@@ -257,8 +257,22 @@ export class MembershipModalComponent implements OnChanges {
       // Mostrar loading
       this.isLoadingMemberships = true;
       
-      // Iniciar compra
-      const result = await this.paymentService.purchaseProduct(membership.membership_in_app_product_id);
+      // 🆕 Buscar el producto para obtener el packageId
+      const inAppProduct = this.inAppProducts.find(
+        p => p.id === membership.membership_in_app_product_id
+      );
+
+      console.log('📦 Producto encontrado para compra:', {
+        productId: membership.membership_in_app_product_id,
+        packageId: inAppProduct?.packageId,
+        hasPackage: !!inAppProduct?.packageId
+      });
+      
+      // Iniciar compra (con packageId si está disponible)
+      const result = await this.paymentService.purchaseProduct(
+        membership.membership_in_app_product_id,
+        inAppProduct?.packageId // 🆕 Pasar packageId para usar Offerings
+      );
       
       this.isLoadingMemberships = false;
       

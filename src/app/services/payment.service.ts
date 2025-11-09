@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Purchases, LOG_LEVEL, PURCHASES_ERROR_CODE, PurchasesStoreProduct } from '@revenuecat/purchases-capacitor';
+import { Purchases, LOG_LEVEL, PURCHASES_ERROR_CODE, PurchasesStoreProduct, PurchasesOfferings, PurchasesPackage } from '@revenuecat/purchases-capacitor';
 import { environment } from '../../environments/environment';
 
 export interface PaymentProduct {
@@ -10,6 +10,8 @@ export interface PaymentProduct {
   price: string;
   priceAmount: number;
   currency: string;
+  packageId?: string; // 🆕 ID del package de RevenueCat
+  rcProduct?: PurchasesStoreProduct; // 🆕 Producto completo de RevenueCat para compra
 }
 
 export interface PurchaseResult {
@@ -141,22 +143,46 @@ export class PaymentService {
     }
 
     try {
-      console.log('🛒 PaymentService: Obteniendo productos:', productIds);
+      console.log('🛒 PaymentService: Obteniendo productos desde Offerings...');
       
-      const { products } = await Purchases.getProducts({
-        productIdentifiers: productIds,
-      });
+      // Usar Offerings en lugar de getProducts directamente
+      const offeringsResult: PurchasesOfferings = await Purchases.getOfferings();
 
-      console.log('📦 PaymentService: Productos obtenidos:', products);
+      console.log('📦 PaymentService: Offerings obtenidos:', offeringsResult);
 
-      const paymentProducts: PaymentProduct[] = products.map((product: PurchasesStoreProduct) => ({
-        id: product.identifier,
-        title: product.title,
-        description: product.description,
-        price: product.priceString,
-        priceAmount: product.price,
-        currency: product.currencyCode,
-      }));
+      if (!offeringsResult.current || !offeringsResult.current.availablePackages) {
+        console.warn('⚠️ No hay offerings disponibles');
+        return [];
+      }
+
+      const paymentProducts: PaymentProduct[] = [];
+
+      // Iterar sobre los packages del offering actual
+      for (const pkg of offeringsResult.current.availablePackages) {
+        const product = pkg.product;
+        
+        // Verificar si este producto está en la lista de IDs solicitados
+        if (productIds.includes(product.identifier)) {
+          paymentProducts.push({
+            id: product.identifier,
+            title: product.title,
+            description: product.description,
+            price: product.priceString,
+            priceAmount: product.price,
+            currency: product.currencyCode,
+            packageId: pkg.identifier, // 🆕 Guardar el package ID
+            rcProduct: product // 🆕 Guardar producto completo para compra
+          });
+
+          console.log('✅ Producto encontrado:', {
+            id: product.identifier,
+            title: product.title,
+            price: product.priceString,
+            packageId: pkg.identifier,
+            introPrice: product.introPrice // Aquí estará el trial info
+          });
+        }
+      }
 
       return paymentProducts;
     } catch (error) {
@@ -168,8 +194,9 @@ export class PaymentService {
   /**
    * Inicia el proceso de compra de un producto
    * @param productId ID del producto a comprar
+   * @param packageId ID del package de RevenueCat (opcional pero recomendado)
    */
-  async purchaseProduct(productId: string): Promise<PurchaseResult> {
+  async purchaseProduct(productId: string, packageId?: string): Promise<PurchaseResult> {
     if (!this.isNativePlatform || !this.isInitialized) {
       return {
         success: false,
@@ -182,49 +209,84 @@ export class PaymentService {
       console.log('📱 PaymentService: Plataforma detectada:', this.platform.platforms());
       console.log('🔑 PaymentService: SDK inicializado:', this.isInitialized);
       
-      // Primero obtener el producto completo
-      const { products } = await Purchases.getProducts({
-        productIdentifiers: [productId],
-      });
+      let customerInfo;
 
-      console.log('📦 PaymentService: Respuesta de getProducts:', { 
-        count: products?.length || 0, 
-        products: products 
-      });
-
-      if (!products || products.length === 0) {
-        console.error('❌ PaymentService: No se encontró el producto:', productId);
-        console.error('❌ Posibles causas:');
-        console.error('   1. Producto no configurado en App Store Connect');
-        console.error('   2. Product ID incorrecto en la base de datos');
-        console.error('   3. Producto no importado en RevenueCat');
-        console.error('   4. Bundle ID no coincide entre Xcode y App Store Connect');
-        console.error('   5. API Key de iOS incorrecta');
-        console.error('   6. Necesitas configurar StoreKit Testing en simulador');
-        console.error('💡 Solución: Ver FIX_PRODUCT_NOT_FOUND_IOS.md');
+      // 🆕 Si se proporciona packageId, usar purchasePackage (recomendado)
+      if (packageId) {
+        console.log('📦 Comprando usando package:', packageId);
         
-        // 🔧 MENSAJE ESPECÍFICO PARA APPLE REVIEW
-        let errorMessage = 'Producto no encontrado en la tienda';
+        const offeringsResult: PurchasesOfferings = await Purchases.getOfferings();
         
-        if (this.isAppleReviewMode()) {
-          errorMessage = 'Subscription feature is currently under review. For testing purposes, please use a sandbox Apple ID account or contact support. This is expected during the app review process.';
-          console.log('🍎 Apple Review Mode detected - providing specific message for reviewers');
+        if (!offeringsResult.current) {
+          throw new Error('No hay offering actual configurado en RevenueCat');
         }
-        
-        throw new Error(errorMessage);
-      }
 
-      const product = products[0];
-      console.log('✅ PaymentService: Producto encontrado:', {
-        identifier: product.identifier,
-        title: product.title,
-        price: product.priceString,
-        description: product.description
-      });
-      
-      const { customerInfo } = await Purchases.purchaseStoreProduct({
-        product: product
-      });
+        const pkg = offeringsResult.current.availablePackages.find(
+          (p: PurchasesPackage) => p.identifier === packageId
+        );
+
+        if (!pkg) {
+          throw new Error(`Package ${packageId} no encontrado en offering`);
+        }
+
+        console.log('✅ Package encontrado:', {
+          identifier: pkg.identifier,
+          product: pkg.product.identifier,
+          title: pkg.product.title,
+          price: pkg.product.priceString,
+          introPrice: pkg.product.introPrice // Trial info
+        });
+
+        const result = await Purchases.purchasePackage({ aPackage: pkg });
+        customerInfo = result.customerInfo;
+      } else {
+        // Método legacy: usar purchaseStoreProduct directamente
+        console.log('⚠️ Comprando sin package (método legacy)');
+        
+        const { products } = await Purchases.getProducts({
+          productIdentifiers: [productId],
+        });
+
+        console.log('📦 PaymentService: Respuesta de getProducts:', { 
+          count: products?.length || 0, 
+          products: products 
+        });
+
+        if (!products || products.length === 0) {
+          console.error('❌ PaymentService: No se encontró el producto:', productId);
+          console.error('❌ Posibles causas:');
+          console.error('   1. Producto no configurado en App Store Connect');
+          console.error('   2. Product ID incorrecto en la base de datos');
+          console.error('   3. Producto no importado en RevenueCat');
+          console.error('   4. Bundle ID no coincide entre Xcode y App Store Connect');
+          console.error('   5. API Key de iOS incorrecta');
+          console.error('   6. Necesitas configurar StoreKit Testing en simulador');
+          console.error('💡 Solución: Ver FIX_PRODUCT_NOT_FOUND_IOS.md');
+          
+          // 🔧 MENSAJE ESPECÍFICO PARA APPLE REVIEW
+          let errorMessage = 'Producto no encontrado en la tienda';
+          
+          if (this.isAppleReviewMode()) {
+            errorMessage = 'Subscription feature is currently under review. For testing purposes, please use a sandbox Apple ID account or contact support. This is expected during the app review process.';
+            console.log('🍎 Apple Review Mode detected - providing specific message for reviewers');
+          }
+          
+          throw new Error(errorMessage);
+        }
+
+        const product = products[0];
+        console.log('✅ PaymentService: Producto encontrado:', {
+          identifier: product.identifier,
+          title: product.title,
+          price: product.priceString,
+          description: product.description
+        });
+        
+        const result = await Purchases.purchaseStoreProduct({
+          product: product
+        });
+        customerInfo = result.customerInfo;
+      }
 
       console.log('✅ PaymentService: Compra exitosa:', customerInfo);
 
